@@ -1,14 +1,10 @@
 #!/usr/bin/env python
 
 """The test script to perform the binary classification on the digits from the MNIST dataset.
-   The MNIST data is exported using the xbob.db.mnist module which provide the train and test 
-   partitions for the digits. Pixel values of grey scale images are used as features and the
-   available algorithms for classification are Lut based Boosting and Stump based Boosting.
-   The script test digits provided by the command line. Thus it conducts only one binary classifcation test. 
-
-   Usage:
-   mnist_binary_one -t <trainner_type> -r <rounds_of_boosting> -l <loss_function> -s <selection_type> 
-                     -n <num_of_lut_entries> -d1 <digit1_for_classification> -d2 <digit2_for_classification>
+The MNIST data is exported using the xbob.db.mnist module which provide the train and test 
+partitions for the digits. Pixel values of grey scale images are used as features and the
+available algorithms for classification are Lut based Boosting and Stump based Boosting.
+The script test digits provided by the command line. Thus it conducts only one binary classifcation test. 
 
 """
 
