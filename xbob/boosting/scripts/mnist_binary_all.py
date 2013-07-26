@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
 """The test script to perform the binary classification on the digits from the MNIST dataset.
-    Pixel values of grey scale images are used as features and the available algorithms
-    for classification are Lut based Boosting and Stump based Boosting.
-   The script test all the possible combination of the two digits which results in 45 different 
-   binary classfication tests.
+Pixel values of grey scale images are used as features and the available algorithms
+for classification are Lut based Boosting and Stump based Boosting.
+The script test all the possible combination of the two digits which results in 45 different 
+binary classfication tests.
 
 
 """
