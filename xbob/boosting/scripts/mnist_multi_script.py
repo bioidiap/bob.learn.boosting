@@ -7,6 +7,8 @@ num_train_samples = 10000
 accu = 0
 num = 0
 
+
+
 # download the training and testing dataset for digits 1 and 2
 db_object = xbob.db.mnist.Database()
 

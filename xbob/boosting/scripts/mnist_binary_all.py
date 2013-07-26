@@ -82,6 +82,8 @@ def main():
     accu = accu/test_num
 
     print "The average accuracy for all the test is %f " % (accu)
+    return 0
+
 
 if __name__ == "__main__":
    main()
