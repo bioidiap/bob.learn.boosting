@@ -89,6 +89,8 @@ setup(
       'console_scripts': [
         'mnist_binary_all.py = xbob.boosting.scripts.mnist_binary_all:main',
         'mnist_binary_one.py = xbob.boosting.scripts.mnist_binary_one:main',
+        'mnist_multi.py = xbob.boosting.scripts.mnist_multi:main',
+        'mnist_lbp.py = xbob.boosting.scripts.mnist_lbp:main',
         ],
 
       # tests that are _exported_ (that can be executed by other packages) can

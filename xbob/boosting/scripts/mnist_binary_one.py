@@ -4,7 +4,8 @@
 The MNIST data is exported using the xbob.db.mnist module which provide the train and test 
 partitions for the digits. Pixel values of grey scale images are used as features and the
 available algorithms for classification are Lut based Boosting and Stump based Boosting.
-The script test digits provided by the command line. Thus it conducts only one binary classifcation test. 
+Thus it conducts only one binary classifcation test. 
+
 
 """
 
@@ -14,7 +15,7 @@ import numpy
 import sys, getopt
 import string
 import argparse
-from ..core import booster
+from ..core import boosting
 import xbob.db.mnist 
 
 def main():
@@ -53,7 +54,7 @@ def main():
 
 
     # Initilize the trainer with 'LutTrainer' or 'StumpTrainer'
-    boost_trainer = booster.Boost(args.trainer_type)
+    boost_trainer = boosting.Boost(args.trainer_type)
 
     # Set the parameters for the boosting
     boost_trainer.num_rnds = args.num_rnds             

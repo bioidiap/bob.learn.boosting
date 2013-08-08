@@ -15,7 +15,7 @@ import numpy
 import sys, getopt
 import argparse
 import string
-from ..core import booster
+from ..core import boosting
 import xbob.db.mnist
 
 def main():
@@ -57,7 +57,7 @@ def main():
 
 
             # Initilize the trainer with 'LutTrainer' or 'StumpTrainer'
-            boost_trainer = booster.Boost(args.trainer_type)
+            boost_trainer = boosting.Boost(args.trainer_type)
 
             # Set the parameters for the boosting
             boost_trainer.num_rnds = args.num_rnds             

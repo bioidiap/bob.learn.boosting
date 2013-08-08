@@ -1,7 +1,6 @@
 import xbob.db.mnist
 import numpy as np
-import DummyBoost
-import boostMachine
+import booster
 
 num_train_samples = 10000
 accu = 0
@@ -48,10 +47,10 @@ label_ts[label_ts == digit2] = -1
 #label_ts = label_ts[:,np.newaxis]
 
 
-boost_trainer = DummyBoost.Boost('LutTrainer')
+boost_trainer = booster.Boost('LutTrainer')
 
 # Set the parameters for the boosting
-boost_trainer.num_rnds = 20               # The number of rounds in boosting
+boost_trainer.num_rnds = 1              # The number of rounds in boosting
 boost_trainer.bl_type = 'exp'        # Type of baseloss functions l(y,f(x)), its can take one of these values ('exp', 'log', 'symexp', 'symlog')
 boost_trainer.s_type = 'indep'       # It can be 'indep' or 'shared' for details check cosim thesis
 boost_trainer.num_entries = 256        # The number of entries in the LUT, it is the range of the discrete features
