@@ -31,16 +31,17 @@ class lbp_feature():
                 sy = isy +1
                 blk_int = int_img[sy+1:,sx+1:] + int_img[0:-(sy+1),0:-(sx+1)] - int_img[sy+1:,0:-(sx+1)] - int_img[0:-(sy+1),sx+1:]
                 blk_int = int_img[sy:,sx:] + int_img[0:-sy,0:-sx] - int_img[sy:,0:-sx] - int_img[0:-sy,sx:]
-                fmap_dimy, fmap_dimx = blk_int.shape -2
+                fmap_dimy = blk_int.shape[0] -2
+                fmap_dimx = blk_int.shape[1] -2
                 coord = [[0,0],[0,1],[0,2],[1,2],[2,2],[2,1],[2,0],[1,0]]
 
                 if(self.ftype == 'lbp'):
                     fmap = self.lbp(coord, fmap_dimx, fmap_dimy, blk_int)
-                else(self.ftype == 'tlbp'):
+                elif(self.ftype == 'tlbp'):
                     fmap = self.tlbp(coord, fmap_dimx, fmap_dimy, blk_int)
-                else(self.ftype == 'dlbp'):
+                elif(self.ftype == 'dlbp'):
                     fmap = self.dlbp(coord, fmap_dimx, fmap_dimy, blk_int)
-                else(self.ftype == 'mlbp'):
+                elif(self.ftype == 'mlbp'):
                     fmap = self.mlbp(coord, fmap_dimx, fmap_dimy, blk_int)
 
                 vec = np.reshape(fmap,fmap.shape[0]*fmap.shape[1],1)
@@ -50,6 +51,7 @@ class lbp_feature():
     def lbp(self, coord, fmap_dimx, fmap_dimy, blk_int):
         num_neighbours = 8
         blk_center = blk_int[1:1+fmap_dimy,1:1+fmap_dimx]
+        fmap = np.zeros([fmap_dimy, fmap_dimx])
         for ind in range(num_neighbours):
             fmap = fmap + (2**ind)*(blk_int[coord[ind][0]:coord[ind][0] + fmap_dimy,coord[ind][1]:coord[ind][1] + fmap_dimx]>= blk_center)
         return fmap
@@ -57,6 +59,7 @@ class lbp_feature():
 
 
     def tlbp(self, coord, fmap_dimx, fmap_dimy, blk_int):
+        fmap = np.zeros([fmap_dimy, fmap_dimx])
         num_neighbour = 8
 
         for ind in range(num_neighbours):
@@ -92,9 +95,9 @@ class lbp_feature():
         return fmap
             
        
-    def get_feature_number(self, dimy, dimx, scale_y, scale_x)
+    def get_feature_number(self, dimy, dimx, scale_y, scale_x):
         img = np.zeros([dimy, dimx])
         feature_vector = self.get_features(img, scale_y, scale_x)
-        return feature_vector.shape
+        return feature_vector.shape[0]
 
 

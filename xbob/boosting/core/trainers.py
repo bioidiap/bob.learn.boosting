@@ -12,8 +12,6 @@
 
 import numpy
 import math
-from scipy import optimize
-
 
 
 class StumpTrainer():
@@ -33,7 +31,9 @@ class StumpTrainer():
 
     def compute_weak_trainer(self, fea, loss_grad):
 
-        """The function computes the weak stump trainer. It is called at each boosting round.
+        """ The function to compute weak Stump trainer.  
+        
+        The function computes the weak stump trainer. It is called at each boosting round.
         The best weak stump trainer is chosen to maximize the dot product of the outputs 
         and the weights (gain). The weights in the Adaboost are the negative of the loss gradient
         for exponential loss.
@@ -69,7 +69,9 @@ class StumpTrainer():
 
 
     def compute_thresh(self, fea ,loss_grad):
-        """  Function to compute the threshold for a single feature. The threshold is computed for 
+        """ Function computes the stump classifier (threshold) for a single feature 
+       
+        Function to compute the threshold for a single feature. The threshold is computed for 
         the given feature values using the weak learner algorithm given in the Voila Jones Robust Face classification
 
         Inputs:
@@ -80,7 +82,7 @@ class StumpTrainer():
 
         Return: weak stump classifier for given feature
 
-        threshold: threshold which minimizes the error
+        threshold: threshold that minimizes the error
         polarity: the polarity or the direction used for stump classification
         gain: gain of the classifier"""
 
@@ -104,7 +106,7 @@ class StumpTrainer():
         gain_max = numpy.absolute(gain[opt_id])
 
         # Find the corresponding threshold value
-        th = 0.0
+        threshold = 0.0
         if(opt_id == num_samp-1):
             threshold = fea[opt_id]
         else:
@@ -122,7 +124,9 @@ class StumpTrainer():
 
     def get_weak_scores(self,test_features):
 
-        """ The function computes the classification scores for the test features using 
+        """ The function to perform classification using a weak stump classifier.
+ 
+         The function computes the classification scores for the test features using 
         a weak stump trainer. Since we use the stump classifier the classification 
         scores are either +1 or -1.
         Input: self: a weak stump trainer
@@ -154,9 +158,27 @@ class LutTrainer():
 
     
     def __init__(self, num_entries, selection_type, num_op):
-        """ Function to initilize the weak LutTrainer. Each weak Luttrainer is specified with a 
+        """ Function to initilize the parameters.
+
+        Function to initilize the weak LutTrainer. Each weak Luttrainer is specified with a 
         LookUp Table and the feature index which corresponds to the feature on which the 
-        current classifier has to applied.  """
+        current classifier has to applied. 
+
+        Inputs: 
+        self:
+        num_entries: The number of entries for the LUT
+                     type: int
+        
+        selection_type: The feature selection can be either independent or shared. For independent 
+                        case the loss function is separately considered for each of the output. For
+                        shared selection type the sum of the loss function is taken over the outputs
+                        and a single feature is used for all the outputs. See Cosmin's thesis for more details.
+                       Type: string {'indep', 'shared'}
+
+        num_op: The number of outputs for the classification task. 
+                    type: Interger
+
+        """
         self.num_entries = num_entries
         self.luts = numpy.ones((num_entries, num_op), dtype = numpy.int)
         self.selection_type = selection_type
@@ -167,7 +189,23 @@ class LutTrainer():
 
     def compute_weak_trainer(self, fea, loss_grad):
 
-        """ The function to learn the weak LutTrainer.  """
+        """ The function to learn the weak LutTrainer.  
+     
+        The function searches for a features index that minimizes the the sum of the loss gradient and computes 
+        the LUT corresponding to that feature index. 
+
+        Inputs:
+        self: empty trainer object to be trained
+        
+        fea: The training features samples
+             type: integer numpy array (#number of samples x number of features)
+
+        loss_grad: The loss gradient values for the training samples
+              type: numpy array (#number of samples)
+
+        Return:
+        self: a trained LUT trainer
+        """
 
         # Initializations
         num_op = loss_grad.shape[1]
@@ -215,13 +253,18 @@ class LutTrainer():
 
      
     def compute_fgrad(self, loss_grad, fea):
-        """ The function computes the loss for whole set of features. The loss refers to the sum of the loss gradient
+        """ The function to compute the loss gradient for all the features.
+
+        The function computes the loss for whole set of features. The loss refers to the sum of the loss gradient
         of the features which have the same values.
   
-        Inputs: loss_grad: The loss gradient for the features. No. of samples x No. of outputs 
-                fea: set of features. No. of samples x No. of features
-
-        Output: sum_loss: the loss values for all features. No. of samples x No. of outputs"""
+        Inputs: 
+        loss_grad: The loss gradient for the features. No. of samples x No. of outputs 
+                   Type: float numpy array
+        fea: set of features. No. of samples x No. of features
+             
+        Output: 
+        sum_loss: the loss values for all features. No. of samples x No. of outputs"""
 
         # initialize values
         num_fea = len(fea[0])
@@ -243,7 +286,11 @@ class LutTrainer():
 
 
     def compute_hgrad(self, loss_grado,fval):
-        """ The function computes the loss for a single feature 
+        """ The function computes the loss for a single feature.
+
+        Function computes sum of the loss gradient that have same feature values. 
+        
+        
         Input: loss_grado: loss gradient for a single output values. No of Samples x 1
                fval: single feature selected for all samples. No. of samples x 1
 
@@ -262,9 +309,14 @@ class LutTrainer():
 
     def get_weak_scores(self, fset):
 	""" Function computes classification results according to current weak classifier
-        Input: fset: The set test features. No. of test samples x No. of total features
 
-        return: The classification scores of the features based on current weak classifier"""
+        Function classifies the features based on a single weak classifier. 
+
+        Input: 
+        fset: The set test features. No. of test samples x No. of total features
+
+        return: 
+        weak_scores: The classification scores of the features based on current weak classifier"""
         num_samp = len(fset)
         num_op = len(self.luts[0])
         weak_scores = numpy.zeros([num_samp,num_op])

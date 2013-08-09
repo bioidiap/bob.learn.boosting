@@ -33,6 +33,7 @@ def main():
     # Initializations
     accu = 0
     test_num = 0
+    img_size = 28
 
     # download the dataset
     db_object = xbob.db.mnist.Database()
@@ -61,17 +62,15 @@ def main():
             feature_extractor = local_feature.lbp_feature('lbp')
             scale_y = 4
             scale_x = 4
-            num_fea = feature_extractor.get_feature_number(28,28,scale_y, scale_x)
-            print num_fea
-            print img_train.shape[0]
+            num_fea = feature_extractor.get_feature_number(img_size,img_size,scale_y, scale_x)
             train_fea = numpy.zeros([img_train.shape[0], num_fea],dtype = 'uint8')
             test_fea = numpy.zeros([img_test.shape[0], num_fea], dtype = 'uint8')
             for img_num in range(img_train.shape[0]):
-                img = img_train[img_num,:].reshape([28,28])
+                img = img_train[img_num,:].reshape([img_size,img_size])
                 train_fea[img_num,:] = feature_extractor.get_features(img, scale_y, scale_x)
 
             for img_num in range(img_test.shape[0]):
-                img = img_test[img_num,:].reshape([28,28])
+                img = img_test[img_num,:].reshape([img_size,img_size])
                 test_fea[img_num,:] = feature_extractor.get_features(img, scale_y, scale_x)
 
 

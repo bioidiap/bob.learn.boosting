@@ -145,8 +145,8 @@ class Boost:
         loss_ = loss_class()
 
         # For lut trainer the features should be integers 
-        if(self.weak_trainer_type == 'LutTrainer'):
-            fset = fset.astype(int)
+        #if(self.weak_trainer_type == 'LutTrainer'):
+        #    fset = fset.astype(int)
 	
         # Start boosting iterations for num_rnds rounds
         for r in range(self.num_rnds):
