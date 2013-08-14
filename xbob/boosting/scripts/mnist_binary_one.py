@@ -52,6 +52,9 @@ def main():
     label_train[label_train == digit2] = -1
     label_test[label_test == digit2] = -1
 
+    print label_train.shape
+    print label_test.shape
+
 
     # Initilize the trainer with 'LutTrainer' or 'StumpTrainer'
     boost_trainer = boosting.Boost(args.trainer_type)

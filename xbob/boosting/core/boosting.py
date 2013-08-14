@@ -105,7 +105,7 @@ class Boost:
                    
         """
         self.num_rnds = 100
-        self. num_entries = 256
+        self.num_entries = 256
         self.loss_type = 'log' 
         self.lut_selection = 'indep'
         self.weak_trainer_type = trainer_type
@@ -115,7 +115,7 @@ class Boost:
 	
 	
     def train(self, fset, targets):
-        """ The function to traine a boosting machine.
+        """ The function to train a boosting machine.
      
          The function boosts the discrete features (fset) and returns a strong classifier 
 	 as a combintaion of weak classifier.
@@ -142,7 +142,7 @@ class Boost:
         num_samp = fset.shape[0]
         pred_scores = numpy.zeros([num_samp,num_op])
         loss_class = losses.LOSS_FUNCTIONS[self.loss_type]
-        loss_ = loss_class()
+        loss_func = loss_class()
 
         # For lut trainer the features should be integers 
         #if(self.weak_trainer_type == 'LutTrainer'):
@@ -153,30 +153,26 @@ class Boost:
 
             # For each round of boosting initialize a new weak trainer
             if(self.weak_trainer_type == 'LutTrainer'):
-                wl = trainers.LutTrainer(self.num_entries, self.lut_selection, num_op )
+                weak_trainer = trainers.LutTrainer(self.num_entries, self.lut_selection, num_op )
             elif (self.weak_trainer_type == 'StumpTrainer'):
-                wl = trainers.StumpTrainer()
-
+                weak_trainer = trainers.StumpTrainer()
 
             # Compute the gradient of the loss function, l'(y,f(x)) using loss_ class
-            loss_grad = loss_.update_loss_grad(targets,pred_scores)
-
+            loss_grad = loss_func.update_loss_grad(targets,pred_scores)
 
             # Select the best weak trainer for current round of boosting
-            curr_weak_trainer = wl.compute_weak_trainer(fset, loss_grad)
-
+            curr_weak_trainer = weak_trainer.compute_weak_trainer(fset, loss_grad)
 
             # Compute the classification scores of the samples based only on the current round weak classifier (g_r)
-            curr_pred_scores = wl.get_weak_scores(fset)
-
+            curr_pred_scores = weak_trainer.get_weak_scores(fset)
             
             # Initialize the start point for lbfgs minimization
             f0 = numpy.zeros(num_op)
 
 
             # Perform lbfgs minimization and compute the scale (alpha_r) for current weak trainer
-            ls_res = optimize.fmin_l_bfgs_b(loss_.loss_sum, f0, fprime = loss_.loss_grad_sum, args = (targets, pred_scores, curr_pred_scores)) 
-            alpha = ls_res[0]
+            lbfgs_struct = optimize.fmin_l_bfgs_b(loss_func.loss_sum, f0, fprime = loss_func.loss_grad_sum, args = (targets, pred_scores, curr_pred_scores)) 
+            alpha = lbfgs_struct[0]
 
 
             # Update the prediction score after adding the score from the current weak classifier f(x) = f(x) + alpha_r*g_r

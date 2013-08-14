@@ -15,8 +15,8 @@ import numpy
 import sys, getopt
 import argparse
 import string
-from xbob.boosting import boosting
-from xbob.boosting import local_feature
+from ..core import boosting
+from ..features import local_feature
 import xbob.db.mnist
 
 def main():
@@ -27,7 +27,7 @@ def main():
     parser.add_argument('-l', default = 'exp', dest = "loss_type", type= str, choices = {'log','exp'}, help = "The type of the loss function. Logit and Exponential functions are the avaliable options")
     parser.add_argument('-s', default = 'indep', dest = "selection_type", choices = {'indep', 'shared'}, type = str, help = "The feature selection type for the LUT based trainer. For multivarite case the features can be selected by sharing or independently ")
     parser.add_argument('-n', default = 256, dest = "num_entries", type = int, help = "The number of entries in the LookUp table. It is the range of the feature values, e.g. if LBP features are used this values is 256.")
-
+    parser.add_argument('-f', default = 'lbp', dest = "feature_type", type = str, choices = {'lbp','dlbp','tlbp','mlbp'}, help = "The type of block based feature to be extracted from the images.")
     args = parser.parse_args()
 
     # Initializations
@@ -59,7 +59,7 @@ def main():
 
 
             # Extract the local features from the images
-            feature_extractor = local_feature.lbp_feature('lbp')
+            feature_extractor = local_feature.lbp_feature(args.feature_type)
             scale_y = 4
             scale_x = 4
             num_fea = feature_extractor.get_feature_number(img_size,img_size,scale_y, scale_x)
@@ -75,7 +75,7 @@ def main():
 
 
             # Initilize the trainer with 'LutTrainer' or 'StumpTrainer'
-            boost_trainer = booster.Boost(args.trainer_type)
+            boost_trainer = boosting.Boost(args.trainer_type)
 
             # Set the parameters for the boosting
             boost_trainer.num_rnds = args.num_rnds             

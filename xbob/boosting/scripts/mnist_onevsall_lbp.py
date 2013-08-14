@@ -11,6 +11,7 @@ Thus it conducts only one binary classifcation test.
 
 
 import xbob.db.mnist
+import bob
 import numpy
 import sys, getopt
 import string
@@ -33,13 +34,40 @@ def main():
 
     # download the dataset
     db_object = xbob.db.mnist.Database()
-    train_fea, train_label = db_object.data('train',labels = range(10))
-    test_fea, test_label = db_object.data('test', labels = range(10))
+    train_img, train_label = db_object.data('train',labels = range(10))
+    test_img, test_label = db_object.data('test', labels = range(10))
     #test_label = test_label[:,numpy.newaxis]
 
+    # Extract the lbp features from the images
+    lbp_extractor = bob.ip.LBP(8)
+    img_size = 28
+    temp_img = train_img[0,:].reshape([img_size,img_size]) 
+    output_image_size = lbp_extractor.get_lbp_shape(temp_img)
+    feature_dimension = output_image_size[0]*output_image_size[1]
+    train_fea = numpy.zeros((train_img.shape[0], feature_dimension))
+    test_fea = numpy.zeros((test_img.shape[0], feature_dimension))
+
+    for i in range(train_img.shape[0]):
+        current_img = train_img[i,:].reshape([img_size,img_size])
+        lbp_output_image = numpy.ndarray ( output_image_size, dtype = numpy.uint16 )
+        lbp_extractor (current_img, lbp_output_image)
+        train_fea[i,:] = numpy.reshape(lbp_output_image, feature_dimension, 1)  
+
+    for i in range(test_img.shape[0]):
+        current_img = test_img[i,:].reshape([img_size,img_size])
+        lbp_output_image = numpy.ndarray ( output_image_size, dtype = numpy.uint16 )
+        lbp_extractor (current_img, lbp_output_image)
+        test_fea[i,:] = numpy.reshape(lbp_output_image, feature_dimension, 1)  
+    train_fea = train_fea.astype(numpy.uint8)
+    test_fea = test_fea.astype(numpy.uint8)
+
+
+    print "LBP features computed for the training and testing images."
     num_train_samples = 5000
     confusion_matrix = numpy.zeros([10,10])
 
+
+    # Start the tests for digits classification
     for digit1 in range(10):
         """
         # get the data (features and labels) for the selected digits from the xbob_db_mnist class functions
@@ -79,8 +107,6 @@ def main():
         # Perform boosting of the feature set samp 
         machine = boost_trainer.train(train_feature, train_classes)
 
-        print confusion_matrix
-        print "the accuracy for a single digit"
         for test_digit in range(10):
 
             # Select the feature and label for a current test digit
@@ -94,7 +120,6 @@ def main():
             # Calculate the accuracy in percentage for the curent classificaiton test
             current_label = current_label[:,numpy.newaxis]
             current_accuracy = 100*float(sum(prediction_labels == 1))/(len(current_label))
-            print current_accuracy
             confusion_matrix[digit1,test_digit] = 100*float(sum(prediction_labels == 1))/(len(current_label))
             #print "The accuracy of binary classification test with digits %d and %d is %f " % (digit1, test_digit, accuracy)
 

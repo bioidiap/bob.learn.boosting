@@ -22,7 +22,6 @@ import matplotlib.pyplot as mpl
 def main():
 
     parser = argparse.ArgumentParser(description = " The arguments for the boosting. ")
-    parser.add_argument('-t', default = 'LutTrainer',dest = "trainer_type", type = str, choices = {'StumpTrainer', 'LutTrainer'}, help = "This is the type of trainer used for the boosting." )
     parser.add_argument('-r', default = 20, dest = "num_rnds", type = int, help = "The number of round for the boosting")
     parser.add_argument('-l', default = 'exp', dest = "loss_type", type= str, choices = {'log','exp'}, help = "The type of the loss function. Logit and Exponential functions are the avaliable options")
     parser.add_argument('-s', default = 'indep', dest = "selection_type", choices = {'indep', 'shared'}, type = str, help = "The feature selection type for the LUT based trainer. For multivarite case the features can be selected by sharing or independently ")
@@ -55,7 +54,7 @@ def main():
 
 
     # Initilize the trainer with 'LutTrainer' or 'StumpTrainer'
-    boost_trainer = boosting.Boost(args.trainer_type)
+    boost_trainer = boosting.Boost('LutTrainer')
 
     # Set the parameters for the boosting
     boost_trainer.num_rnds = args.num_rnds     

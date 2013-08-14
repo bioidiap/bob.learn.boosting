@@ -38,7 +38,8 @@ class ExpLossFunction():
         Return:
         gradient: The loss gradient values for the samples     """
         loss = numpy.exp(-(targets * scores))
-        return -targets * loss
+        loss_grad = -targets * loss
+        return loss_grad
         #return loss_grad
 
     def loss_sum(self, *args):
