@@ -16,13 +16,15 @@ import sys, getopt
 import argparse
 import string
 from ..core import boosting
+from ..util import confusion
 import matplotlib.pyplot as mpl
  
 
 def main():
 
     parser = argparse.ArgumentParser(description = " The arguments for the boosting. ")
-    parser.add_argument('-r', default = 20, dest = "num_rnds", type = int, help = "The number of round for the boosting")
+    parser.add_argument('-r', default = 20, dest = "num_rnds", type = int, help = "The number of round for the boosting.")
+    parser.add_argument('-d', default = 10, dest = "num_digits", type = int, help = "The number of digits to be be tested.")
     parser.add_argument('-l', default = 'exp', dest = "loss_type", type= str, choices = {'log','exp'}, help = "The type of the loss function. Logit and Exponential functions are the avaliable options")
     parser.add_argument('-s', default = 'indep', dest = "selection_type", choices = {'indep', 'shared'}, type = str, help = "The feature selection type for the LUT based trainer. For multivarite case the features can be selected by sharing or independently ")
     parser.add_argument('-n', default = 256, dest = "num_entries", type = int, help = "The number of entries in the LookUp table. It is the range of the feature values, e.g. if LBP features are used this values is 256.")
@@ -32,7 +34,7 @@ def main():
     # download the dataset
     db_object = xbob.db.mnist.Database()
     # Hardcode the number of digits
-    num_digits = 10
+    num_digits = args.num_digits
 
 
     # get the data (features and labels) for the selected digits from the xbob_db_mnist class functions
@@ -71,40 +73,17 @@ def main():
     # Classify the test samples (testsamp) using the boosited classifier generated above
     prediction_labels = machine.classify(fea_test)
 
-
     # Calulate the values for confusion matrix
-    score = np.zeros([10,10])
+    confusion_matrix = numpy.zeros([num_digits,num_digits])
     for i in range(num_digits):
         prediction_i = prediction_labels[test_targets[:,i] == 1,:]
-        print prediction_i.shape
+        num_samples_i = prediction_i.shape[0]
         for j in range(num_digits):
-            score[i,j] = sum(prediction_i[:,j] == 1)
-    np.savetxt('conf_mat.out', score, delimiter=',')
-    cm = score/np.sum(score,1)
-    res = mpl.imshow(cm, cmap=mpl.cm.summer, interpolation='nearest')
+            confusion_matrix[j,i] = 100*(float(sum(prediction_i[:,j] == 1)/float(num_samples_i)))
 
-    for x in np.arange(cm.shape[0]):
-      for y in np.arange(cm.shape[1]):
-          col = 'white'
-          if cm[x,y] > 0.5: col = 'black'
-          mpl.annotate('%.2f' % (100*cm[x,y],), xy=(y,x), color=col,
-              fontsize=8, horizontalalignment='center', verticalalignment='center')
-
-    classes = [str(k) for k in range(10)]
-
-    mpl.xticks(np.arange(10), classes)
-    mpl.yticks(np.arange(10), classes, rotation=90)
-    mpl.ylabel("(Your prediction)")
-    mpl.xlabel("(Real class)")
-    mpl.title("Confusion Matrix (%s set) - in %%" % set_name)
-    mpl.show()
-
-
-    # Calculate the accuracy in percentage for the curent classificaiton test
-    accuracy = 100*float(sum(np.sum(prediction_labels == test_targets,1) == num_digits))/float(prediction_labels.shape[0])
-
-    print "The average accuracy of classification is %f " % (accuracy)
-
+    # Plot the confusion matrix
+    cm_title = 'MultiLUT_pixel_round' + str(args.num_rnds)
+    confusion.display_cm(confusion_matrix, 'LBP_round1')
 
 
 

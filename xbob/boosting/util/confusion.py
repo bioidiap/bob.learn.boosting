@@ -51,13 +51,13 @@ def confusion_matrix(expected, predicted):
 
 
 def display_cm(cm, title_str = "Confusion Matrix"):
-""" The function to display the confusion matrix given the confusion matrix numerically.
+    """ The function to display the confusion matrix given the confusion matrix numerically.
     
     Inputs:
     cm: The confusion matrix which to be displayed.
     title_str: The title for the confusion matrix.
 
-"""
+    """
 
     res = matplotlib.pyplot.imshow(cm, cmap=matplotlib.pyplot.cm.summer, interpolation='nearest')
 
