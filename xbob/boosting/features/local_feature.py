@@ -92,7 +92,7 @@ class lbp_feature():
                     feature_map = self.mlbp(coord, feature_map_dimx, feature_map_dimy, block_sum)
 
                 # reshape feature image into vector
-                temp_vector = numpy.reshape(feature_map,feature_map.shape[0]*fmap.shape[1],1)
+                temp_vector = numpy.reshape(feature_map,feature_map.shape[0]*feature_map.shape[1],1)
  
                 # concatenate the vector
                 feature_vector = numpy.hstack((feature_vector,temp_vector))
@@ -167,7 +167,7 @@ class lbp_feature():
 
         pc = block_sum[1:1+feature_map_dimy,1:1+feature_map_dimx]
         num_neighbours = 8
-        fmap = numpy.zeros([feature_map_dimy,feature_map_dimx])
+        feature_map = numpy.zeros([feature_map_dimy,feature_map_dimx])
         for ind in range(num_neighbours/2):
 
             """The comparison of pixel is done with the diagonal neighbours."""
@@ -175,9 +175,9 @@ class lbp_feature():
             pi4 = block_sum[coord[ind+4][0]:coord[ind+4][0]+ feature_map_dimy,coord[ind+4][1]:coord[ind+4][1] + feature_map_dimx]
 
             """ Compare the neighbours and increment the feature map. """
-            fmap = fmap + (2**ind)*((pi-pc)*(pi4 - pc) > 0) + (4**ind)*(abs(pi - pc) >= abs(pi4 -pc))
+            feature_map = feature_map + (2**ind)*((pi-pc)*(pi4 - pc) > 0) + (4**ind)*(abs(pi - pc) >= abs(pi4 -pc))
 
-        return fmap
+        return feature_map
 
 
 
@@ -211,7 +211,7 @@ class lbp_feature():
 
             """ Compare the neighbours and increment the feature map. """
             feature_map = feature_map + (2**ind)*(pi >= pm)
-        return fmap
+        return feature_map
             
        
     def get_feature_number(self, dimy, dimx, scale_y, scale_x):
