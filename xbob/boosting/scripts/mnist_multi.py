@@ -11,7 +11,7 @@
 
 
 import xbob.db.mnist
-import numpy as np
+import numpy
 import sys, getopt
 import argparse
 import string
@@ -47,8 +47,8 @@ def main():
     label_test = label_test.astype(int)
 
     # initialize the label data for multivariate case
-    train_targets = -np.ones([fea_train.shape[0],num_digits])
-    test_targets = -np.ones([fea_test.shape[0],num_digits])
+    train_targets = -numpy.ones([fea_train.shape[0],num_digits])
+    test_targets = -numpy.ones([fea_test.shape[0],num_digits])
 
     for i in range(num_digits):
         train_targets[label_train == i,i] = 1
@@ -83,7 +83,7 @@ def main():
 
     # Plot the confusion matrix
     cm_title = 'MultiLUT_pixel_round' + str(args.num_rnds)
-    confusion.display_cm(confusion_matrix, 'LBP_round1')
+    confusion.display_cm(confusion_matrix, cm_title)
 
 
 

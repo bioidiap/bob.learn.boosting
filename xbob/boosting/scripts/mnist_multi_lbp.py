@@ -107,7 +107,7 @@ def main():
 
     # Plot the confusion matrix
     cm_title = 'MultiLUT_LBP_round' + str(args.num_rnds)
-    confusion.display_cm(confusion_matrix, 'LBP_round1')
+    confusion.display_cm(confusion_matrix, cm_title)
 
 
 

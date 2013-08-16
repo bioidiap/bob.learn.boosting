@@ -7,7 +7,6 @@ features. """
 
 
 import numpy
-import math
 
 
 class lbp_feature():
@@ -28,7 +27,7 @@ class lbp_feature():
         self.ftype = ftype
 
 
-    def integral_img(self,img):
+    def compute_integral_image(self,img):
         """The function cumputes an intergal image for the given image.
 
         The function computes the intergral image for the effecient computation of the block based features.
@@ -39,11 +38,11 @@ class lbp_feature():
         return:
         int_img: The intergal image of the input image."""
 
-        integral_x = numpy.cumsum(img,0)
-        integral_img = numpy.cumsum(integral_x,1)
-        return integral_img
+        integral_y = numpy.cumsum(img,0)
+        integral_xy = numpy.cumsum(integral_y,1)
+        return integral_xy
 
-    def get_features(self,img,cx,cy):
+    def get_features(self, img, scale_max_x, scale_max_y):
         """The function computes the block based local features at different scales.
 
         The function extracts the block based local features at multiple scales from the image. The scale refers to
@@ -58,48 +57,50 @@ class lbp_feature():
         cy: The maximum rows for the block
 
         Return:
-        fvec: The concatenated feature vectors for all the scales."""
-        # Compute the intergal image and add zeros along row and col for block processing
-        int_imgc = self.integral_img(img)
+        feature_vector: The concatenated feature vectors for all the scales."""
+
+        # Compute the intergal image and pad zeros along row and col for block processing
+        integral_imgc = self.compute_integral_image(img)
         rows, cols = img.shape
-        int_img = numpy.zeros([rows+1,cols+1])
-        int_img[1:,1:] = int_imgc 
+        integral_img = numpy.zeros([rows+1,cols+1])
+        integral_img[1:,1:] = integral_imgc 
 
         # initialize
         num_neighbours = 8
         coord = [[0,0],[0,1],[0,2],[1,2],[2,2],[2,1],[2,0],[1,0]]
-        fvec = numpy.empty(0, dtype = 'uint8')
+        feature_vector = numpy.empty(0, dtype = 'uint8')
 
         # Vary the scale of the block and compute features
-        for xi in range(cx):
-            for yi in range(cy):
+        for scale_x in range(scale_max_x):
+            for scale_y in range(scale_max_y):
+
                 # Compute the sum of the blocks for the current scale
-                blk_int = int_img[yi+1:,xi+1:] + int_img[0:-(yi+1),0:-(xi+1)] - int_img[yi+1:,0:-(xi+1)] - int_img[0:-(yi+1),xi+1:]
+                block_sum = integral_img[scale_y+1:,scale_x+1:] + integral_img[0:-(scale_y+1),0:-(scale_x+1)] - integral_img[scale_y+1:,0:-(scale_x+1)] - integral_img[0:-(scale_y+1),scale_x+1:]
 
                 # Initialize the size of the final feature map that will be obtained
-                fmap_dimy = blk_int.shape[0] -2    
-                fmap_dimx = blk_int.shape[1] -2
+                feature_map_dimy = block_sum.shape[0] -2    
+                feature_map_dimx = block_sum.shape[1] -2
 
                 # extract the specific feature from the image
-                if(self.ftype == 'lbp'):
-                    fmap = self.lbp(coord, fmap_dimx, fmap_dimy, blk_int)
-                elif(self.ftype == 'tlbp'):
-                    fmap = self.tlbp(coord, fmap_dimx, fmap_dimy, blk_int)
-                elif(self.ftype == 'dlbp'):
-                    fmap = self.dlbp(coord, fmap_dimx, fmap_dimy, blk_int)
-                elif(self.ftype == 'mlbp'):
-                    fmap = self.mlbp(coord, fmap_dimx, fmap_dimy, blk_int)
+                if self.ftype == 'lbp':
+                    feature_map = self.lbp(coord, fmap_dimx, fmap_dimy, block_sum)
+                elif self.ftype == 'tlbp':
+                    feature_map = self.tlbp(coord, fmap_dimx, fmap_dimy, block_sum)
+                elif self.ftype == 'dlbp':
+                    feature_map = self.dlbp(coord, fmap_dimx, fmap_dimy, block_sum)
+                elif self.ftype == 'mlbp':
+                    feature_map = self.mlbp(coord, fmap_dimx, fmap_dimy, block_sum)
 
                 # reshape feature image into vector
-                vec = numpy.reshape(fmap,fmap.shape[0]*fmap.shape[1],1)
+                temp_vector = numpy.reshape(feature_map,feature_map.shape[0]*fmap.shape[1],1)
  
                 # concatenate the vector
-                fvec = numpy.hstack((fvec,vec))
-        return fvec
+                feature_vector = numpy.hstack((feature_vector,temp_vector))
+        return feature_vector
 
 
 
-    def lbp(self, coord, fmap_dimx, fmap_dimy, blk_int):
+    def lbp(self, coord, fmap_dimx, fmap_dimy, block_sum):
         """Function to compute the LBP for a image at single scale. 
 
         The LBP features of the given image is computed and the feature map is returned
@@ -110,21 +111,21 @@ class lbp_feature():
         fmap_dimy: Feature maps dimension along the rows.
 
         Return:
-        fmap: The lbp feature map
+        feature_map: The lbp feature map
         """
         num_neighbours = 8
-        blk_center = blk_int[1:1+fmap_dimy,1:1+fmap_dimx]
-        fmap = numpy.zeros([fmap_dimy, fmap_dimx])
+        blk_center = block_sum[1:1+fmap_dimy,1:1+fmap_dimx]
+        feature_map = numpy.zeros([fmap_dimy, fmap_dimx])
         for ind in range(num_neighbours):
-            fmap = fmap + (2**ind)*(blk_int[coord[ind][0]:coord[ind][0] + fmap_dimy,coord[ind][1]:coord[ind][1] + fmap_dimx]>= blk_center)
-        return fmap
+            feature_map = feature_map + (2**ind)*(block_sum[coord[ind][0]:coord[ind][0] + fmap_dimy,coord[ind][1]:coord[ind][1] + fmap_dimx]>= blk_center)
+        return feature_map
 
 
 
-    def tlbp(self, coord, fmap_dimx, fmap_dimy, blk_int):
+    def tlbp(self, coord, fmap_dimx, fmap_dimy, block_sum):
         """Function to compute the tLBP for a image at single scale. 
 
-        The LBP features of the given image is computed and the feature map is returned
+        The tLBP features of the given image is computed and the feature map is returned
 
         Inputs:
         coord: The coordinates specify the neighbour to be considered.
@@ -132,23 +133,28 @@ class lbp_feature():
         fmap_dimy: Feature maps dimension along the rows.
 
         Return:
-        fmap: The lbp feature map
+        feature_map: The lbp feature map
         """
 
-        fmap = numpy.zeros([fmap_dimy, fmap_dimx])
+        feature_map = numpy.zeros([fmap_dimy, fmap_dimx])
         num_neighbour = 8
 
+        """ Compute the feature map for the tLBP features. """
         for ind in range(num_neighbours):
-            comp_img = blk_int[coord[(ind+1)%num_neighbour][0]:coord[(ind+1)%num_neighbour][0] + fmap_dimy,coord[(ind+1)%num_neighbour][1]:coord[(ind+1)%num_neighbour][1] + fmap_dimx]
-            fmap = fmap + (2**ind)*(blk_int[coord[ind][0]:coord[ind][0] + fmap_dimy,coord[ind][1]:coord[ind][1] + fmap_dimx]>= comp_img)
-        return fmap
+            
+            """The comparison of pixel is done with the adjacent neighbours."""
+            comparing_img = block_sum[coord[(ind+1)%num_neighbour][0]:coord[(ind+1)%num_neighbour][0] + fmap_dimy,coord[(ind+1)%num_neighbour][1]:coord[(ind+1)%num_neighbour][1] + fmap_dimx]
+            
+            """ Compare the neighbours and increment the feature map. """
+            feature_map = feature_map + (2**ind)*(block_sum[coord[ind][0]:coord[ind][0] + fmap_dimy,coord[ind][1]:coord[ind][1] + fmap_dimx]>= comparing_img)
+        return feature_map
 
 
 
-    def dlbp(self, coord, fmap_dimx, fmap_dimy, blk_int):
+    def dlbp(self, coord, fmap_dimx, fmap_dimy, block_sum):
         """Function to compute the dLBP for a image at single scale. 
 
-        The LBP features of the given image is computed and the feature map is returned
+        The dLBP features of the given image is computed and the feature map is returned
 
         Inputs:
         coord: The coordinates specify the neighbour to be considered.
@@ -156,24 +162,29 @@ class lbp_feature():
         fmap_dimy: Feature maps dimension along the rows.
 
         Return:
-        fmap: The lbp feature map
+        feature_map: The lbp feature map
         """
 
-        pc = blk_int[1:1+fmap_dimy,1:1+fmap_dimx]
+        pc = block_sum[1:1+fmap_dimy,1:1+fmap_dimx]
         num_neighbours = 8
         fmap = numpy.zeros([fmap_dimy,fmap_dimx])
         for ind in range(num_neighbours/2):
-            pi = blk_int[coord[ind][0]:coord[ind][0]+ fmap_dimy,coord[ind][1]:coord[ind][1] + fmap_dimx]
-            pi4 = blk_int[coord[ind+4][0]:coord[ind+4][0]+ fmap_dimy,coord[ind+4][1]:coord[ind+4][1] + fmap_dimx]
+
+            """The comparison of pixel is done with the diagonal neighbours."""
+            pi = block_sum[coord[ind][0]:coord[ind][0]+ fmap_dimy,coord[ind][1]:coord[ind][1] + fmap_dimx]
+            pi4 = block_sum[coord[ind+4][0]:coord[ind+4][0]+ fmap_dimy,coord[ind+4][1]:coord[ind+4][1] + fmap_dimx]
+
+            """ Compare the neighbours and increment the feature map. """
             fmap = fmap + (2**ind)*((pi-pc)*(pi4 - pc) > 0) + (4**ind)*(abs(pi - pc) >= abs(pi4 -pc))
+
         return fmap
 
 
 
-    def mlbp(self, coord, fmap_dimx, fmap_dimy, blk_int):
+    def mlbp(self, coord, fmap_dimx, fmap_dimy, block_sum):
         """Function to compute the mLBP for a image at single scale. 
 
-        The LBP features of the given image is computed and the feature map is returned
+        The mLBP features of the given image is computed and the feature map is returned. 
 
         Inputs:
         coord: The coordinates specify the neighbour to be considered.
@@ -181,19 +192,25 @@ class lbp_feature():
         fmap_dimy: Feature maps dimension along the rows.
 
         Return:
-        fmap: The lbp feature map
+        feature_map: The lbp feature map
         """
 
         num_neighbours = 8
         pm = numpy.zeros([fmap_dimy,fmap_dimx])
+
+        """The comparison of pixel is done with the average of the neighbours and central pixel."""
         for ind in range(num_neighbours):
-            pm = pm + blk_int[coord[ind][0]:coord[ind][0]+ fmap_dimy,coord[ind][1]:coord[ind][1] + fmap_dimx]
+            pm = pm + block_sum[coord[ind][0]:coord[ind][0]+ fmap_dimy,coord[ind][1]:coord[ind][1] + fmap_dimx]
         pm = pm/num_neighbours
 
-        fmap = numpy.zeros([fmap_dimy,fmap_dimx])
+        feature_map = numpy.zeros([fmap_dimy,fmap_dimx])
         for ind in range(num_neighbours):
-            pi = blk_int[coord[ind][0]:coord[ind][0]+ fmap_dimy,coord[ind][1]:coord[ind][1] + fmap_dimx]
-            fmap = fmap + (2**ind)*(pi >= pm)
+
+            """ Select the value of the current neighbour.""" 
+            pi = block_sum[coord[ind][0]:coord[ind][0]+ fmap_dimy,coord[ind][1]:coord[ind][1] + fmap_dimx]
+
+            """ Compare the neighbours and increment the feature map. """
+            feature_map = feature_map + (2**ind)*(pi >= pm)
         return fmap
             
        
