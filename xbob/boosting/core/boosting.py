@@ -1,5 +1,5 @@
 """ The module consist of the classes to generate a strong boosting classifier and test features using that classifier.
-    Bossting algorithms have three main dimensions: weak trainers that are boosting, optimization strategy 
+    Boosting algorithms have three main dimensions: weak trainers that are boosting, optimization strategy 
     for boosting and loss function that guide the optimization. For each one of these the following 
     choices are implemented.
 
@@ -35,7 +35,7 @@ class Boost:
 
     """ The class to boost the features from  a set of training samples. 
 
-    It iteratively adds new trainer modelsto assemble a strong classifier. 
+    It iteratively adds new trainer models to assemble a strong classifier. 
     In each round of iteration a weak trainer is learned 
     by optimization of a differentiable function. The following parameters are involved
 
@@ -56,12 +56,12 @@ class Boost:
                    The type of weak trainer to be learned. Two types of weak trainers are
                    supported currently.
 
-                   'LutTrainer':  It is used for descrete feature types.LUT are used as weak
+                   'LutTrainer':  It is used for discrete feature types.LUT are used as weak
                                   trainers and Taylor Boost is used as optimization strategy.
-                                  Eg: LBP features, MCT features.
+                                  Ex.: LBP features, MCT features.
 
-                   'StumpTrainer': Decsion Stumps are used as weak trainer and GradBoost is 
-                                used as optimization strategy.It can be used with both descrete
+                   'StumpTrainer': Decision Stumps are used as weak trainer and GradBoost is 
+                                used as optimization strategy.It can be used with both discrete
                                 and continuous type of features 
 
      num_entries:  Type int, Default = 256
@@ -73,7 +73,7 @@ class Boost:
 
      lut_loss:    Type string, Default = 'expectational'
                   For LutTrainer two types of loss function are supported: expectational and variational.
-                  Variational perform margnally better than the expectational loss as reported in Cosmin's
+                  Variational perform marginally better than the expectational loss as reported in Cosmin's
                   thesis, however at the expense of high computational complexity.
                   This parameter can be set to 'expectational' or 'variational'.
 
@@ -90,7 +90,7 @@ class Boost:
 
 
     def __init__(self, trainer_type):
-        """ The function to initilize the boosting parameters. 
+        """ The function to initialize the boosting parameters. 
 
         The function set the default values for the following boosting parameters:
         The number of rounds for boosting: 100
@@ -118,7 +118,7 @@ class Boost:
         """ The function to train a boosting machine.
      
          The function boosts the discrete features (fset) and returns a strong classifier 
-	 as a combintaion of weak classifier.
+	 as a combination of weak classifier.
 
          Inputs: 
 	 fset: (num_sam x num_features) features extracted from the samples
@@ -229,10 +229,10 @@ class BoostMachine():
            
 
         Return: 
-        prediction_labels: The predicted clsses for the test samples
+        prediction_labels: The predicted classes for the test samples
                          Type: numpy array (#number of samples)
         """
-        # Initilization
+        # Initialization
         num_trainer = len(self.weak_trainer)
         num_samp = test_features.shape[0]
         pred_labels = -numpy.ones([num_samp, self.num_op])

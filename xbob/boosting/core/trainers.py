@@ -1,8 +1,8 @@
 """ The module consists of the weak trainers which are used in the boosting framework.
-    currently two trianer types are implmented: Stump trainer and Lut trainer. 
+    currently two trainer types are implemented: Stump trainer and Lut trainer. 
     The modules structure is as follows: 
 
-    StumpTrainer class provides the methods to compute the weak strump trainer
+    StumpTrainer class provides the methods to compute the weak stump trainer
      and test the features using these trainers. 
 
     LutTrainer class provides the methods to compute the weak LUT trainer
@@ -15,12 +15,12 @@ import math
 
 
 class StumpTrainer():
-    """ The weak trainer class for training stumps as classifiers. The trainer is parameterized 
+    """ The weak trainer class for training stumps as classifiers. The trainer is parametrized 
     the threshold and the polarity. 
     """
 
     def  __init__(self):
-        """ Initilize the stump classifier"""
+        """ Initialize the stump classifier"""
         self.threshold = 0
         self.polarity = 0
         self.selected_indices = 0
@@ -58,7 +58,7 @@ class StumpTrainer():
         for i in range(numFea):
             polarity[i],threshold[i], gain[i] = self.compute_thresh(fea[:,i],loss_grad)
 
-        #  Find the optimum id and tis corresponding trainer
+        #  Find the optimum id and its corresponding trainer
         opt_id = gain.argmax()
         self.threshold = threshold[opt_id]
         self.polarity = polarity[opt_id]
@@ -72,7 +72,7 @@ class StumpTrainer():
         """ Function computes the stump classifier (threshold) for a single feature 
        
         Function to compute the threshold for a single feature. The threshold is computed for 
-        the given feature values using the weak learner algorithm given in the Voila Jones Robust Face classification
+        the given feature values using the weak learner algorithm of Viola Jones.
 
         Inputs:
 
@@ -153,14 +153,14 @@ class StumpTrainer():
 
 class LutTrainer():
     """ The LutTrainer class contain methods to learn weak trainer using LookUp Tables. 
-    It can be used for multi-variate binary classfication  """
+    It can be used for multi-variate binary classification  """
  
 
     
     def __init__(self, num_entries, selection_type, num_op):
-        """ Function to initilize the parameters.
+        """ Function to initialize the parameters.
 
-        Function to initilize the weak LutTrainer. Each weak Luttrainer is specified with a 
+        Function to initialize the weak LutTrainer. Each weak Luttrainer is specified with a 
         LookUp Table and the feature index which corresponds to the feature on which the 
         current classifier has to applied. 
 
@@ -176,7 +176,7 @@ class LutTrainer():
                        Type: string {'indep', 'shared'}
 
         num_op: The number of outputs for the classification task. 
-                    type: Interger
+                    type: Integer
 
         """
         self.num_entries = num_entries
@@ -235,7 +235,7 @@ class LutTrainer():
         elif self.selection_type == 'shared':
 
             # for 'shared' feature selection the loss function is summed over multiple dimensions and 
-            # the feature that minimized this acumulative loss is used for all the outputs
+            # the feature that minimized this cumulative loss is used for all the outputs
 
             accum_loss = numpy.sum(sum_loss,1)
             selected_findex = accum_loss.argmin()

@@ -1,6 +1,6 @@
-"""The module implements provide the interface for block based local feature extraction methods.
-The features implemented are Local Binary Pattern and its variants (tLbp, dLBP, mLBP). The features 
-are extracted using blocks of different scale. Integral images are used to effeciently extract the 
+"""The module implements the interfaces for block based local feature extraction methods.
+The implemented features are Local Binary Pattern and its variants (tLbp, dLBP, mLBP). The features 
+are extracted using blocks of different scale. Integral images are used to efficiently extract the 
 features. """
 
 
@@ -17,10 +17,10 @@ class lbp_feature():
     The number of neighbouring blocks are fixed to eight that correspond to the original LBP structure. """
 
     def __init__(self, ftype):
-        """The function to initilize the feature type. 
+        """The function to initialize the feature type. 
  
-        The function initilizes the type of feature to be extracted. The type of feature can be one of the following
-        lbp: The original LBP features that take difference of center with the eight neighbours.
+        The function initializes the type of feature to be extracted. The type of feature can be one of the following
+        lbp: The original LBP features that take difference of centre with the eight neighbours.
         tlbp: It take the difference of the neighbours with the adjacent neighbour and central values is ignored.
         dlbp: The difference between the pixels is taken along four different directions.
         mlbp: The difference of the neighbouring values is taken with the average of neighbours and the central value."""
@@ -28,15 +28,15 @@ class lbp_feature():
 
 
     def compute_integral_image(self,img):
-        """The function cumputes an intergal image for the given image.
+        """The function computes an integral image for the given image.
 
-        The function computes the intergral image for the effecient computation of the block based features.
-        Inouts:
+        The function computes the integral image for the efficient computation of the block based features.
+        Inputs:
         self: feature object
         img: Input images
 
         return:
-        int_img: The intergal image of the input image."""
+        int_img: The integral image of the input image."""
 
         integral_y = numpy.cumsum(img,0)
         integral_xy = numpy.cumsum(integral_y,1)
@@ -59,7 +59,7 @@ class lbp_feature():
         Return:
         feature_vector: The concatenated feature vectors for all the scales."""
 
-        # Compute the intergal image and pad zeros along row and col for block processing
+        # Compute the integral image and pad zeros along row and col for block processing
         integral_imgc = self.compute_integral_image(img)
         rows, cols = img.shape
         integral_img = numpy.zeros([rows+1,cols+1])

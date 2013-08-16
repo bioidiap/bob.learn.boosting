@@ -5,12 +5,12 @@ The package implements a generalized boosting framework which incorporate differ
 boosting approaches. The Boosting algorithms implemented in this package are
 
 1) Gradient Boost (generalized version of Adaboost) for univariate cases
-2) TaylorBoost for univariante and multivariate cases
+2) TaylorBoost for univariate and multivariate cases
 
-The weak classfiers associated with these boosting algorithms are 
+The weak classifiers associated with these boosting algorithms are 
 
 1) Stump classifiers
-2) LUT based classfiers
+2) LUT based classifiers
 
 Check the following reference for the details: 
 
@@ -34,7 +34,7 @@ two categories:
 one-vs-one and one-vs-all. Both the boosting algorithm (Gradient Boost and Taylor boost)
 can be used for testing this scenario.
 
-2) Multivariate Test: It is the multi class classification problem. All the 10 digit classfication
+2) Multivariate Test: It is the multi class classification problem. All the 10 digit classification
 is considered in a single test. Only Multivariate Taylor boosting can be used for testing this scenario.
 
 Installation:
@@ -52,10 +52,10 @@ get you a fully operational test and development environment.
 User Guide
 ----------
 
-This section explains how to use the package in order to: a) test the MNIST dataset for binary clssification
+This section explains how to use the package in order to: a) test the MNIST dataset for binary classification
 b) test the dataset for multi class classification.
 
-a) The following command will run a single binary test for the digits specified and display the classifcation 
+a) The following command will run a single binary test for the digits specified and display the classification 
 accuracy on the console:
 
   $ ./bin/mnist_binary_one.py 
@@ -68,10 +68,10 @@ To run the tests for all the combination of of ten digits use the following comm
 
   $ ./bin/mnist_binary_all.py 
 
-This command tests all the possible comniation of digits which results in 45 different binary tests. The 
+This command tests all the possible calumniation of digits which results in 45 different binary tests. The 
 accuracy of individual tests and the final average accuracy of all the tests is displayed on the console.
 
-b) The following command can be used for the multivarite digits test:
+b) The following command can be used for the multivariate digits test:
 
   $ ./bin/mnist_multi.py 
 

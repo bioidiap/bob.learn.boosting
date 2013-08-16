@@ -43,7 +43,7 @@ class ExpLossFunction():
         #return loss_grad
 
     def loss_sum(self, *args):
-        """The function computes the sum of the exponential loss which is used to find the optmized values of alpha (x).
+        """The function computes the sum of the exponential loss which is used to find the optimized values of alpha (x).
          
         The functions computes sum of loss values which is required during the linesearch step for the optimization of the alpha.
         This function is given as the input for the lbfgs optimization function. 
@@ -55,7 +55,7 @@ class ExpLossFunction():
         targets: The targets for the samples
                  type: numpy array (# number of samples x #number of outputs)
         
-        pred_scores: The cummulative prediction scores of the samples until the previous round of the boosting.
+        pred_scores: The cumulative prediction scores of the samples until the previous round of the boosting.
                  type: numpy array (# number of samples) 
 
         curr_scores: The prediction scores of the samples for the current round of the boosting.
@@ -82,7 +82,7 @@ class ExpLossFunction():
         
 
     def loss_grad_sum(self, *args):
-        """The function computes the sum of the exponential loss which is used to find the optmized values of alpha (x).
+        """The function computes the sum of the exponential loss which is used to find the optimized values of alpha (x).
          
         The functions computes sum of loss values which is required during the linesearch step for the optimization of the alpha.
         This function is given as the input for the lbfgs optimization function. 
@@ -94,7 +94,7 @@ class ExpLossFunction():
         targets: The targets for the samples
                  type: numpy array (# number of samples x #number of outputs)
         
-        pred_scores: The cummulative prediction scores of the samples until the previous round of the boosting.
+        pred_scores: The cumulative prediction scores of the samples until the previous round of the boosting.
                  type: numpy array (# number of samples) 
 
         curr_scores: The prediction scores of the samples for the current round of the boosting.
@@ -104,7 +104,7 @@ class ExpLossFunction():
         Return:
         sum_loss: The sum of the loss gradient values for the current value of the alpha    
                  type: float"""
-        # initilize the values
+        # initialize the values
         x = args[0]
         targets = args[1]
         pred_scores = args[2]
@@ -158,7 +158,7 @@ class LogLossFunction():
         return - targets* e* denom
 
     def loss_sum(self, *args):
-        """The function computes the sum of the logit loss which is used to find the optmized values of alpha (x).
+        """The function computes the sum of the logit loss which is used to find the optimized values of alpha (x).
          
         The functions computes sum of loss values which is required during the linesearch step for the optimization of the alpha.
         This function is given as the input for the lbfgs optimization function. 
@@ -170,7 +170,7 @@ class LogLossFunction():
         targets: The targets for the samples
                  type: numpy array (# number of samples x #number of outputs)
         
-        pred_scores: The cummulative prediction scores of the samples until the previous round of the boosting.
+        pred_scores: The cumulative prediction scores of the samples until the previous round of the boosting.
                  type: numpy array (# number of samples) 
 
         curr_scores: The prediction scores of the samples for the current round of the boosting.
@@ -192,7 +192,7 @@ class LogLossFunction():
         
     #@abstractmethod
     def loss_grad_sum(self, *args):
-        """The function computes the sum of the logit loss gradient which is used to find the optmized values of alpha (x).
+        """The function computes the sum of the logit loss gradient which is used to find the optimized values of alpha (x).
          
         The functions computes sum of loss values which is required during the linesearch step for the optimization of the alpha.
         This function is given as the input for the lbfgs optimization function. 
@@ -204,7 +204,7 @@ class LogLossFunction():
         targets: The targets for the samples
                  type: numpy array (# number of samples x #number of outputs)
         
-        pred_scores: The cummulative prediction scores of the samples until the previous round of the boosting.
+        pred_scores: The cumulative prediction scores of the samples until the previous round of the boosting.
                  type: numpy array (# number of samples) 
 
         curr_scores: The prediction scores of the samples for the current round of the boosting.
