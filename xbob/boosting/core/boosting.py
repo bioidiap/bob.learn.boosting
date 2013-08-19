@@ -89,11 +89,11 @@ class Boost:
 
 
 
-    def __init__(self, trainer_type):
+    def __init__(self, trainer_type, num_rnds = 20, num_entries = 256, loss_type = 'log', lut_selection = 'indep'):
         """ The function to initialize the boosting parameters. 
 
         The function set the default values for the following boosting parameters:
-        The number of rounds for boosting: 100
+        The number of rounds for boosting: 20
         The number of entries in LUT: 256 (For LBP type features)
         The loss function type: logit
         The LUT selection type: independent
@@ -101,13 +101,25 @@ class Boost:
         Inputs:
         trainer_type: The type of trainer for boosting.
                       Type: string
-                      Values: LutTrainer or StumpTrainer    
+                      Values: LutTrainer or StumpTrainer
+        num_rnds:     The number of rounds of boosting
+                      Type: int
+                      Values: 20 (Default)    
+        num_entries:  The number of entries for the lookup table
+                      Type: int
+                      Values: 256 (Default)
+        loss_type:    The loss function to be be minimized
+                      Type: string
+                      Values: 'log' or 'exp' 
+        lut_selection: The selection type for the LUT based trainers
+                       Type: string
+                       Values: 'indep' or 'shared'   
                    
         """
-        self.num_rnds = 100
-        self.num_entries = 256
-        self.loss_type = 'log' 
-        self.lut_selection = 'indep'
+        self.num_rnds = num_rnds
+        self.num_entries = num_entries
+        self.loss_type = loss_type
+        self.lut_selection = lut_selection
         self.weak_trainer_type = trainer_type
 							
 	

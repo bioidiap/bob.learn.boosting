@@ -107,15 +107,16 @@ class StumpTrainer():
 
         # Find the corresponding threshold value
         threshold = 0.0
-        if(opt_id == num_samp-1):
+        if (opt_id == num_samp-1):
             threshold = fea[opt_id]
         else:
             threshold = (float(fea[opt_id]) + float(fea[opt_id+1]))*0.5
+
         # Find the polarity or the directionality of the current trainer
         if(gain_max == gain[opt_id]):
             polarity = -1
         else:
-            polarity = 1
+            polarity =  1
 
         return polarity, threshold, gain_max
 
@@ -131,7 +132,7 @@ class StumpTrainer():
         scores are either +1 or -1.
         Input: self: a weak stump trainer
                test_features: A matrix of the test features of dimension. 
-                              Num. of Test images x Num of features
+                              Num. of Test images x Num. of features
         Return: weak_scores: classification scores of the test features use the weak classifier self
                              Array of dimension =  Num. of samples 
         """
@@ -157,7 +158,7 @@ class LutTrainer():
  
 
     
-    def __init__(self, num_entries, selection_type, num_op):
+    def __init__(self, num_entries, selection_type, num_outputs):
         """ Function to initialize the parameters.
 
         Function to initialize the weak LutTrainer. Each weak Luttrainer is specified with a 
@@ -175,14 +176,14 @@ class LutTrainer():
                         and a single feature is used for all the outputs. See Cosmin's thesis for more details.
                        Type: string {'indep', 'shared'}
 
-        num_op: The number of outputs for the classification task. 
+        num_outputs: The number of outputs for the classification task. 
                     type: Integer
 
         """
         self.num_entries = num_entries
-        self.luts = numpy.ones((num_entries, num_op), dtype = numpy.int)
+        self.luts = numpy.ones((num_entries, num_outputs), dtype = numpy.int)
         self.selection_type = selection_type
-        self.selected_indices = numpy.zeros([num_op,1], 'int16')
+        self.selected_indices = numpy.zeros([num_outputs,1], 'int16')
     
 
 
@@ -208,12 +209,13 @@ class LutTrainer():
         """
 
         # Initializations
-        num_op = loss_grad.shape[1]
-        fea_grad = numpy.zeros([self.num_entries,num_op])
+        num_outputs = loss_grad.shape[1]
+        print num_outputs
+        fea_grad = numpy.zeros([self.num_entries,num_outputs])
 
         # Compute the sum of the gradient based on the feature values or the loss associated with each 
         # feature index
-        sum_loss = self.compute_fgrad(loss_grad, fea)
+        sum_loss = self.compute_grad_sum(loss_grad, fea)
 
 
         # Select the most discriminative index (or indices) for classification which minimizes the loss
@@ -226,9 +228,10 @@ class LutTrainer():
 
             selected_indices = [numpy.argmin(col) for col in numpy.transpose(sum_loss)]
 
-            for oi in range(num_op):
+            for oi in range(num_outputs):
                 curr_id = sum_loss[:,oi].argmin()
-                fea_grad[:,oi] = self.compute_hgrad(loss_grad[:,oi],fea[:,curr_id])
+                fea_grad[:,oi] = self.compute_grad_hist(loss_grad[:,oi],fea[:,curr_id])
+                print oi
                 self.selected_indices[oi] = curr_id
 
 
@@ -239,10 +242,10 @@ class LutTrainer():
 
             accum_loss = numpy.sum(sum_loss,1)
             selected_findex = accum_loss.argmin()
-            self.selected_indices = selected_findex*numpy.ones([num_op,1],'int16')
+            self.selected_indices = selected_findex*numpy.ones([num_outputs,1],'int16')
 
-            for oi in range(num_op):
-                fea_grad[:,oi] = self.compute_hgrad(loss_grad[:,oi],fea[:,selected_findex])
+            for oi in range(num_outputs):
+                fea_grad[:,oi] = self.compute_grad_hist(loss_grad[:,oi],fea[:,selected_findex])
      
         # Assign the values to LookUp Table
         self.luts[fea_grad <= 0.0] = -1
@@ -252,7 +255,7 @@ class LutTrainer():
 
 
      
-    def compute_fgrad(self, loss_grad, fea):
+    def compute_grad_sum(self, loss_grad, fea):
         """ The function to compute the loss gradient for all the features.
 
         The function computes the loss for whole set of features. The loss refers to the sum of the loss gradient
@@ -269,13 +272,13 @@ class LutTrainer():
         # initialize values
         num_fea = len(fea[0])
         num_samp = len(fea)
-        num_op = len(loss_grad[0])
-        sum_loss = numpy.zeros([num_fea,num_op])
+        num_outputs = len(loss_grad[0])
+        sum_loss = numpy.zeros([num_fea,num_outputs])
        
         # Compute the loss for each feature
         for fi in range(num_fea):
-            for oi in range(num_op):
-                hist_grad = self.compute_hgrad(loss_grad[:,oi],fea[:,fi])
+            for oi in range(num_outputs):
+                hist_grad = self.compute_grad_hist(loss_grad[:,oi],fea[:,fi])
                 sum_loss[fi,oi] = - sum(abs(hist_grad))
 
 
@@ -285,7 +288,7 @@ class LutTrainer():
 
 
 
-    def compute_hgrad(self, loss_grado,fval):
+    def compute_grad_hist(self, loss_grado,fval):
         """ The function computes the loss for a single feature.
 
         Function computes sum of the loss gradient that have same feature values. 
@@ -318,9 +321,9 @@ class LutTrainer():
         return: 
         weak_scores: The classification scores of the features based on current weak classifier"""
         num_samp = len(fset)
-        num_op = len(self.luts[0])
-        weak_scores = numpy.zeros([num_samp,num_op])
-        for oi in range(num_op):
+        num_outputs = len(self.luts[0])
+        weak_scores = numpy.zeros([num_samp,num_outputs])
+        for oi in range(num_outputs):
             a = self.luts[fset[:,self.selected_indices[oi]],oi]
             weak_scores[:,oi] = numpy.transpose(self.luts[fset[:,self.selected_indices[oi]],oi])
         return weak_scores

@@ -6,42 +6,81 @@ import numpy
 class TestLogLossFunctions(unittest.TestCase):
     """Perform test on loss function """
             
-    def test_log_loss(self):
+    def test_log_positive_target(self):
+        """ Check the loss function value for positive targets """
 
-        exp_ = xbob.boosting.core.losses.LogLossFunction()
+        loss_function = xbob.boosting.core.losses.LogLossFunction()
         target = 1
-        score = numpy.random.rand()
+        score = 0.34
+        alpha = 0.5
+        targets = numpy.array([1, 1, 1,1,1, 1,1,1,1,1])
+        weak_scores = numpy.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], 'float64')
+        prev_scores = numpy.array([0.53, 0.23, 0.63, 0.12, 1.34, 5.76, 3.21, 2.11, 1.21, 5.36], 'float64')
         
         # check the loss values
-        l1 = exp_.update_loss(target, score) 
+        loss_value = loss_function.update_loss(target, score) 
         val1 = numpy.log(1 + numpy.exp(- target * score))
-        self.assertEqual(l1,val1)
+        self.assertEqual(loss_value,val1)
 
         # Check loss gradient
-        l2 = exp_.update_loss_grad( target, score)
+        grad_value = loss_function.update_loss_grad( target, score)
         temp = numpy.exp(-target * score)
         val2 = -(target * temp* (1/(1 + temp)) )
-        self.assertEqual(l2,val2)
+        self.assertEqual(grad_value,val2)
 
         # Check loss sum
-        weak_scores = numpy.random.rand(10)
-        prev_scores = numpy.random.rand(10)
-        x = numpy.random.rand(1)
-        curr_scores = prev_scores + x*weak_scores
-        l3 = exp_.loss_sum(x, target, prev_scores, weak_scores)
-        val3 = sum(numpy.log(1 + numpy.exp(-target * curr_scores)))
-        self.assertEqual(val3, l3)
+        loss_sum = loss_function.loss_sum(alpha, targets, prev_scores, weak_scores)
+        curr_scores = prev_scores + alpha*weak_scores
+        
+        val3 = sum(numpy.log(1 + numpy.exp(-targets * curr_scores)))
+        self.assertEqual(val3, loss_sum)
 
         # Check the gradient sum
-        weak_scores = numpy.random.rand(10)
-        prev_scores = numpy.random.rand(10)
-        x = numpy.random.rand(1)
-        curr_scores = prev_scores + x*weak_scores
-        l3 = exp_.loss_grad_sum(x, target, prev_scores, weak_scores)
+        grad_sum = loss_function.loss_grad_sum(alpha, targets, prev_scores, weak_scores)
+        curr_scores = prev_scores + alpha*weak_scores
         temp = numpy.exp(-target * curr_scores)
-        grad = -target * temp *(1/ (1 + temp))
-        val3 = numpy.sum(grad * weak_scores)
-        self.assertEqual(val3, l3)
+        grad = -targets * temp *(1/ (1 + temp))
+        val4 = numpy.sum(grad * weak_scores)
+        self.assertEqual(val4, grad_sum)
+
+    def test_log_negative_target(self):
+
+        """ Check the loss function value for negative targets """
+
+        loss_function = xbob.boosting.core.losses.LogLossFunction()
+        target = -1
+        score = 0.34
+        alpha = 0.5
+        targets = numpy.array([-1, -1, -1,-1,-1, -1,-1,-1,-1,-1])
+        weak_scores = numpy.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], 'float64')
+        prev_scores = numpy.array([0.53, 0.23, 0.63, 0.12, 1.34, 5.76, 3.21, 2.11, 1.21, 5.36], 'float64')
+        
+        # check the loss values
+        loss_value = loss_function.update_loss(target, score) 
+        val1 = numpy.log(1 + numpy.exp(- target * score))
+        self.assertEqual(loss_value,val1)
+
+        # Check loss gradient
+        grad_value = loss_function.update_loss_grad( target, score)
+        temp = numpy.exp(-target * score)
+        val2 = -(target * temp* (1/(1 + temp)) )
+        self.assertEqual(grad_value,val2)
+
+        # Check loss sum
+        loss_sum = loss_function.loss_sum(alpha, targets, prev_scores, weak_scores)
+        curr_scores = prev_scores + alpha*weak_scores
+        
+        val3 = sum(numpy.log(1 + numpy.exp(-targets * curr_scores)))
+        self.assertEqual(val3, loss_sum)
+
+        # Check the gradient sum
+        grad_sum = loss_function.loss_grad_sum(alpha, targets, prev_scores, weak_scores)
+        curr_scores = prev_scores + alpha*weak_scores
+        temp = numpy.exp(-target * curr_scores)
+        grad = -targets * temp *(1/ (1 + temp))
+        val4 = numpy.sum(grad * weak_scores)
+        self.assertEqual(val4, grad_sum)
+
 
              
 

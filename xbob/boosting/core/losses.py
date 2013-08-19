@@ -1,6 +1,5 @@
 import numpy
 import math
-from scipy import optimize
 
 
 
@@ -42,14 +41,15 @@ class ExpLossFunction():
         return loss_grad
         #return loss_grad
 
-    def loss_sum(self, *args):
+    #def loss_sum(self, *args):
+    def loss_sum(self, alpha, targets, prediction_scores, weak_scores):
         """The function computes the sum of the exponential loss which is used to find the optimized values of alpha (x).
          
         The functions computes sum of loss values which is required during the linesearch step for the optimization of the alpha.
         This function is given as the input for the lbfgs optimization function. 
 
         Inputs: 
-        x: The current value of the alpha.
+        alpha: The current value of the alpha.
            type: float
 
         targets: The targets for the samples
@@ -65,23 +65,24 @@ class ExpLossFunction():
         Return:
         sum_loss: The sum of the loss values for the current value of the alpha    
                  type: float"""
-
+        """
         # initialize the values
         x = args[0]
         targets = args[1]
         pred_scores = args[2]
         weak_scores = args[3]
-
+        """
+        
         # compute the scores and loss for the current alpha
-        curr_scores_x = pred_scores + x*weak_scores
-        loss = self.update_loss(targets, curr_scores_x)
+        curr_scores = prediction_scores + alpha * weak_scores
+        loss = self.update_loss(targets, curr_scores)
 
         # compute the sum of the loss
         sum_loss = numpy.sum(loss,0)
         return sum_loss
         
 
-    def loss_grad_sum(self, *args):
+    def loss_grad_sum(self, alpha, targets, prediction_scores, weak_scores):
         """The function computes the sum of the exponential loss which is used to find the optimized values of alpha (x).
          
         The functions computes sum of loss values which is required during the linesearch step for the optimization of the alpha.
@@ -104,15 +105,18 @@ class ExpLossFunction():
         Return:
         sum_loss: The sum of the loss gradient values for the current value of the alpha    
                  type: float"""
+
+        """
         # initialize the values
         x = args[0]
         targets = args[1]
         pred_scores = args[2]
         weak_scores = args[3]
+        """
 
         # compute the loss gradient for the updated score
-        curr_scores_x = pred_scores + x*weak_scores
-        loss_grad = self.update_loss_grad(targets, curr_scores_x)
+        curr_scores = prediction_scores + alpha *weak_scores
+        loss_grad = self.update_loss_grad(targets, curr_scores)
 
         # take the sum of the loss gradient values
         sum_grad = numpy.sum(loss_grad*weak_scores, 0)
@@ -149,7 +153,7 @@ class LogLossFunction():
                  type: numpy array (# number of samples x #number of outputs)
         
         scores: The current prediction scores for the samples.
-                type: numpy array (# number of samples) 
+                type: numpy array (# number of samples x # number of outputs) 
 
         Return:
         gradient: The loss gradient values for the samples     """
@@ -157,7 +161,7 @@ class LogLossFunction():
         denom = 1/(1 + e)
         return - targets* e* denom
 
-    def loss_sum(self, *args):
+    def loss_sum(self, alpha, targets, prediction_scores, weak_scores):
         """The function computes the sum of the logit loss which is used to find the optimized values of alpha (x).
          
         The functions computes sum of loss values which is required during the linesearch step for the optimization of the alpha.
@@ -170,10 +174,10 @@ class LogLossFunction():
         targets: The targets for the samples
                  type: numpy array (# number of samples x #number of outputs)
         
-        pred_scores: The cumulative prediction scores of the samples until the previous round of the boosting.
+        prediction_scores: The cumulative prediction scores of the samples until the previous round of the boosting.
                  type: numpy array (# number of samples) 
 
-        curr_scores: The prediction scores of the samples for the current round of the boosting.
+        weak_scores: The prediction scores of the samples for the current round of the boosting.
                  type: numpy array (# number of samples) 
 
 
@@ -181,17 +185,18 @@ class LogLossFunction():
         sum_loss: The sum of the loss values for the current value of the alpha    
                  type: float"""
 
+        """
         x = args[0]
         targets = args[1]
         pred_scores = args[2]
         weak_scores = args[3]
-        curr_scores_x = pred_scores + x*weak_scores
-        loss = self.update_loss(targets, curr_scores_x)
-        sum_l = numpy.sum(loss,0)
-        return sum_l
+        """
+        curr_scores = prediction_scores + alpha*weak_scores
+        loss = self.update_loss(targets, curr_scores)
+        sum_loss = numpy.sum(loss,0)
+        return sum_loss
         
-    #@abstractmethod
-    def loss_grad_sum(self, *args):
+    def loss_grad_sum(self, alpha, targets, prediction_scores, weak_scores):
         """The function computes the sum of the logit loss gradient which is used to find the optimized values of alpha (x).
          
         The functions computes sum of loss values which is required during the linesearch step for the optimization of the alpha.
@@ -214,14 +219,16 @@ class LogLossFunction():
         Return:
         sum_loss: The sum of the loss gradient values for the current value of the alpha    
                  type: float"""
+        """
         x = args[0]
         targets = args[1]
         pred_scores = args[2]
         weak_scores = args[3]
-        curr_scores_x = pred_scores + x*weak_scores
-        loss_grad = self.update_loss_grad( targets, curr_scores_x)
-        sum_g = numpy.sum(loss_grad*weak_scores, 0)
-        return sum_g
+        """
+        curr_scores = prediction_scores + alpha*weak_scores
+        loss_grad = self.update_loss_grad( targets, curr_scores)
+        sum_grad = numpy.sum(loss_grad*weak_scores, 0)
+        return sum_grad
 
 
     """def loss_sum(self, targets, scores):

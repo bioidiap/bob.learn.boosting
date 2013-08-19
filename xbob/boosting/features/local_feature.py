@@ -137,13 +137,13 @@ class lbp_feature():
         """
 
         feature_map = numpy.zeros([feature_map_dimy, feature_map_dimx])
-        num_neighbour = 8
+        num_neighbours = 8
 
         """ Compute the feature map for the tLBP features. """
         for ind in range(num_neighbours):
             
             """The comparison of pixel is done with the adjacent neighbours."""
-            comparing_img = block_sum[coord[(ind+1)%num_neighbour][0]:coord[(ind+1)%num_neighbour][0] + feature_map_dimy,coord[(ind+1)%num_neighbour][1]:coord[(ind+1)%num_neighbour][1] + feature_map_dimx]
+            comparing_img = block_sum[coord[(ind+1)%num_neighbours][0]:coord[(ind+1)%num_neighbours][0] + feature_map_dimy,coord[(ind+1)%num_neighbours][1]:coord[(ind+1)%num_neighbours][1] + feature_map_dimx]
             
             """ Compare the neighbours and increment the feature map. """
             feature_map = feature_map + (2**ind)*(block_sum[coord[ind][0]:coord[ind][0] + feature_map_dimy,coord[ind][1]:coord[ind][1] + feature_map_dimx]>= comparing_img)
