@@ -13,17 +13,48 @@
 import numpy
 import math
 
+class StumpMachine():
+    """ The StumpMachine class consist of the core elements of the Stump weak classfier i.e. the threshold,
+        the polarity and the feature index corresponding to the weak classifier.  """
 
-class StumpTrainer():
-    """ The weak trainer class for training stumps as classifiers. The trainer is parametrized 
-    the threshold and the polarity. 
-    """
 
     def  __init__(self):
         """ Initialize the stump classifier"""
         self.threshold = 0
         self.polarity = 0
         self.selected_indices = 0
+
+
+    def get_weak_scores(self,test_features):
+
+        """ The function to perform classification using a weak stump classifier.
+ 
+         The function computes the classification scores for the test features using 
+        a weak stump trainer. Since we use the stump classifier the classification 
+        scores are either +1 or -1.
+        Input: self: a weak stump trainer
+               test_features: A matrix of the test features of dimension. 
+                              Num. of Test images x Num. of features
+        Return: weak_scores: classification scores of the test features use the weak classifier self
+                             Array of dimension =  Num. of samples 
+        """
+        # Initialize the values
+        numSamp = test_features.shape[0]
+        weak_scores = numpy.ones([numSamp,1])
+  
+        # Select feature corresponding to the specific index
+        weak_features = test_features[:,self.selected_indices]
+
+        # classify the features and compute the score
+        weak_scores[weak_features < self.threshold] = -1
+        weak_scores = self.polarity *weak_scores
+        return weak_scores
+
+
+class StumpTrainer():
+    """ The weak trainer class for training stumps as classifiers. The trainer is parametrized 
+    the threshold and the polarity. 
+    """
  
 
 
@@ -53,6 +84,7 @@ class StumpTrainer():
         threshold = numpy.zeros([numFea])
         polarity = numpy.zeros([numFea])
         gain = numpy.zeros([numFea])
+        stump_machine = StumpMachine()
 
         # For each feature find the optimum threshold, polarity and the gain
         for i in range(numFea):
@@ -60,10 +92,10 @@ class StumpTrainer():
 
         #  Find the optimum id and its corresponding trainer
         opt_id = gain.argmax()
-        self.threshold = threshold[opt_id]
-        self.polarity = polarity[opt_id]
-        self.selected_indices = opt_id
-        return self
+        stump_machine.threshold = threshold[opt_id]
+        stump_machine.polarity = polarity[opt_id]
+        stump_machine.selected_indices = opt_id
+        return stump_machine
 
 
 
@@ -123,33 +155,52 @@ class StumpTrainer():
 
 
 
-    def get_weak_scores(self,test_features):
 
-        """ The function to perform classification using a weak stump classifier.
- 
-         The function computes the classification scores for the test features using 
-        a weak stump trainer. Since we use the stump classifier the classification 
-        scores are either +1 or -1.
-        Input: self: a weak stump trainer
-               test_features: A matrix of the test features of dimension. 
-                              Num. of Test images x Num. of features
-        Return: weak_scores: classification scores of the test features use the weak classifier self
-                             Array of dimension =  Num. of samples 
+
+
+class LutMachine():
+    """ The LUT machine consist of the core elements of the LUT weak classfier i.e. the LUT and 
+         the feature index corresponding to the weak classifier.  """
+
+    def __init__(self, num_outputs, num_entries):
+        """ The function initializes the weak LUT machine.
+
+        The function initializes the look-up-table and the feature indices of the LUT machine.
+        Inputs: 
+        self:
+        num_entries: The number of entries for the LUT
+                     type: int
+        
+
+        num_outputs: The number of outputs for the classification task. 
+                    type: Integer
+
         """
-        # Initialize the values
-        numSamp = test_features.shape[0]
-        weak_scores = numpy.ones([numSamp,1])
-  
-        # Select feature corresponding to the specific index
-        weak_features = test_features[:,self.selected_indices]
+        self.luts = numpy.ones((num_entries, num_outputs), dtype = numpy.int)
+        self.selected_indices = numpy.zeros([num_outputs,1], 'int16')
 
-        # classify the features and compute the score
-        weak_scores[weak_features < self.threshold] = -1
-        weak_scores = self.polarity *weak_scores
+
+
+    def get_weak_scores(self, fset):
+	""" Function computes classification results according to the LUT machine
+
+        Function classifies the features based on a single LUT machine. 
+
+        Input: 
+        fset: The set test features. No. of test samples x No. of total features
+
+        return: 
+        weak_scores: The classification scores of the features based on current weak classifier"""
+
+        # Initialize
+        num_samp = len(fset)
+        num_outputs = len(self.luts[0])
+        weak_scores = numpy.zeros([num_samp,num_outputs])
+
+        # Compute weak scores
+        for oi in range(num_outputs):
+            weak_scores[:,oi] = numpy.transpose(self.luts[fset[:,self.selected_indices[oi]],oi])
         return weak_scores
-
-
-
 
 
 class LutTrainer():
@@ -181,6 +232,7 @@ class LutTrainer():
 
         """
         self.num_entries = num_entries
+        self.num_outputs = num_outputs
         self.luts = numpy.ones((num_entries, num_outputs), dtype = numpy.int)
         self.selection_type = selection_type
         self.selected_indices = numpy.zeros([num_outputs,1], 'int16')
@@ -210,8 +262,8 @@ class LutTrainer():
 
         # Initializations
         num_outputs = loss_grad.shape[1]
-        print num_outputs
-        fea_grad = numpy.zeros([self.num_entries,num_outputs])
+        fea_grad = numpy.zeros([self.num_entries, num_outputs])
+        lut_machine = LutMachine(self.num_outputs, self.num_entries)
 
         # Compute the sum of the gradient based on the feature values or the loss associated with each 
         # feature index
@@ -231,8 +283,7 @@ class LutTrainer():
             for oi in range(num_outputs):
                 curr_id = sum_loss[:,oi].argmin()
                 fea_grad[:,oi] = self.compute_grad_hist(loss_grad[:,oi],fea[:,curr_id])
-                print oi
-                self.selected_indices[oi] = curr_id
+                lut_machine.selected_indices[oi] = curr_id
 
 
         elif self.selection_type == 'shared':
@@ -242,14 +293,14 @@ class LutTrainer():
 
             accum_loss = numpy.sum(sum_loss,1)
             selected_findex = accum_loss.argmin()
-            self.selected_indices = selected_findex*numpy.ones([num_outputs,1],'int16')
+            lut_machine.selected_indices = selected_findex*numpy.ones([num_outputs,1],'int16')
 
             for oi in range(num_outputs):
                 fea_grad[:,oi] = self.compute_grad_hist(loss_grad[:,oi],fea[:,selected_findex])
      
         # Assign the values to LookUp Table
-        self.luts[fea_grad <= 0.0] = -1
-        return self
+        lut_machine.luts[fea_grad <= 0.0] = -1
+        return lut_machine
     
 
 
@@ -310,21 +361,5 @@ class LutTrainer():
 
 
 
-    def get_weak_scores(self, fset):
-	""" Function computes classification results according to current weak classifier
 
-        Function classifies the features based on a single weak classifier. 
-
-        Input: 
-        fset: The set test features. No. of test samples x No. of total features
-
-        return: 
-        weak_scores: The classification scores of the features based on current weak classifier"""
-        num_samp = len(fset)
-        num_outputs = len(self.luts[0])
-        weak_scores = numpy.zeros([num_samp,num_outputs])
-        for oi in range(num_outputs):
-            a = self.luts[fset[:,self.selected_indices[oi]],oi]
-            weak_scores[:,oi] = numpy.transpose(self.luts[fset[:,self.selected_indices[oi]],oi])
-        return weak_scores
 

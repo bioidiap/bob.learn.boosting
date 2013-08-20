@@ -26,7 +26,7 @@ Loss Function: Exponential Loss (Preferred with the StumpTrainer)
 import numpy
 import trainers
 import losses
-from scipy import optimize
+import scipy.optimize
 
 
 
@@ -160,15 +160,18 @@ class Boost:
         #if(self.weak_trainer_type == 'LutTrainer'):
         #    fset = fset.astype(int)
 	
+
+        # For each round of boosting initialize a new weak trainer
+        if(self.weak_trainer_type == 'LutTrainer'):
+            weak_trainer = trainers.LutTrainer(self.num_entries, self.lut_selection, num_op )
+        elif (self.weak_trainer_type == 'StumpTrainer'):
+            weak_trainer = trainers.StumpTrainer()
+
+
         # Start boosting iterations for num_rnds rounds
         for r in range(self.num_rnds):
 
-            # For each round of boosting initialize a new weak trainer
-            if(self.weak_trainer_type == 'LutTrainer'):
-                weak_trainer = trainers.LutTrainer(self.num_entries, self.lut_selection, num_op )
-            elif (self.weak_trainer_type == 'StumpTrainer'):
-                weak_trainer = trainers.StumpTrainer()
-
+           
             # Compute the gradient of the loss function, l'(y,f(x)) using loss_ class
             loss_grad = loss_func.update_loss_grad(targets,pred_scores)
 
@@ -176,14 +179,14 @@ class Boost:
             curr_weak_trainer = weak_trainer.compute_weak_trainer(fset, loss_grad)
 
             # Compute the classification scores of the samples based only on the current round weak classifier (g_r)
-            curr_pred_scores = weak_trainer.get_weak_scores(fset)
+            curr_pred_scores = curr_weak_trainer.get_weak_scores(fset)
             
             # Initialize the start point for lbfgs minimization
-            f0 = numpy.zeros(num_op)
+            init_point = numpy.zeros(num_op)
 
 
             # Perform lbfgs minimization and compute the scale (alpha_r) for current weak trainer
-            lbfgs_struct = optimize.fmin_l_bfgs_b(loss_func.loss_sum, f0, fprime = loss_func.loss_grad_sum, args = (targets, pred_scores, curr_pred_scores)) 
+            lbfgs_struct = scipy.optimize.fmin_l_bfgs_b(loss_func.loss_sum, init_point, fprime = loss_func.loss_grad_sum, args = (targets, pred_scores, curr_pred_scores)) 
             alpha = lbfgs_struct[0]
 
 
