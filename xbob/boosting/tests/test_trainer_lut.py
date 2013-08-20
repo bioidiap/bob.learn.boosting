@@ -4,9 +4,6 @@ import xbob.boosting
 import numpy
 import bob
 
-def get_single_feature():
-    num_feature = 100
-
 
 class TestLutTrainer(unittest.TestCase):
     """Class to test the LUT trainer """
@@ -32,10 +29,63 @@ class TestLutTrainer(unittest.TestCase):
 
 
 
+    def test_lut_selected_index(self):
+
+        num_samples = 100
+        max_feature = 20
+        dimension_feature = 10
+        
+        selected_index = 5
+        range_feature = max_feature
+        trainer = xbob.boosting.core.trainers.LutTrainer(range_feature,'indep', 1)   
+        
+        data_file = bob.io.File('xbob/boosting/tests/datafile.hdf5', 'r')
+        #features = bob.io.load('test_data.hdf5')
+        features = data_file.read()
+
+        x_train1 = numpy.copy(features)
+        x_train1[x_train1[:,selected_index] >=10, selected_index] = 9
+        x_train2 = numpy.copy(features) 
+        x_train2[x_train2[:,selected_index] < 10, selected_index] = 10
+        x_train = numpy.vstack((x_train1, x_train2))
+ 
+        y_train = numpy.vstack((numpy.ones([num_samples,1]),-numpy.ones([num_samples,1])))
+
+        scores = numpy.zeros([2*num_samples,1])
+        loss_grad = -y_train*(numpy.exp(y_train*scores))
+
+        machine = trainer.compute_weak_trainer(x_train, loss_grad)
+
+        self.assertTrue((machine.luts[0:9] == -1).all())   # The values of the LUT are negative of the classes sign
+        self.assertTrue((machine.luts[10:] ==  1).all())
+        
 
 
+    def test_lut_selected_index(self):
 
+        num_samples = 100
+        max_feature = 20
+        dimension_feature = 10
+        delta = 5
+        selected_index = 5
+        range_feature = max_feature + delta
+        trainer = xbob.boosting.core.trainers.LutTrainer(range_feature,'indep', 1)   
+        data_file = bob.io.File('xbob/boosting/tests/datafile.hdf5', 'r')
 
+        features = data_file.read()
+
+        x_train1 = numpy.copy(features)
+        x_train2 = numpy.copy(features) 
+        x_train = numpy.vstack((x_train1, x_train2))
+        x_train[0:num_samples,selected_index] = x_train[0:num_samples,selected_index] + delta
+        y_train = numpy.vstack((numpy.ones([num_samples,1]),-numpy.ones([num_samples,1])))
+
+        scores = numpy.zeros([2*num_samples,1])
+        loss_grad = -y_train*(numpy.exp(y_train*scores))
+
+        machine = trainer.compute_weak_trainer(x_train, loss_grad)
+
+        self.assertEqual(machine.selected_indices[0], selected_index)
 
 
     

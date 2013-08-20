@@ -181,7 +181,7 @@ class LutMachine():
 
 
 
-    def get_weak_scores(self, fset):
+    def get_weak_scores(self, features):
 	""" Function computes classification results according to the LUT machine
 
         Function classifies the features based on a single LUT machine. 
@@ -193,13 +193,13 @@ class LutMachine():
         weak_scores: The classification scores of the features based on current weak classifier"""
 
         # Initialize
-        num_samp = len(fset)
+        num_samp = len(features)
         num_outputs = len(self.luts[0])
         weak_scores = numpy.zeros([num_samp,num_outputs])
 
         # Compute weak scores
-        for oi in range(num_outputs):
-            weak_scores[:,oi] = numpy.transpose(self.luts[fset[:,self.selected_indices[oi]],oi])
+        for output_index in range(num_outputs):
+            weak_scores[:,output_index] = numpy.transpose(self.luts[features[:,self.selected_indices[output_index]],output_index])
         return weak_scores
 
 
@@ -233,9 +233,7 @@ class LutTrainer():
         """
         self.num_entries = num_entries
         self.num_outputs = num_outputs
-        self.luts = numpy.ones((num_entries, num_outputs), dtype = numpy.int)
         self.selection_type = selection_type
-        self.selected_indices = numpy.zeros([num_outputs,1], 'int16')
     
 
 
@@ -261,13 +259,14 @@ class LutTrainer():
         """
 
         # Initializations
-        num_outputs = loss_grad.shape[1]
-        fea_grad = numpy.zeros([self.num_entries, num_outputs])
+        # num_outputs = loss_grad.shape[1]
+        fea_grad = numpy.zeros([self.num_entries, self.num_outputs])
         lut_machine = LutMachine(self.num_outputs, self.num_entries)
 
         # Compute the sum of the gradient based on the feature values or the loss associated with each 
         # feature index
         sum_loss = self.compute_grad_sum(loss_grad, fea)
+
 
 
         # Select the most discriminative index (or indices) for classification which minimizes the loss
@@ -280,10 +279,10 @@ class LutTrainer():
 
             selected_indices = [numpy.argmin(col) for col in numpy.transpose(sum_loss)]
 
-            for oi in range(num_outputs):
-                curr_id = sum_loss[:,oi].argmin()
-                fea_grad[:,oi] = self.compute_grad_hist(loss_grad[:,oi],fea[:,curr_id])
-                lut_machine.selected_indices[oi] = curr_id
+            for output_index in range(self.num_outputs):
+                curr_id = sum_loss[:,output_index].argmin()
+                fea_grad[:,output_index] = self.compute_grad_hist(loss_grad[:,output_index],fea[:,curr_id])
+                lut_machine.selected_indices[output_index] = curr_id
 
 
         elif self.selection_type == 'shared':
@@ -293,10 +292,11 @@ class LutTrainer():
 
             accum_loss = numpy.sum(sum_loss,1)
             selected_findex = accum_loss.argmin()
-            lut_machine.selected_indices = selected_findex*numpy.ones([num_outputs,1],'int16')
+            lut_machine.selected_indices = selected_findex*numpy.ones([self.num_outputs,1],'int16')
 
-            for oi in range(num_outputs):
-                fea_grad[:,oi] = self.compute_grad_hist(loss_grad[:,oi],fea[:,selected_findex])
+            for output_index in range(self.num_outputs):
+                fea_grad[:,output_index] = self.compute_grad_hist(loss_grad[:,output_index],fea[:,selected_findex])
+
      
         # Assign the values to LookUp Table
         lut_machine.luts[fea_grad <= 0.0] = -1
@@ -323,14 +323,14 @@ class LutTrainer():
         # initialize values
         num_fea = len(fea[0])
         num_samp = len(fea)
-        num_outputs = len(loss_grad[0])
-        sum_loss = numpy.zeros([num_fea,num_outputs])
+        sum_loss = numpy.zeros([num_fea,self.num_outputs])
        
         # Compute the loss for each feature
-        for fi in range(num_fea):
-            for oi in range(num_outputs):
-                hist_grad = self.compute_grad_hist(loss_grad[:,oi],fea[:,fi])
-                sum_loss[fi,oi] = - sum(abs(hist_grad))
+        for feature_index in range(num_fea):
+            for output_index in range(self.num_outputs):
+                hist_grad = self.compute_grad_hist(loss_grad[:,output_index],fea[:,feature_index])
+                sum_loss[feature_index,output_index] = - sum(abs(hist_grad))
+                
 
 
         return sum_loss
@@ -339,7 +339,7 @@ class LutTrainer():
 
 
 
-    def compute_grad_hist(self, loss_grado,fval):
+    def compute_grad_hist(self, loss_grado,features):
         """ The function computes the loss for a single feature.
 
         Function computes sum of the loss gradient that have same feature values. 
@@ -350,12 +350,13 @@ class LutTrainer():
 
         return: hist_grad: The sum of the loss gradient"""
         # initialize the values
-        num_samp = len(fval)
+        num_samp = len(features)
         hist_grad = numpy.zeros([self.num_entries])
 
         # compute the sum of the gradient
-        for hi in range(self.num_entries):
-            hist_grad[hi] = sum(loss_grado[fval == hi])
+        for feature_value in range(self.num_entries):
+            
+            hist_grad[feature_value] = sum(loss_grado[features == feature_value])
         return hist_grad
 
 
