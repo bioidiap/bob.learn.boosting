@@ -56,7 +56,7 @@ def main():
 
 
     # Initilize the trainer with 'LutTrainer' or 'StumpTrainer'
-    boost_trainer = boosting.Boost('LutTrainer')
+    boost_trainer = boosting.Boost('GaussTrainer')
 
     # Set the parameters for the boosting
     boost_trainer.num_rnds = args.num_rnds     

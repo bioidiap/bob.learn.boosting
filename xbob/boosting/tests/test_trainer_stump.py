@@ -188,7 +188,7 @@ class TestStumpTrainer(unittest.TestCase):
         self.assertEqual(trained_polarity, polarity)
 
     def test_compute_polarity(self):
-        # test the threshold for single feature using a different permutation
+        # test the polarity of the classifier
         trainer = xbob.boosting.core.trainers.StumpTrainer()
 
         num_samples = 10

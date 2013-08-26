@@ -162,10 +162,12 @@ class Boost:
 	
 
         # For each round of boosting initialize a new weak trainer
-        if(self.weak_trainer_type == 'LutTrainer'):
+        if self.weak_trainer_type == 'LutTrainer':
             weak_trainer = trainers.LutTrainer(self.num_entries, self.lut_selection, num_op )
-        elif (self.weak_trainer_type == 'StumpTrainer'):
+        elif self.weak_trainer_type == 'StumpTrainer':
             weak_trainer = trainers.StumpTrainer()
+        elif self.weak_trainer_type == 'GaussTrainer':
+            weak_trainer = trainers.GaussianTrainer(3)
 
 
         # Start boosting iterations for num_rnds rounds
@@ -188,6 +190,7 @@ class Boost:
             # Perform lbfgs minimization and compute the scale (alpha_r) for current weak trainer
             lbfgs_struct = scipy.optimize.fmin_l_bfgs_b(loss_func.loss_sum, init_point, fprime = loss_func.loss_grad_sum, args = (targets, pred_scores, curr_pred_scores)) 
             alpha = lbfgs_struct[0]
+            print alpha
 
 
             # Update the prediction score after adding the score from the current weak classifier f(x) = f(x) + alpha_r*g_r

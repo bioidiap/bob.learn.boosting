@@ -7,7 +7,7 @@ features. """
 
 
 import numpy
-
+coord = [[0,0],[0,1],[0,2],[1,2],[2,2],[2,1],[2,0],[1,0]]
 
 class lbp_feature():
     """ The class to extract block based LBP type features from the image.
@@ -77,9 +77,7 @@ class lbp_feature():
                 # Compute the sum of the blocks for the current scale
                 block_sum = integral_img[scale_y+1:,scale_x+1:] + integral_img[0:-(scale_y+1),0:-(scale_x+1)] - integral_img[scale_y+1:,0:-(scale_x+1)] - integral_img[0:-(scale_y+1),scale_x+1:]
 
-                # Initialize the size of the final feature map that will be obtained
-                feature_map_dimy = block_sum.shape[0] -2    
-                feature_map_dimx = block_sum.shape[1] -2
+
 
                 # extract the specific feature from the image
                 if self.ftype == 'lbp':
@@ -100,7 +98,7 @@ class lbp_feature():
 
 
 
-    def lbp(self, coord, feature_map_dimx, feature_map_dimy, block_sum):
+    def lbp(self, block_sum):
         """Function to compute the LBP for a image at single scale. 
 
         The LBP features of the given image is computed and the feature map is returned
@@ -113,6 +111,8 @@ class lbp_feature():
         Return:
         feature_map: The lbp feature map
         """
+
+        feature_map_dimx, feature_map_dimy = self.get_map_dimension(block_sum)
         num_neighbours = 8
         blk_center = block_sum[1:1+feature_map_dimy,1:1+feature_map_dimx]
         feature_map = numpy.zeros([feature_map_dimy, feature_map_dimx])
@@ -122,7 +122,7 @@ class lbp_feature():
 
 
 
-    def tlbp(self, coord, feature_map_dimx, feature_map_dimy, block_sum):
+    def tlbp(self, block_sum):
         """Function to compute the tLBP for a image at single scale. 
 
         The tLBP features of the given image is computed and the feature map is returned
@@ -135,7 +135,7 @@ class lbp_feature():
         Return:
         feature_map: The lbp feature map
         """
-
+        feature_map_dimx, feature_map_dimy = self.get_map_dimension(block_sum)
         feature_map = numpy.zeros([feature_map_dimy, feature_map_dimx])
         num_neighbours = 8
 
@@ -151,7 +151,7 @@ class lbp_feature():
 
 
 
-    def dlbp(self, coord, feature_map_dimx, feature_map_dimy, block_sum):
+    def dlbp(self, block_sum):
         """Function to compute the dLBP for a image at single scale. 
 
         The dLBP features of the given image is computed and the feature map is returned
@@ -165,6 +165,7 @@ class lbp_feature():
         feature_map: The lbp feature map
         """
 
+        feature_map_dimx, feature_map_dimy = self.get_map_dimension(block_sum)
         pc = block_sum[1:1+feature_map_dimy,1:1+feature_map_dimx]
         num_neighbours = 8
         feature_map = numpy.zeros([feature_map_dimy,feature_map_dimx])
@@ -175,13 +176,13 @@ class lbp_feature():
             pi4 = block_sum[coord[ind+4][0]:coord[ind+4][0]+ feature_map_dimy,coord[ind+4][1]:coord[ind+4][1] + feature_map_dimx]
 
             """ Compare the neighbours and increment the feature map. """
-            feature_map = feature_map + (2**ind)*((pi-pc)*(pi4 - pc) > 0) + (4**ind)*(abs(pi - pc) >= abs(pi4 -pc))
+            feature_map = feature_map + (2**(2*ind))*((pi-pc)*(pi4 - pc) >= 0) + (2**(2*ind+1))*(abs(pi - pc) >= abs(pi4 -pc))
 
         return feature_map
 
 
 
-    def mlbp(self, coord, feature_map_dimx, feature_map_dimy, block_sum):
+    def mlbp(self, block_sum):
         """Function to compute the mLBP for a image at single scale. 
 
         The mLBP features of the given image is computed and the feature map is returned. 
@@ -194,6 +195,8 @@ class lbp_feature():
         Return:
         feature_map: The lbp feature map
         """
+
+        feature_map_dimx, feature_map_dimy = self.get_map_dimension(block_sum)
 
         num_neighbours = 8
         pm = numpy.zeros([feature_map_dimy,feature_map_dimx])
@@ -231,4 +234,10 @@ class lbp_feature():
         feature_vector = self.get_features(img, scale_y, scale_x)
         return feature_vector.shape[0]
 
+    def get_map_dimension(self, block_sum):
+
+        # Initialize the size of the final feature map that will be obtained
+        feature_map_dimy = block_sum.shape[0] -2    
+        feature_map_dimx = block_sum.shape[1] -2
+        return feature_map_dimx, feature_map_dimy
 

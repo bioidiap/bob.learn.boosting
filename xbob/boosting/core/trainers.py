@@ -252,7 +252,7 @@ class LutTrainer():
              type: integer numpy array (#number of samples x number of features)
 
         loss_grad: The loss gradient values for the training samples
-              type: numpy array (#number of samples)
+              type: numpy array (#number of samples x #number of outputs)
 
         Return:
         self: a trained LUT trainer
@@ -360,7 +360,199 @@ class LutTrainer():
         return hist_grad
 
 
+"""
+class GaussianMachine():
+
+    def __init__(self, num_classes):
+        self.means = numpy.zeros(num_classes)
+        self.variance = numpy.zeros(num_classes)
+        self.selected_index = 0
+
+
+    def get_weak_scores(self, features):
+        num_classes = self.means.shape[0]
+        num_features = features.shape[0]
+        scores = numpy.zeros([num_features,num_classes])
+        
+
+        for i in range(num_classes):
+            mean_i = self.means[i]
+            variance_i = self.variance[i]
+            feature_i = features[:,self.selected_index]
+            denom = numpy.sqrt(2*numpy.pi*variance_i) 
+            temp = ((feature_i - mean_i)**2)/2*variance_i
+            numerator =  numpy.exp(-temp)
+            
+            scores[:,i] = numerator/denom
+
+
+        return scores
+             
+class GaussianTrainer():
+
+    def __init__(self, num_classes):
+        self.num_classes = num_classes
+
+
+    def compute_weak_trainer(self, features, loss_grad):
+
+        num_features = features.shape[1]
+        means = numpy.zeros([num_features,self.num_classes])
+        variances = numpy.zeros([num_features,self.num_classes])
+        summed_loss = numpy.zeros(num_features)
+        gauss_machine = GaussianMachine(self.num_classes)
+
+        for feature_index in range(num_features):
+            single_feature = features[:,feature_index]
+            means[feature_index,:], variances[feature_index,:], summed_loss[feature_index] = self.compute_current_loss(single_feature,  loss_grad)
+        selected_index = numpy.argmin(summed_loss)
+        gauss_machine.selected_index = selected_index
+        gauss_machine.means = means[selected_index,:]
+        gauss_machine.variance = variances[selected_index,:]
+        return gauss_machine
+        
+        
+
+    def compute_current_loss(self, feature, loss_grad):
+        num_samples = feature.shape[0]
+        mean = numpy.zeros([self.num_classes])
+        variance = numpy.zeros(self.num_classes)
+        scores = numpy.zeros([num_samples, self.num_classes])
+
+        for class_index in range(self.num_classes):
+            samples_i = feature[loss_grad[:,class_index] < 0]
+            mean[class_index] = numpy.mean(samples_i)
+            variance[class_index] = numpy.std(samples_i)**2
+            denom = numpy.sqrt(2*numpy.pi*variance[class_index])
+            scores[:,class_index] = numpy.exp(-(((feature - mean[class_index])**2)/2*variance[class_index]))/denom
+            
+
+        # print mean
+        scores_sum = numpy.sum(scores)
+        return mean, variance, scores_sum
+
+"""
+"""
+class BayesMachine():
+    
+    def __init__(self, num_outputs, num_entries):
+        
+        self.luts = numpy.ones((num_entries, num_outputs), dtype = numpy.int)
+        self.selected_indices = numpy.zeros([num_outputs,1], 'int16')
 
 
 
+    def get_weak_scores(self, features):
+	
+
+        # Initialize
+        num_samp = len(features)
+        num_outputs = len(self.luts[0])
+        weak_scores = numpy.zeros([num_samp,num_outputs])
+
+        # Compute weak scores
+        for output_index in range(num_outputs):
+            weak_scores[:,output_index] = numpy.transpose(self.luts[features[:,self.selected_indices[output_index]],output_index])
+        return weak_scores
+
+
+class BayesTrainer():
+    
+ 
+
+    
+    def __init__(self, num_entries, num_outputs):
+
+        self.num_entries = num_entries
+        self.num_outputs = num_outputs
+        self.selection_type = selection_type
+    
+
+
+
+    def compute_weak_trainer(self, fea, loss_grad):
+
+        # Initializations
+        # num_outputs = loss_grad.shape[1]
+        fea_grad = numpy.zeros([self.num_entries, self.num_outputs])
+        lut_machine = LutMachine(self.num_outputs, self.num_entries)
+
+        # Compute the sum of the gradient based on the feature values or the loss associated with each 
+        # feature index
+        sum_loss = self.compute_grad_sum(loss_grad, fea)
+
+
+
+        # Select the most discriminative index (or indices) for classification which minimizes the loss
+        #  and compute the sum of gradient for that index
+       
+        if self.selection_type == 'indep':
+
+            # indep (independent) feature selection is used if all the dimension of output use different feature
+            # each of the selected feature minimize a dimension of the loss function
+
+            selected_indices = [numpy.argmin(col) for col in numpy.transpose(sum_loss)]
+
+            for output_index in range(self.num_outputs):
+                curr_id = sum_loss[:,output_index].argmin()
+                fea_grad[:,output_index] = self.compute_grad_hist(loss_grad[:,output_index],fea[:,curr_id])
+                lut_machine.selected_indices[output_index] = curr_id
+
+
+        elif self.selection_type == 'shared':
+
+            # for 'shared' feature selection the loss function is summed over multiple dimensions and 
+            # the feature that minimized this cumulative loss is used for all the outputs
+
+            accum_loss = numpy.sum(sum_loss,1)
+            selected_findex = accum_loss.argmin()
+            lut_machine.selected_indices = selected_findex*numpy.ones([self.num_outputs,1],'int16')
+
+            for output_index in range(self.num_outputs):
+                fea_grad[:,output_index] = self.compute_grad_hist(loss_grad[:,output_index],fea[:,selected_findex])
+
+     
+        # Assign the values to LookUp Table
+        lut_machine.luts[fea_grad <= 0.0] = -1
+        return lut_machine
+    
+
+
+
+     
+    def compute_grad_sum(self, loss_grad, fea):
+
+
+        # initialize values
+        num_fea = len(fea[0])
+        num_samp = len(fea)
+        sum_loss = numpy.zeros([num_fea,self.num_outputs])
+       
+        # Compute the loss for each feature
+        for feature_index in range(num_fea):
+            for output_index in range(self.num_outputs):
+                for feature_value in range(self.num_entries):
+                    luts[]
+                
+
+
+        return sum_loss
+
+
+
+
+
+    def compute_grad_hist(self, loss_grado,features):
+
+        # initialize the values
+        num_samp = len(features)
+        hist_grad = numpy.zeros([self.num_entries])
+
+        # compute the sum of the gradient
+        for output_index in range(self.num_outputs):
+            for feature_value in range(self.num_entries):
+                num_feature_i = sum(features == feature_value)
+                luts[feature_value,output_index] = sum(loss_grado[features == feature_value])
+        return hist_grad
+"""
 
