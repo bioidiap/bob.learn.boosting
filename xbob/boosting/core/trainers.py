@@ -88,7 +88,9 @@ class StumpTrainer():
 
         # For each feature find the optimum threshold, polarity and the gain
         for i in range(numFea):
-            polarity[i],threshold[i], gain[i] = self.compute_thresh(fea[:,i],loss_grad)
+            selected_feature = numpy.copy(fea[:,i])
+            gradient = -numpy.copy(loss_grad)
+            polarity[i],threshold[i], gain[i] = self.compute_thresh(selected_feature, gradient)
 
         #  Find the optimum id and its corresponding trainer
         opt_id = gain.argmax()
@@ -120,7 +122,6 @@ class StumpTrainer():
 
 
         # The weights for Adaboost are negative of exponential loss gradient
-        loss_grad = -loss_grad
         num_samp = fea.shape[0]
 
         # Sort the feature and rearrange the corresponding weights and feature values
@@ -332,7 +333,6 @@ class LutTrainer():
                 sum_loss[feature_index,output_index] = - sum(abs(hist_grad))
                 
 
-
         return sum_loss
 
 
@@ -355,7 +355,6 @@ class LutTrainer():
 
         # compute the sum of the gradient
         for feature_value in range(self.num_entries):
-            
             hist_grad[feature_value] = sum(loss_grado[features == feature_value])
         return hist_grad
 
