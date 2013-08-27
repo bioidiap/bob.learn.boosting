@@ -37,7 +37,7 @@ class lbp_feature():
         img: Input images
 
         return:
-        int_img: The integral image of the input image."""
+        integral_xy: The integral image of the input image."""
 
         integral_y = numpy.cumsum(img,0)
         integral_xy = numpy.cumsum(integral_y,1)
@@ -100,14 +100,12 @@ class lbp_feature():
 
 
     def lbp(self, block_sum):
-        """Function to compute the LBP for a image at single scale. 
+        """Function to compute the LBP(3x3) for a image at single scale. 
 
         The LBP features of the given image is computed and the feature map is returned
 
         Inputs:
-        coord: The coordinates specify the neighbour to be considered.
-        feature_map_dimx: feature map's dimension along the columns.
-        feature_map_dimy: Feature maps dimension along the rows.
+        block_sum: The image with each pixel representing the sum of a block.
 
         Return:
         feature_map: The lbp feature map
@@ -129,9 +127,7 @@ class lbp_feature():
         The tLBP features of the given image is computed and the feature map is returned
 
         Inputs:
-        coord: The coordinates specify the neighbour to be considered.
-        feature_map_dimx: feature map's dimension along the columns.
-        feature_map_dimy: Feature maps dimension along the rows.
+        block_sum: The image with each pixel representing the sum of a block.
 
         Return:
         feature_map: The lbp feature map
@@ -158,9 +154,7 @@ class lbp_feature():
         The dLBP features of the given image is computed and the feature map is returned
 
         Inputs:
-        coord: The coordinates specify the neighbour to be considered.
-        feature_map_dimx: feature map's dimension along the columns.
-        feature_map_dimy: Feature maps dimension along the rows.
+        block_sum: The image with each pixel representing the sum of a block.
 
         Return:
         feature_map: The lbp feature map
@@ -189,7 +183,7 @@ class lbp_feature():
         The mLBP features of the given image is computed and the feature map is returned. 
 
         Inputs:
-        block_sum: The image that to apply mlbp operator on.
+        block_sum: The image with each pixel representing the sum of a block.
 
         Return:
         feature_map: The lbp feature map
@@ -234,6 +228,17 @@ class lbp_feature():
         return feature_vector.shape[0]
 
     def get_map_dimension(self, block_sum):
+        """ The function computes the dimension of the LBP (R = 1, P = 8) type feature image
+
+        The feature image returned by LBP with radius R is less than the image size by 2*R -1, for 
+        R = 1, the feature map is smaller than the image by 2 pixel in both direction.
+
+        Input: 
+
+        block_sum: The image with each pixel representing the sum of a block.
+
+        Return:
+        feature_map_dimx, feature_map_dimy : The dimensions of the feature map."""
 
         # Initialize the size of the final feature map that will be obtained
         feature_map_dimy = block_sum.shape[0] -2    
