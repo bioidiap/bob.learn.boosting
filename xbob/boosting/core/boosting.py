@@ -190,7 +190,6 @@ class Boost:
             # Perform lbfgs minimization and compute the scale (alpha_r) for current weak trainer
             lbfgs_struct = scipy.optimize.fmin_l_bfgs_b(loss_func.loss_sum, init_point, fprime = loss_func.loss_grad_sum, args = (targets, pred_scores, curr_pred_scores)) 
             alpha = lbfgs_struct[0]
-            print alpha
 
 
             # Update the prediction score after adding the score from the current weak classifier f(x) = f(x) + alpha_r*g_r

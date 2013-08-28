@@ -22,6 +22,7 @@ class TestIntegralImage(unittest.TestCase):
     """Perform test on integral images"""
 
     def test_integral_image(self):
+        """ Test on the integral images """
         feature_extractor = xbob.boosting.features.local_feature.lbp_feature('lbp')
         img = numpy.array([[1,1,1],
                            [1,1,1],
@@ -46,7 +47,8 @@ class TestLbpFeatures(unittest.TestCase):
         p7 | pc | p3
         p6 | p5 | p4 """
 
-    def test_integral_image(self):
+    def test_lbp_features(self):
+        """Test for LBP features with different neighbouring values."""
         feature_extractor = xbob.boosting.features.local_feature.lbp_feature('lbp')
         img_values = numpy.array([1,1,1,1,1,1,1,1,1])  # p0,p1,p2,p3,p4,p5,p6,p7,pc
         img = get_image_3x3(img_values)

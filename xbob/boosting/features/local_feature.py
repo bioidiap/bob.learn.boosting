@@ -82,13 +82,13 @@ class lbp_feature():
 
                 # extract the specific feature from the image
                 if self.ftype == 'lbp':
-                    feature_map = self.lbp(self.coord, feature_map_dimx, feature_map_dimy, block_sum)
+                    feature_map = self.lbp(block_sum)
                 elif self.ftype == 'tlbp':
-                    feature_map = self.tlbp(self.coord, feature_map_dimx, feature_map_dimy, block_sum)
+                    feature_map = self.tlbp(block_sum)
                 elif self.ftype == 'dlbp':
-                    feature_map = self.dlbp(self.coord, feature_map_dimx, feature_map_dimy, block_sum)
+                    feature_map = self.dlbp(block_sum)
                 elif self.ftype == 'mlbp':
-                    feature_map = self.mlbp(self.coord, feature_map_dimx, feature_map_dimy, block_sum)
+                    feature_map = self.mlbp(block_sum)
 
                 # reshape feature image into vector
                 temp_vector = numpy.reshape(feature_map,feature_map.shape[0]*feature_map.shape[1],1)

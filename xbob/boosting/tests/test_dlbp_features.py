@@ -28,6 +28,7 @@ class TestdlbpFeatures(unittest.TestCase):
         p6 | p5 | p4 """
 
     def test_dlbp_image(self):
+        """ Test for dlbp features with different neighbouring pixel values """
         feature_extractor = xbob.boosting.features.local_feature.lbp_feature('dlbp')
         img_values = numpy.array([1,1,1,1,1,1,1,1,1])  # p0,p1,p2,p3,p4,p5,p6,p7,pc
         img = get_image_3x3(img_values)

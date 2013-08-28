@@ -85,8 +85,7 @@ def main():
     boost_trainer.selection_type = args.selection_type
     boost_trainer.num_entries = args.num_entries
 
-    print "Starting boosting the features"
-    print train_fea.shape
+    print "Start boosting the features"
     # Perform boosting of the feature set samp
     machine = boost_trainer.train(train_fea, train_targets)
 

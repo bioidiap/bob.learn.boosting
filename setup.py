@@ -53,6 +53,7 @@ setup(
       'setuptools',
       'bob', # base signal proc./machine learning library
       'xbob.db.mnist',
+      'xbob.db.banca',
     ],
 
     # Your project should be called something like 'xbob.<foo>' or 

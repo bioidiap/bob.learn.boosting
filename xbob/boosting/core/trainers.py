@@ -350,12 +350,15 @@ class LutTrainer():
 
         return: hist_grad: The sum of the loss gradient"""
         # initialize the values
-        num_samp = len(features)
-        hist_grad = numpy.zeros([self.num_entries])
+        # hist_grad = numpy.zeros([self.num_entries])
+
+        
 
         # compute the sum of the gradient
-        for feature_value in range(self.num_entries):
-            hist_grad[feature_value] = sum(loss_grado[features == feature_value])
+        hist_grad, bin_val = numpy.histogram(features,bins = self.num_entries, range = (0,self.num_entries-1), weights = loss_grado)
+        # hist_grad = [sum(loss_grado[features == feature_value]) for feature_value in xrange(self.num_entries)]
+        #for feature_value in range(self.num_entries):
+        #    hist_grad[feature_value] = sum(loss_grado[features == feature_value])
         return hist_grad
 
 

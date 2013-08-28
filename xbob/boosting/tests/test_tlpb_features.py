@@ -28,6 +28,7 @@ class TestmlbpFeatures(unittest.TestCase):
         p6 | p5 | p4 """
 
     def test_mlbp_image(self):
+        """ Test on mlbp feature with different neighbourhood values."""
         feature_extractor = xbob.boosting.features.local_feature.lbp_feature('mlbp')
         img_values = numpy.array([1,1,1,1,1,1,1,1,1])  # p0,p1,p2,p3,p4,p5,p6,p7,pc, mean = 1
         img = get_image_3x3(img_values)

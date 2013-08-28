@@ -7,6 +7,7 @@ class TestExpLossFunctions(unittest.TestCase):
     """Perform test on exponential loss function """
 
     def test_exp_positive_target(self):
+        """ Loss values computation test for postitive targets. """
 
         loss_function = xbob.boosting.core.losses.ExpLossFunction()
         target = 1
@@ -47,6 +48,7 @@ class TestExpLossFunctions(unittest.TestCase):
         self.assertEqual(val4, grad_sum_val)
 
     def test_exp_negative_target(self):
+        """ Exponential Loss values computation test for negative targets. """
 
         loss_function = xbob.boosting.core.losses.ExpLossFunction()
         target = -1

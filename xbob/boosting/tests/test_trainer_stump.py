@@ -152,9 +152,9 @@ class TestStumpTrainer(unittest.TestCase):
         self.assertEqual(trained_threshold, threshold)
 
         if(fea1 < fea2):
-            polarity = 1
-        else:
             polarity = -1
+        else:
+            polarity = 1
 
         self.assertEqual(trained_polarity, polarity)
 
@@ -181,9 +181,9 @@ class TestStumpTrainer(unittest.TestCase):
         self.assertEqual(trained_threshold, threshold)
 
         if(fea1 < fea2):
-            polarity = 1
-        else:
             polarity = -1
+        else:
+            polarity = 1
 
         self.assertEqual(trained_polarity, polarity)
 
@@ -208,9 +208,9 @@ class TestStumpTrainer(unittest.TestCase):
 
         
         if(fea1 < fea2):
-            polarity = 1
-        else:
             polarity = -1
+        else:
+            polarity = 1
 
         self.assertEqual(trained_polarity, polarity)
 
