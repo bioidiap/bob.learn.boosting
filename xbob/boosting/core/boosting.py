@@ -41,16 +41,6 @@ class Boost:
 
 
     Parameters:
-    num_rnds:      Type int, Default = 100 
-                   The number of rounds of boosting. The boosting strategies implemented here
-                   (GradBoost and TaylorBoost) are fairly robust to overfitting, so the large
-                   number of rounds generally results in a small error rate.
-
-    loss_type:    Type string, Default = 'log'
-                  It is the type of loss function to be optimized. Currently we support the
-                  following classes of loss function:
-                  'log', 'exp' and 'tang'. 
-                  'exp' loss function is preferred with StumpTrainer and 'log' with LutTrainer.
 
     trainer_type:  Type string, Default = 'stump'
                    The type of weak trainer to be learned. Two types of weak trainers are
@@ -64,6 +54,19 @@ class Boost:
                                 used as optimization strategy.It can be used with both discrete
                                 and continuous type of features 
 
+    num_rnds:      Type int, Default = 100 
+                   The number of rounds for boosting. The boosting strategies implemented here
+                   (GradBoost and TaylorBoost) are fairly robust to overfitting, so the large
+                   number of rounds generally results in a small error rate.
+
+    loss_type:    Type string, Default = 'log'
+                  It is the type of loss function to be optimized. Currently we support the
+                  following classes of loss function:
+                  'log' and 'exp' 
+                  'exp' loss function is preferred with StumpTrainer and 'log' with LutTrainer.
+
+
+
      num_entries:  Type int, Default = 256
                    This is the parameter for the LutTrainer. It is the 
                    number of entries in the LookUp table. It can be determined from the range of
@@ -71,11 +74,6 @@ class Boost:
                    LookUp table is 256.
 
 
-     lut_loss:    Type string, Default = 'expectational'
-                  For LutTrainer two types of loss function are supported: expectational and variational.
-                  Variational perform marginally better than the expectational loss as reported in Cosmin's
-                  thesis, however at the expense of high computational complexity.
-                  This parameter can be set to 'expectational' or 'variational'.
 
 
      lut_selection: Type string, Default = 'indep'
@@ -84,6 +82,23 @@ class Boost:
                   For feature sharing set the parameter to 'shared' and for independent selection set it to 
                   'indep'. See cosmin's thesis for a detailed explanation on the feature selection type. 
                   For univariate cases such as face detection this parameter is not relevant.
+
+    Example Usage:
+
+    # Initialize the boosting parameter
+    num_rounds = 50
+    feature_range = 256
+    loss_type = 'log'
+    selection_type = 'indep'
+    boost_trainer = boosting.Boost('LutTrainer', num_rounds, feature_range, loss_type, selection_type )
+
+    # Train machine using training samples
+    machine = boost_trainer.train(train_fea, train_targets)
+
+    # Classify the samples using boosted classifier
+    prediction_labels = machine.classify(test_fea)
+
+    
     """
 
 
@@ -133,12 +148,21 @@ class Boost:
 	 as a combination of weak classifier.
 
          Inputs: 
-	 fset: (num_sam x num_features) features extracted from the samples
-	       features should be discrete
-               Type: numpy array
+	 fset: features extracted from the samples
+	       features should be discrete for lutTrainer.
+               Type: numpy array (num_sam x num_features) 
                
-	 labels: class labels of the samples of dimension (#samples x #outputs)
-               Type: numpy array
+	 labels: class labels of the samples 
+               Type: numpy array 
+
+               Shape for binary classification: #number of samples
+               Shape for multivariate classification: #number of samples x #number of outputs
+
+               Examples for 4 classes case (0,1,2,3) and three test samples.
+                         [[0,1,0,0],    #Predicted class is 1
+                          [1,0,0,0],    #Predicted class is 0
+                          [0,0,0,1]]    #Predicted class is 3
+               There can be only single 1 in a row and the index of 1 indicates the class.
 
          Return:
          machine: The boosting machine that is combination of the weak classifiers.
@@ -166,8 +190,8 @@ class Boost:
             weak_trainer = trainers.LutTrainer(self.num_entries, self.lut_selection, num_op )
         elif self.weak_trainer_type == 'StumpTrainer':
             weak_trainer = trainers.StumpTrainer()
-        elif self.weak_trainer_type == 'GaussTrainer':
-            weak_trainer = trainers.GaussianTrainer(3)
+        #elif self.weak_trainer_type == 'GaussTrainer':
+        #    weak_trainer = trainers.GaussianTrainer(3)
 
 
         # Start boosting iterations for num_rnds rounds
@@ -246,8 +270,20 @@ class BoostMachine():
            
 
         Return: 
-        prediction_labels: The predicted classes for the test samples
-                         Type: numpy array (#number of samples)
+        prediction_labels: The predicted classes for the test samples. It is a binary numpy array where 
+                         1 indicates the predicted class.
+                         Type: numpy array 
+                         Shape for binary classification: #number of samples
+
+                         
+                         Shape for multivariate classification: #number of samples x #number of outputs
+
+                         Examples for 4 classes case (0,1,2,3) and three test samples.
+                         [[0,1,0,0],    #Predicted class is 1
+                          [1,0,0,0],    #Predicted class is 0
+                          [0,0,0,1]]    #Predicted class is 3
+                         There can be only single 1 in a row and the index of 1 indicates the class.
+             
         """
         # Initialization
         num_trainer = len(self.weak_trainer)
@@ -265,6 +301,7 @@ class BoostMachine():
         # predict the labels for test features based on score sign (for binary case) and score value (multivariate case)
         if(self.num_op == 1):
             pred_labels[pred_scores >=0] = 1
+            pred_labels = numpy.squeeze(pred_labels)
         else:
             score_max = numpy.argmax(pred_scores, axis = 1)
             pred_labels[range(num_samp),score_max] = 1

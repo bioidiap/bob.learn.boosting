@@ -73,7 +73,7 @@ def main():
     prediction_labels = machine.classify(fea_test)
 
     # calculate the accuracy in percentage for the curent classificaiton test
-    label_test = label_test[:,numpy.newaxis]
+    #label_test = label_test[:,numpy.newaxis]
     accuracy = 100*float(sum(prediction_labels == label_test))/(len(label_test))
     print "The accuracy of binary classification test with digits %d and %d is %f " % (digit1, digit2, accuracy)
 
