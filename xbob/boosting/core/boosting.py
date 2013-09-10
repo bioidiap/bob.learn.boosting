@@ -270,6 +270,8 @@ class BoostMachine():
            
 
         Return: 
+        prediction_scores: The real valued number which are thresholded to determine the prediction classes.
+
         prediction_labels: The predicted classes for the test samples. It is a binary numpy array where 
                          1 indicates the predicted class.
                          Type: numpy array 
@@ -305,7 +307,7 @@ class BoostMachine():
         else:
             score_max = numpy.argmax(pred_scores, axis = 1)
             pred_labels[range(num_samp),score_max] = 1
-        return pred_labels
+        return pred_scores, pred_labels
 
 
 
