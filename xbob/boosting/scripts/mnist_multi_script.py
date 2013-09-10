@@ -63,7 +63,7 @@ boost_trainer.lamda = 0.4            # lamda value for variational loss
 model = boost_trainer.train(fea_tr, train_targets)
 
 # Classify the test samples (testsamp) using the boosited classifier generated above
-prediction_labels = model.classify(fea_ts)
+pred_scores, prediction_labels = model.classify(fea_ts)
 print prediction_labels[1:10,:]
 print test_targets[1:10,:]
 accuracy = float(sum(np.sum(prediction_labels == test_targets,1) == num_op))/float(prediction_labels.shape[0])

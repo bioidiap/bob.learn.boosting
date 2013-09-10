@@ -70,7 +70,7 @@ def main():
             model = boost_trainer.train(fea_train, label_train)
 
             # Classify the test samples (testsamp) using the boosited classifier generated above
-            prediction_labels = model.classify(fea_test)
+            pred_scores, prediction_labels = model.classify(fea_test)
 
             # calculate the accuracy in percentage for the curent classificaiton test
             label_test = label_test[:,numpy.newaxis]

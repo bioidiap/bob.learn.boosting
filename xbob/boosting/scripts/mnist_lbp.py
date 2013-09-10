@@ -88,7 +88,7 @@ def main():
             machine = boost_trainer.train(train_fea, label_train)
 
             # Classify the test samples (testsamp) using the boosited classifier generated above
-            prediction_labels = machine.classify(test_fea)
+            pred_scores, prediction_labels = machine.classify(test_fea)
 
             # calculate the accuracy in percentage for the curent classificaiton test
             label_test = label_test[:,numpy.newaxis]

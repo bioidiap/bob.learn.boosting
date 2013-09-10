@@ -90,7 +90,7 @@ def main():
     machine = boost_trainer.train(train_fea, train_targets)
 
     # Classify the test samples (testsamp) using the boosited classifier generated above
-    prediction_labels = machine.classify(test_fea)
+    pred_scores, prediction_labels = machine.classify(test_fea)
 
     # Calulate the values for confusion matrix
     confusion_matrix = numpy.zeros([num_digits,num_digits])

@@ -159,9 +159,9 @@ class Boost:
                Shape for multivariate classification: #number of samples x #number of outputs
 
                Examples for 4 classes case (0,1,2,3) and three test samples.
-                         [[0,1,0,0],    #Predicted class is 1
-                          [1,0,0,0],    #Predicted class is 0
-                          [0,0,0,1]]    #Predicted class is 3
+                         [[-1,  1, -1, -1],    #Predicted class is 1
+                          [ 1, -1, -1, -1],    #Predicted class is 0
+                          [-1, -1, -1,  1]]    #Predicted class is 3
                There can be only single 1 in a row and the index of 1 indicates the class.
 
          Return:
@@ -198,7 +198,7 @@ class Boost:
         for r in range(self.num_rnds):
 
            
-            # Compute the gradient of the loss function, l'(y,f(x)) using loss_ class
+            # Compute the gradient of the loss function, l'(y,f(x)) using loss_class
             loss_grad = loss_func.update_loss_grad(targets,pred_scores)
 
             # Select the best weak trainer for current round of boosting
@@ -217,7 +217,7 @@ class Boost:
 
 
             # Update the prediction score after adding the score from the current weak classifier f(x) = f(x) + alpha_r*g_r
-            pred_scores = pred_scores + alpha* curr_pred_scores 
+            pred_scores = pred_scores + alpha*curr_pred_scores 
 
 
             # Add the current trainer into the boosting machine
@@ -279,10 +279,10 @@ class BoostMachine():
                          Shape for multivariate classification: #number of samples x #number of outputs
 
                          Examples for 4 classes case (0,1,2,3) and three test samples.
-                         [[0,1,0,0],    #Predicted class is 1
-                          [1,0,0,0],    #Predicted class is 0
-                          [0,0,0,1]]    #Predicted class is 3
-                         There can be only single 1 in a row and the index of 1 indicates the class.
+                         [[-1,  1, -1, -1],    #Predicted class is 1
+                          [ 1, -1, -1, -1],    #Predicted class is 0
+                          [-1, -1, -1,  1]]    #Predicted class is 3
+               There can be only single 1 in a row and the index of 1 indicates the class.
              
         """
         # Initialization
