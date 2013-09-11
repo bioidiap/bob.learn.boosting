@@ -1,12 +1,12 @@
 """ The module consists of the weak trainers which are used in the boosting framework.
-    currently two trainer types are implemented: Stump trainer and Lut trainer. 
-    The modules structure is as follows: 
+    currently two trainer types are implemented: Stump trainer and Lut trainer.
+    The modules structure is as follows:
 
     StumpTrainer class provides the methods to compute the weak stump trainer
-     and test the features using these trainers. 
+     and test the features using these trainers.
 
     LutTrainer class provides the methods to compute the weak LUT trainer
-     and test the features using these trainers. 
+     and test the features using these trainers.
 
 """
 
@@ -28,20 +28,20 @@ class StumpMachine():
     def get_weak_scores(self,test_features):
 
         """ The function to perform classification using a weak stump classifier.
- 
-         The function computes the classification scores for the test features using 
-        a weak stump trainer. Since we use the stump classifier the classification 
+
+         The function computes the classification scores for the test features using
+        a weak stump trainer. Since we use the stump classifier the classification
         scores are either +1 or -1.
         Input: self: a weak stump trainer
-               test_features: A matrix of the test features of dimension. 
+               test_features: A matrix of the test features of dimension.
                               Num. of Test images x Num. of features
         Return: weak_scores: classification scores of the test features use the weak classifier self
-                             Array of dimension =  Num. of samples 
+                             Array of dimension =  Num. of samples
         """
         # Initialize the values
         numSamp = test_features.shape[0]
         weak_scores = numpy.ones([numSamp,1])
-  
+
         # Select feature corresponding to the specific index
         weak_features = test_features[:,self.selected_indices]
 
@@ -52,30 +52,30 @@ class StumpMachine():
 
 
 class StumpTrainer():
-    """ The weak trainer class for training stumps as classifiers. The trainer is parametrized 
-    the threshold and the polarity. 
+    """ The weak trainer class for training stumps as classifiers. The trainer is parametrized
+    the threshold and the polarity.
     """
- 
 
 
-    
+
+
 
     def compute_weak_trainer(self, fea, loss_grad):
 
-        """ The function to compute weak Stump trainer.  
-        
+        """ The function to compute weak Stump trainer.
+
         The function computes the weak stump trainer. It is called at each boosting round.
-        The best weak stump trainer is chosen to maximize the dot product of the outputs 
+        The best weak stump trainer is chosen to maximize the dot product of the outputs
         and the weights (gain). The weights in the Adaboost are the negative of the loss gradient
         for exponential loss.
 
 
-        Inputs: 
+        Inputs:
         fea: the training feature set
         loss_grad: the gradient of the loss function for the training samples
-                          Chose preferable exponential loss function to simulate Adaboost 
+                          Chose preferable exponential loss function to simulate Adaboost
 
-        Return: 
+        Return:
         self: a StumpTrainer Object, i.e. the optimal trainer that minimizes the loss
         """
 
@@ -103,9 +103,9 @@ class StumpTrainer():
 
 
     def compute_thresh(self, fea ,loss_grad):
-        """ Function computes the stump classifier (threshold) for a single feature 
-       
-        Function to compute the threshold for a single feature. The threshold is computed for 
+        """ Function computes the stump classifier (threshold) for a single feature
+
+        Function to compute the threshold for a single feature. The threshold is computed for
         the given feature values using the weak learner algorithm of Viola Jones.
 
         Inputs:
@@ -126,7 +126,7 @@ class StumpTrainer():
 
         # Sort the feature and rearrange the corresponding weights and feature values
         sorted_id = numpy.argsort(fea)
-        fea = fea[sorted_id] 
+        fea = fea[sorted_id]
         loss_grad = loss_grad[sorted_id]
 
         # For all the threshold compute the dot product
@@ -135,7 +135,7 @@ class StumpTrainer():
         gain = (grad_sum - grad_cs)
 
         # Find the index that maximizes the dot product
-        opt_id = numpy.argmax(numpy.absolute(gain))        
+        opt_id = numpy.argmax(numpy.absolute(gain))
         gain_max = numpy.absolute(gain[opt_id])
 
         # Find the corresponding threshold value
@@ -160,20 +160,20 @@ class StumpTrainer():
 
 
 class LutMachine():
-    """ The LUT machine consist of the core elements of the LUT weak classfier i.e. the LUT and 
+    """ The LUT machine consist of the core elements of the LUT weak classfier i.e. the LUT and
          the feature index corresponding to the weak classifier.  """
 
     def __init__(self, num_outputs, num_entries):
         """ The function initializes the weak LUT machine.
 
         The function initializes the look-up-table and the feature indices of the LUT machine.
-        Inputs: 
+        Inputs:
         self:
         num_entries: The number of entries for the LUT
                      type: int
-        
 
-        num_outputs: The number of outputs for the classification task. 
+
+        num_outputs: The number of outputs for the classification task.
                     type: Integer
 
         """
@@ -183,14 +183,14 @@ class LutMachine():
 
 
     def get_weak_scores(self, features):
-	""" Function computes classification results according to the LUT machine
+        """ Function computes classification results according to the LUT machine
 
-        Function classifies the features based on a single LUT machine. 
+        Function classifies the features based on a single LUT machine.
 
-        Input: 
+        Input:
         fset: The set test features. No. of test samples x No. of total features
 
-        return: 
+        return:
         weak_scores: The classification scores of the features based on current weak classifier"""
 
         # Initialize
@@ -204,51 +204,62 @@ class LutMachine():
         return weak_scores
 
 
-class LutTrainer():
-    """ The LutTrainer class contain methods to learn weak trainer using LookUp Tables. 
-    It can be used for multi-variate binary classification  """
- 
 
-    
+    def get_weak_score(self, feature):
+      """Returns the weak score for the given single feature, assuming only a single output.
+
+      Input: a single feature vector of size No. of total features.
+
+      Output: a single number (+1/-1)
+      """
+      return self.luts[feature[self.selected_indices[0]],0]
+
+
+class LutTrainer():
+    """ The LutTrainer class contain methods to learn weak trainer using LookUp Tables.
+    It can be used for multi-variate binary classification  """
+
+
+
     def __init__(self, num_entries, selection_type, num_outputs):
         """ Function to initialize the parameters.
 
-        Function to initialize the weak LutTrainer. Each weak Luttrainer is specified with a 
-        LookUp Table and the feature index which corresponds to the feature on which the 
-        current classifier has to applied. 
+        Function to initialize the weak LutTrainer. Each weak Luttrainer is specified with a
+        LookUp Table and the feature index which corresponds to the feature on which the
+        current classifier has to applied.
 
-        Inputs: 
+        Inputs:
         self:
         num_entries: The number of entries for the LUT
                      type: int
-        
-        selection_type: The feature selection can be either independent or shared. For independent 
+
+        selection_type: The feature selection can be either independent or shared. For independent
                         case the loss function is separately considered for each of the output. For
                         shared selection type the sum of the loss function is taken over the outputs
                         and a single feature is used for all the outputs. See Cosmin's thesis for more details.
                        Type: string {'indep', 'shared'}
 
-        num_outputs: The number of outputs for the classification task. 
+        num_outputs: The number of outputs for the classification task.
                     type: Integer
 
         """
         self.num_entries = num_entries
         self.num_outputs = num_outputs
         self.selection_type = selection_type
-    
+
 
 
 
     def compute_weak_trainer(self, fea, loss_grad):
 
-        """ The function to learn the weak LutTrainer.  
-     
-        The function searches for a features index that minimizes the the sum of the loss gradient and computes 
-        the LUT corresponding to that feature index. 
+        """ The function to learn the weak LutTrainer.
+
+        The function searches for a features index that minimizes the the sum of the loss gradient and computes
+        the LUT corresponding to that feature index.
 
         Inputs:
         self: empty trainer object to be trained
-        
+
         fea: The training features samples
              type: integer numpy array (#number of samples x number of features)
 
@@ -264,7 +275,7 @@ class LutTrainer():
         fea_grad = numpy.zeros([self.num_entries, self.num_outputs])
         lut_machine = LutMachine(self.num_outputs, self.num_entries)
 
-        # Compute the sum of the gradient based on the feature values or the loss associated with each 
+        # Compute the sum of the gradient based on the feature values or the loss associated with each
         # feature index
         sum_loss = self.compute_grad_sum(loss_grad, fea)
 
@@ -272,7 +283,7 @@ class LutTrainer():
 
         # Select the most discriminative index (or indices) for classification which minimizes the loss
         #  and compute the sum of gradient for that index
-       
+
         if self.selection_type == 'indep':
 
             # indep (independent) feature selection is used if all the dimension of output use different feature
@@ -288,7 +299,7 @@ class LutTrainer():
 
         elif self.selection_type == 'shared':
 
-            # for 'shared' feature selection the loss function is summed over multiple dimensions and 
+            # for 'shared' feature selection the loss function is summed over multiple dimensions and
             # the feature that minimized this cumulative loss is used for all the outputs
 
             accum_loss = numpy.sum(sum_loss,1)
@@ -298,40 +309,40 @@ class LutTrainer():
             for output_index in range(self.num_outputs):
                 fea_grad[:,output_index] = self.compute_grad_hist(loss_grad[:,output_index],fea[:,selected_findex])
 
-     
+
         # Assign the values to LookUp Table
         lut_machine.luts[fea_grad <= 0.0] = -1
         return lut_machine
-    
 
 
 
-     
+
+
     def compute_grad_sum(self, loss_grad, fea):
         """ The function to compute the loss gradient for all the features.
 
         The function computes the loss for whole set of features. The loss refers to the sum of the loss gradient
         of the features which have the same values.
-  
-        Inputs: 
-        loss_grad: The loss gradient for the features. No. of samples x No. of outputs 
+
+        Inputs:
+        loss_grad: The loss gradient for the features. No. of samples x No. of outputs
                    Type: float numpy array
         fea: set of features. No. of samples x No. of features
-             
-        Output: 
+
+        Output:
         sum_loss: the loss values for all features. No. of samples x No. of outputs"""
 
         # initialize values
         num_fea = len(fea[0])
         num_samp = len(fea)
         sum_loss = numpy.zeros([num_fea,self.num_outputs])
-       
+
         # Compute the loss for each feature
         for feature_index in range(num_fea):
             for output_index in range(self.num_outputs):
                 hist_grad = self.compute_grad_hist(loss_grad[:,output_index],fea[:,feature_index])
                 sum_loss[feature_index,output_index] = - sum(abs(hist_grad))
-                
+
 
         return sum_loss
 
@@ -342,9 +353,9 @@ class LutTrainer():
     def compute_grad_hist(self, loss_grado,features):
         """ The function computes the loss for a single feature.
 
-        Function computes sum of the loss gradient that have same feature values. 
-        
-        
+        Function computes sum of the loss gradient that have same feature values.
+
+
         Input: loss_grado: loss gradient for a single output values. No of Samples x 1
                fval: single feature selected for all samples. No. of samples x 1
 
@@ -352,7 +363,7 @@ class LutTrainer():
         # initialize the values
         # hist_grad = numpy.zeros([self.num_entries])
 
-        
+
 
         # compute the sum of the gradient
         hist_grad, bin_val = numpy.histogram(features, bins = self.num_entries, range = (0,self.num_entries-1), weights = loss_grado)
@@ -375,21 +386,21 @@ class GaussianMachine():
         num_classes = self.means.shape[0]
         num_features = features.shape[0]
         scores = numpy.zeros([num_features,num_classes])
-        
+
 
         for i in range(num_classes):
             mean_i = self.means[i]
             variance_i = self.variance[i]
             feature_i = features[:,self.selected_index]
-            denom = numpy.sqrt(2*numpy.pi*variance_i) 
+            denom = numpy.sqrt(2*numpy.pi*variance_i)
             temp = ((feature_i - mean_i)**2)/2*variance_i
             numerator =  numpy.exp(-temp)
-            
+
             scores[:,i] = numerator/denom
 
 
         return scores
-             
+
 class GaussianTrainer():
 
     def __init__(self, num_classes):
@@ -412,8 +423,8 @@ class GaussianTrainer():
         gauss_machine.means = means[selected_index,:]
         gauss_machine.variance = variances[selected_index,:]
         return gauss_machine
-        
-        
+
+
 
     def compute_current_loss(self, feature, loss_grad):
         num_samples = feature.shape[0]
@@ -427,7 +438,7 @@ class GaussianTrainer():
             variance[class_index] = numpy.std(samples_i)**2
             denom = numpy.sqrt(2*numpy.pi*variance[class_index])
             scores[:,class_index] = numpy.exp(-(((feature - mean[class_index])**2)/2*variance[class_index]))/denom
-            
+
 
         # print mean
         scores_sum = numpy.sum(scores)
@@ -436,16 +447,16 @@ class GaussianTrainer():
 """
 """
 class BayesMachine():
-    
+
     def __init__(self, num_outputs, num_entries):
-        
+
         self.luts = numpy.ones((num_entries, num_outputs), dtype = numpy.int)
         self.selected_indices = numpy.zeros([num_outputs,1], 'int16')
 
 
 
     def get_weak_scores(self, features):
-	
+
 
         # Initialize
         num_samp = len(features)
@@ -459,16 +470,16 @@ class BayesMachine():
 
 
 class BayesTrainer():
-    
- 
 
-    
+
+
+
     def __init__(self, num_entries, num_outputs):
 
         self.num_entries = num_entries
         self.num_outputs = num_outputs
         self.selection_type = selection_type
-    
+
 
 
 
@@ -479,7 +490,7 @@ class BayesTrainer():
         fea_grad = numpy.zeros([self.num_entries, self.num_outputs])
         lut_machine = LutMachine(self.num_outputs, self.num_entries)
 
-        # Compute the sum of the gradient based on the feature values or the loss associated with each 
+        # Compute the sum of the gradient based on the feature values or the loss associated with each
         # feature index
         sum_loss = self.compute_grad_sum(loss_grad, fea)
 
@@ -487,7 +498,7 @@ class BayesTrainer():
 
         # Select the most discriminative index (or indices) for classification which minimizes the loss
         #  and compute the sum of gradient for that index
-       
+
         if self.selection_type == 'indep':
 
             # indep (independent) feature selection is used if all the dimension of output use different feature
@@ -503,7 +514,7 @@ class BayesTrainer():
 
         elif self.selection_type == 'shared':
 
-            # for 'shared' feature selection the loss function is summed over multiple dimensions and 
+            # for 'shared' feature selection the loss function is summed over multiple dimensions and
             # the feature that minimized this cumulative loss is used for all the outputs
 
             accum_loss = numpy.sum(sum_loss,1)
@@ -513,15 +524,15 @@ class BayesTrainer():
             for output_index in range(self.num_outputs):
                 fea_grad[:,output_index] = self.compute_grad_hist(loss_grad[:,output_index],fea[:,selected_findex])
 
-     
+
         # Assign the values to LookUp Table
         lut_machine.luts[fea_grad <= 0.0] = -1
         return lut_machine
-    
 
 
 
-     
+
+
     def compute_grad_sum(self, loss_grad, fea):
 
 
@@ -529,13 +540,13 @@ class BayesTrainer():
         num_fea = len(fea[0])
         num_samp = len(fea)
         sum_loss = numpy.zeros([num_fea,self.num_outputs])
-       
+
         # Compute the loss for each feature
         for feature_index in range(num_fea):
             for output_index in range(self.num_outputs):
                 for feature_value in range(self.num_entries):
                     luts[]
-                
+
 
 
         return sum_loss
