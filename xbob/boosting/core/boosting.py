@@ -30,7 +30,6 @@ import scipy.optimize
 
 
 
-
 class Boost:
 
     """ The class to boost the features from  a set of training samples.
@@ -174,7 +173,7 @@ class Boost:
             targets = targets[:,numpy.newaxis]
 
         num_op = targets.shape[1]
-        machine = BoostMachine(num_op)
+        machine = BoostMachine()
         num_samp = fset.shape[0]
         pred_scores = numpy.zeros([num_samp,num_op])
         loss_class = losses.LOSS_FUNCTIONS[self.loss_type]
@@ -186,12 +185,11 @@ class Boost:
 
 
         # For each round of boosting initialize a new weak trainer
-        if self.weak_trainer_type == 'LutTrainer':
-            weak_trainer = trainers.LutTrainer(self.num_entries, self.lut_selection, num_op )
-        elif self.weak_trainer_type == 'StumpTrainer':
-            weak_trainer = trainers.StumpTrainer()
-        #elif self.weak_trainer_type == 'GaussTrainer':
-        #    weak_trainer = trainers.GaussianTrainer(3)
+        weak_trainer = {
+            'LutTrainer'   : trainers.LutTrainer(self.num_entries, self.lut_selection, num_op),
+            'StumpTrainer' : trainers.StumpTrainer(),
+#           'GaussTrainer' : trainers.GaussianTrainer(3)
+        } [self.weak_trainer_type]
 
 
         # Start boosting iterations for num_rnds rounds
@@ -237,11 +235,10 @@ class BoostMachine():
     """ The class to perform the classification using the set of weak trainer """
 
 
-    def __init__(self, num_op):
+    def __init__(self):
         """ Initialize the set of weak trainers and the alpha values (scale)"""
         self.alpha = []
         self.weak_trainer = []
-        self.num_op = num_op
 
 
 
@@ -299,8 +296,9 @@ class BoostMachine():
         # Initialization
         num_trainer = len(self.weak_trainer)
         num_samp = test_features.shape[0]
-        pred_labels = -numpy.ones([num_samp, self.num_op])
-        pred_scores = numpy.zeros([num_samp, self.num_op])
+        num_op = test_features.shape[1]
+        pred_labels = -numpy.ones([num_samp, num_op])
+        pred_scores = numpy.zeros([num_samp, num_op])
 
 
         # For each round of boosting calculate the weak scores for that round and add to the total
@@ -310,7 +308,7 @@ class BoostMachine():
             pred_scores = pred_scores + self.alpha[i] * weak_scores
 
         # predict the labels for test features based on score sign (for binary case) and score value (multivariate case)
-        if(self.num_op == 1):
+        if(num_op == 1):
             pred_labels[pred_scores >=0] = 1
             pred_labels = numpy.squeeze(pred_labels)
         else:
@@ -318,5 +316,34 @@ class BoostMachine():
             pred_labels[range(num_samp),score_max] = 1
         return pred_scores, pred_labels
 
+
+    def save(self, hdf5File):
+#      hdf5File.set_attribute("MachineType", self.weak_trainer_type)
+      hdf5File.set_attribute("version", 0)
+      hdf5File.set("Weights", self.alpha)
+      for i in range(len(self.weak_trainer)):
+        dir_name = "WeakMachine%d"%i
+        hdf5File.create_group(dir_name)
+        hdf5File.cd(dir_name)
+        hdf5File.set_attribute("MachineType", self.weak_trainer[i].__class__.__name__)
+        self.weak_trainer[i].save(hdf5File)
+        hdf5File.cd('..')
+
+
+    def load(self, hdf5File):
+#      self.weak_trainer_type = hdf5File.get_attribute("MachineType")
+      self.alpha = hdf5File.read("Weights")
+      self.weak_trainer = []
+      for i in range(len(self.alpha)):
+        dir_name = "WeakMachine%d"%i
+        hdf5File.cd(dir_name)
+        weak_machine_type = hdf5File.get_attribute("MachineType")
+        weak_machine = {
+          "LutMachine"   : trainers.LutMachine(),
+          "StumpMachine" : trainers.StumpMachine()
+        } [weak_machine_type]
+        weak_machine.load(hdf5File)
+        self.weak_trainer.append(weak_machine)
+        hdf5File.cd('..')
 
 

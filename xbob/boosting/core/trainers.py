@@ -18,11 +18,11 @@ class StumpMachine():
         the polarity and the feature index corresponding to the weak classifier.  """
 
 
-    def  __init__(self):
+    def  __init__(self, threshold = 0, polarity = 0, selected_indices = 0):
         """ Initialize the stump classifier"""
-        self.threshold = 0
-        self.polarity = 0
-        self.selected_indices = 0
+        self.threshold = threshold
+        self.polarity = polarity
+        self.selected_indices = selected_indices
 
 
     def get_weak_scores(self,test_features):
@@ -49,6 +49,31 @@ class StumpMachine():
         weak_scores[weak_features < self.threshold] = -1
         weak_scores = self.polarity *weak_scores
         return weak_scores
+
+
+    def get_weak_score(self, feature):
+      """Returns the weak score for the given single feature, assuming only a single output.
+
+      Input: a single feature vector of size No. of total features.
+
+      Output: a single number (+1/-1)
+      """
+      # classify the features and compute the score
+      return self.polarity * (-1. if feature[self.selected_indices] < self.threshold else 1.)
+
+
+    def save(self, hdf5File):
+      """Saves the current state of this machine to the given HDF5File."""
+      hdf5File.set("Indices", self.selected_indices)
+      hdf5File.set("Threshold", self.threshold)
+      hdf5File.set("Polarity", self.polarity)
+
+    def load(self, hdf5File):
+      """Reads the state of this machine from the given HDF5File."""
+      self.selected_indices = hdf5File.read("Indices")
+      self.threshold = hdf5File.read("Threshold")
+      self.polarity = hdf5File.read("Polarity")
+
 
 
 class StumpTrainer():
@@ -84,7 +109,6 @@ class StumpTrainer():
         threshold = numpy.zeros([numFea])
         polarity = numpy.zeros([numFea])
         gain = numpy.zeros([numFea])
-        stump_machine = StumpMachine()
 
         # For each feature find the optimum threshold, polarity and the gain
         for i in range(numFea):
@@ -94,10 +118,7 @@ class StumpTrainer():
 
         #  Find the optimum id and its corresponding trainer
         opt_id = gain.argmax()
-        stump_machine.threshold = threshold[opt_id]
-        stump_machine.polarity = polarity[opt_id]
-        stump_machine.selected_indices = opt_id
-        return stump_machine
+        return StumpMachine(threshold[opt_id], polarity[opt_id], opt_id)
 
 
 
@@ -163,7 +184,7 @@ class LutMachine():
     """ The LUT machine consist of the core elements of the LUT weak classfier i.e. the LUT and
          the feature index corresponding to the weak classifier.  """
 
-    def __init__(self, num_outputs, num_entries):
+    def __init__(self, num_outputs = 0, num_entries = 0):
         """ The function initializes the weak LUT machine.
 
         The function initializes the look-up-table and the feature indices of the LUT machine.
@@ -213,6 +234,18 @@ class LutMachine():
       Output: a single number (+1/-1)
       """
       return self.luts[feature[self.selected_indices[0]],0]
+
+
+    def save(self, hdf5File):
+      """Saves the current state of this machine to the given HDF5File."""
+      hdf5File.set("LUT", self.luts)
+      hdf5File.set("Indices", self.selected_indices)
+
+    def load(self, hdf5File):
+      """Reads the state of this machine from the given HDF5File."""
+      self.luts = hdf5File.read("LUT")
+      self.selected_indices = hdf5File.read("Indices")
+      print self.selected_indices
 
 
 class LutTrainer():
@@ -289,7 +322,7 @@ class LutTrainer():
             # indep (independent) feature selection is used if all the dimension of output use different feature
             # each of the selected feature minimize a dimension of the loss function
 
-            selected_indices = [numpy.argmin(col) for col in numpy.transpose(sum_loss)]
+#            selected_indices = [numpy.argmin(col) for col in numpy.transpose(sum_loss)]
 
             for output_index in range(self.num_outputs):
                 curr_id = sum_loss[:,output_index].argmin()
