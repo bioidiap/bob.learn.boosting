@@ -245,7 +245,6 @@ class LutMachine():
       """Reads the state of this machine from the given HDF5File."""
       self.luts = hdf5File.read("LUT")
       self.selected_indices = hdf5File.read("Indices")
-      print self.selected_indices
 
 
 class LutTrainer():
