@@ -235,10 +235,12 @@ class BoostMachine():
     """ The class to perform the classification using the set of weak trainer """
 
 
-    def __init__(self):
+    def __init__(self, number_of_outputs = 1):
         """ Initialize the set of weak trainers and the alpha values (scale)"""
         self.alpha = []
         self.weak_trainer = []
+        self.number_of_outputs = number_of_outputs
+        self.selected_indices = set()
 
 
 
@@ -252,7 +254,12 @@ class BoostMachine():
         """
         self.alpha.append(curr_alpha)
         self.weak_trainer.append(curr_trainer)
+        self.selected_indices |= set([curr_trainer.selected_indices[i] for i in range(self.number_of_outputs)])
 
+
+    def feature_indices(self):
+      """Returns the indices of the features that are selected by the weak classifiers."""
+      return sorted(list(self.selected_indices))
 
     def __call__(self, feature):
       """Returns the predicted score for the given single feature, assuming only single output.
@@ -296,9 +303,8 @@ class BoostMachine():
         # Initialization
         num_trainer = len(self.weak_trainer)
         num_samp = test_features.shape[0]
-        num_op = test_features.shape[1]
-        pred_labels = -numpy.ones([num_samp, num_op])
-        pred_scores = numpy.zeros([num_samp, num_op])
+        pred_labels = -numpy.ones([num_samp, self.number_of_outputs])
+        pred_scores = numpy.zeros([num_samp, self.number_of_outputs])
 
 
         # For each round of boosting calculate the weak scores for that round and add to the total
@@ -308,7 +314,7 @@ class BoostMachine():
             pred_scores = pred_scores + self.alpha[i] * weak_scores
 
         # predict the labels for test features based on score sign (for binary case) and score value (multivariate case)
-        if(num_op == 1):
+        if(self.number_of_outputs == 1):
             pred_labels[pred_scores >=0] = 1
             pred_labels = numpy.squeeze(pred_labels)
         else:
@@ -321,6 +327,7 @@ class BoostMachine():
 #      hdf5File.set_attribute("MachineType", self.weak_trainer_type)
       hdf5File.set_attribute("version", 0)
       hdf5File.set("Weights", self.alpha)
+      hdf5File.set("Outputs", self.number_of_outputs)
       for i in range(len(self.weak_trainer)):
         dir_name = "WeakMachine%d"%i
         hdf5File.create_group(dir_name)
@@ -333,7 +340,9 @@ class BoostMachine():
     def load(self, hdf5File):
 #      self.weak_trainer_type = hdf5File.get_attribute("MachineType")
       self.alpha = hdf5File.read("Weights")
+      self.number_of_outputs = hdf5File.read("Outputs")
       self.weak_trainer = []
+      self.selected_indices = set()
       for i in range(len(self.alpha)):
         dir_name = "WeakMachine%d"%i
         hdf5File.cd(dir_name)
@@ -344,6 +353,7 @@ class BoostMachine():
         } [weak_machine_type]
         weak_machine.load(hdf5File)
         self.weak_trainer.append(weak_machine)
+        self.selected_indices |= set([weak_machine.selected_indices[i] for i in range(self.number_of_outputs)])
         hdf5File.cd('..')
 
 

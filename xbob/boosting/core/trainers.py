@@ -73,6 +73,8 @@ class StumpMachine():
       self.selected_indices = hdf5File.read("Indices")
       self.threshold = hdf5File.read("Threshold")
       self.polarity = hdf5File.read("Polarity")
+      if isinstance(self.selected_indices, int):
+        self.selected_indices = numpy.array([self.selected_indices], dtype=numpy.int)
 
 
 
@@ -199,7 +201,7 @@ class LutMachine():
 
         """
         self.luts = numpy.ones((num_entries, num_outputs), dtype = numpy.int)
-        self.selected_indices = numpy.zeros([num_outputs,1], 'int16')
+        self.selected_indices = numpy.zeros((num_outputs,), 'int16')
 
 
 
@@ -245,6 +247,8 @@ class LutMachine():
       """Reads the state of this machine from the given HDF5File."""
       self.luts = hdf5File.read("LUT")
       self.selected_indices = hdf5File.read("Indices")
+      if isinstance(self.selected_indices, int):
+        self.selected_indices = numpy.array([self.selected_indices], dtype=numpy.int)
 
 
 class LutTrainer():
