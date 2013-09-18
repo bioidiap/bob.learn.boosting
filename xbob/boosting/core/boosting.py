@@ -27,6 +27,7 @@ import numpy
 import trainers
 import losses
 import scipy.optimize
+import itertools
 
 
 
@@ -261,6 +262,7 @@ class BoostMachine():
       """Returns the indices of the features that are selected by the weak classifiers."""
       return sorted(list(self.selected_indices))
 
+
     def __call__(self, feature):
       """Returns the predicted score for the given single feature, assuming only single output.
 
@@ -268,7 +270,7 @@ class BoostMachine():
 
       Output: A single floating point number
       """
-      return sum([a * weak.get_weak_score(feature) for (a, weak) in zip(self.alpha, self.weak_trainer)])
+      return sum([a * weak.get_weak_score(feature) for (a, weak) in itertools.izip(self.alpha, self.weak_trainer)])
 
 
     def classify(self, test_features):

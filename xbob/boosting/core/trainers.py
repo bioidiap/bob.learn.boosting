@@ -23,6 +23,8 @@ class StumpMachine():
         self.threshold = threshold
         self.polarity = polarity
         self.selected_indices = selected_indices
+        if isinstance(self.selected_indices, int):
+            self.selected_indices = numpy.array([self.selected_indices], dtype=numpy.int)
 
 
     def get_weak_scores(self,test_features):
