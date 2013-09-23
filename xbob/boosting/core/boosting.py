@@ -29,7 +29,10 @@ import losses
 import scipy.optimize
 import itertools
 
+import logging
+logger = logging.getLogger('bob')
 
+from .. import BoostedMachine
 
 class Boost:
 
@@ -141,7 +144,7 @@ class Boost:
 
 
 
-    def train(self, fset, targets):
+    def train(self, fset, targets, boosted_machine = None):
         """ The function to train a boosting machine.
 
          The function boosts the discrete features (fset) and returns a strong classifier
@@ -164,8 +167,11 @@ class Boost:
                           [-1, -1, -1,  1]]    #Predicted class is 3
                There can be only single 1 in a row and the index of 1 indicates the class.
 
+         boosted_machine: the machine to add the weak machines to. If not given, a new machine is created.
+               Type: BoostMachine (with valid output dimension)
+
          Return:
-         machine: The boosting machine that is combination of the weak classifiers.
+         machine: The boosted machine that is combination of the weak classifiers.
 
         """
 
@@ -174,7 +180,7 @@ class Boost:
             targets = targets[:,numpy.newaxis]
 
         num_op = targets.shape[1]
-        machine = BoostMachine()
+        machine = BoostedMachine() if boosted_machine is None else boosted_machine
         num_samp = fset.shape[0]
         pred_scores = numpy.zeros([num_samp,num_op])
         loss_class = losses.LOSS_FUNCTIONS[self.loss_type]
@@ -194,17 +200,19 @@ class Boost:
 
 
         # Start boosting iterations for num_rnds rounds
+        logger.info("Starting %d rounds of boosting" % self.num_rnds)
         for r in range(self.num_rnds):
 
 
             # Compute the gradient of the loss function, l'(y,f(x)) using loss_class
             loss_grad = loss_func.update_loss_grad(targets,pred_scores)
 
-            # Select the best weak trainer for current round of boosting
-            curr_weak_trainer = weak_trainer.compute_weak_trainer(fset, loss_grad)
+            # Select the best weak machine for current round of boosting
+            curr_weak_machine = weak_trainer.compute_weak_trainer(fset, loss_grad)
 
             # Compute the classification scores of the samples based only on the current round weak classifier (g_r)
-            curr_pred_scores = curr_weak_trainer.get_weak_scores(fset)
+            curr_pred_scores = numpy.zeros([num_samp,num_op], numpy.float64)
+            curr_weak_machine(fset, curr_pred_scores)
 
             # Initialize the start point for lbfgs minimization
             init_point = numpy.zeros(num_op)
@@ -220,8 +228,9 @@ class Boost:
 
 
             # Add the current trainer into the boosting machine
-            machine.add_weak_trainer(curr_weak_trainer, alpha)
+            machine.add_weak_machine(curr_weak_machine, alpha)
 
+            logger.debug("Finished round %d / %r" % (r+1, self.num_rnds))
 
         return machine
 
@@ -236,13 +245,22 @@ class BoostMachine():
     """ The class to perform the classification using the set of weak trainer """
 
 
-    def __init__(self, number_of_outputs = 1):
+    def __init__(self, number_of_outputs = 1, hdf5file = None):
         """ Initialize the set of weak trainers and the alpha values (scale)"""
-        self.alpha = []
-        self.weak_trainer = []
-        self.number_of_outputs = number_of_outputs
-        self.selected_indices = set()
+        if hdf5file is not None:
+          self.load(hdf5file)
+        else:
+          self.alpha = []
+          self.weak_trainer = []
+          self.number_of_outputs = number_of_outputs
+          self.selected_indices = set()
+          self._update()
 
+
+    def _update(self):
+      """ Initializes internal variables."""
+      self.selected_indices = set([weak_trainer.selected_indices[i] for weak_trainer in self.weak_trainer for i in range(self.number_of_outputs)])
+      self._weak_results = numpy.ndarray((len(self.weak_trainer),), numpy.float64)
 
 
     def add_weak_trainer(self, curr_trainer, curr_alpha):
@@ -255,7 +273,7 @@ class BoostMachine():
         """
         self.alpha.append(curr_alpha)
         self.weak_trainer.append(curr_trainer)
-        self.selected_indices |= set([curr_trainer.selected_indices[i] for i in range(self.number_of_outputs)])
+        self._update()
 
 
     def feature_indices(self):
@@ -270,7 +288,10 @@ class BoostMachine():
 
       Output: A single floating point number
       """
-      return sum([a * weak.get_weak_score(feature) for (a, weak) in itertools.izip(self.alpha, self.weak_trainer)])
+      # iterate over the weak classifiers
+      for index in xrange(len(self.weak_trainer)):
+        self._weak_results[index] = self.alpha[index] * self.weak_trainer[index].get_weak_score(feature)
+      return numpy.sum(self._weak_results)
 
 
     def classify(self, test_features):
@@ -326,12 +347,11 @@ class BoostMachine():
 
 
     def save(self, hdf5File):
-#      hdf5File.set_attribute("MachineType", self.weak_trainer_type)
       hdf5File.set_attribute("version", 0)
       hdf5File.set("Weights", self.alpha)
       hdf5File.set("Outputs", self.number_of_outputs)
       for i in range(len(self.weak_trainer)):
-        dir_name = "WeakMachine%d"%i
+        dir_name = "WeakMachine_%d"%i
         hdf5File.create_group(dir_name)
         hdf5File.cd(dir_name)
         hdf5File.set_attribute("MachineType", self.weak_trainer[i].__class__.__name__)
@@ -340,13 +360,12 @@ class BoostMachine():
 
 
     def load(self, hdf5File):
-#      self.weak_trainer_type = hdf5File.get_attribute("MachineType")
       self.alpha = hdf5File.read("Weights")
       self.number_of_outputs = hdf5File.read("Outputs")
       self.weak_trainer = []
       self.selected_indices = set()
       for i in range(len(self.alpha)):
-        dir_name = "WeakMachine%d"%i
+        dir_name = "WeakMachine_%d"%i
         hdf5File.cd(dir_name)
         weak_machine_type = hdf5File.get_attribute("MachineType")
         weak_machine = {
@@ -357,5 +376,6 @@ class BoostMachine():
         self.weak_trainer.append(weak_machine)
         self.selected_indices |= set([weak_machine.selected_indices[i] for i in range(self.number_of_outputs)])
         hdf5File.cd('..')
+      self._update()
 
 

@@ -19,7 +19,9 @@
 # allows you to test your package with new python dependencies w/o requiring
 # administrative interventions.
 
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, dist
+dist.Distribution(dict(setup_requires='xbob.extension'))
+from xbob.extension import Extension, build_ext
 
 # The only thing we do in this file is to call the setup() function with all
 # parameters that define our package.
@@ -29,7 +31,7 @@ setup(
     # information before releasing code publicly.
     name='xbob.boosting',
     version='0.1',
-    description='Boosting framework for the BOB',
+    description='Boosting framework for Bob',
 
     url='http://github.com/bioidiap/xbob.boosting',
     license='GPLv3',
@@ -44,6 +46,10 @@ setup(
     packages=find_packages(),
     include_package_data=True,
 
+    setup_requires=[
+      'xbob.extension',
+    ],
+
     # This line defines which packages should be installed when you "install"
     # this package. All packages that are mentioned here, but are not installed
     # on the current system will be installed locally and only visible to the
@@ -53,10 +59,41 @@ setup(
       'setuptools',
       'bob', # base signal proc./machine learning library
       'xbob.db.mnist',
-      'xbob.db.banca',
+      'xbob.db.banca'
     ],
 
-    # Your project should be called something like 'xbob.<foo>' or 
+    cmdclass={
+      'build_ext': build_ext,
+    },
+
+    ext_modules = [
+      Extension(
+        'xbob.boosting._boosting',
+        [
+          "xbob/boosting/cpp/lutmachine.cpp",
+          "xbob/boosting/cpp/boosted_machine.cpp",
+          "xbob/boosting/cpp/bindings.cpp",
+        ],
+        pkgconfig = [
+          'bob-io',
+        ],
+        include_dirs = [
+          "xbob/boosting/cpp"
+        ],
+# STUFF for DEBUGGING goes here (requires DEBUG bob version...):
+#        extra_compile_args = [
+#          '-ggdb',
+#        ],
+#        define_macros = [
+#          ('BZ_DEBUG', 1)
+#        ],
+#        undef_macros=[
+#          'NDEBUG'
+#        ]
+      )
+    ],
+
+    # Your project should be called something like 'xbob.<foo>' or
     # 'xbob.<foo>.<bar>'. To implement this correctly and still get all your
     # packages to be imported w/o problems, you need to implement namespaces
     # on the various levels of the package and declare them here. See more

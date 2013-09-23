@@ -182,8 +182,6 @@ class StumpTrainer():
 
 
 
-
-
 class LutMachine():
     """ The LUT machine consist of the core elements of the LUT weak classfier i.e. the LUT and
          the feature index corresponding to the weak classifier.  """
@@ -253,6 +251,8 @@ class LutMachine():
         self.selected_indices = numpy.array([self.selected_indices], dtype=numpy.int)
 
 
+from .. import LUTMachine
+
 class LutTrainer():
     """ The LutTrainer class contain methods to learn weak trainer using LookUp Tables.
     It can be used for multi-variate binary classification  """
@@ -287,7 +287,6 @@ class LutTrainer():
 
 
 
-
     def compute_weak_trainer(self, fea, loss_grad):
 
         """ The function to learn the weak LutTrainer.
@@ -311,7 +310,8 @@ class LutTrainer():
         # Initializations
         # num_outputs = loss_grad.shape[1]
         fea_grad = numpy.zeros([self.num_entries, self.num_outputs])
-        lut_machine = LutMachine(self.num_outputs, self.num_entries)
+        luts = numpy.ones((self.num_entries, self.num_outputs), numpy.float64)
+        selected_indices = numpy.ndarray((self.num_outputs,), numpy.uint64)
 
         # Compute the sum of the gradient based on the feature values or the loss associated with each
         # feature index
@@ -332,7 +332,7 @@ class LutTrainer():
             for output_index in range(self.num_outputs):
                 curr_id = sum_loss[:,output_index].argmin()
                 fea_grad[:,output_index] = self.compute_grad_hist(loss_grad[:,output_index],fea[:,curr_id])
-                lut_machine.selected_indices[output_index] = curr_id
+                selected_indices[output_index] = curr_id
 
 
         elif self.selection_type == 'shared':
@@ -342,15 +342,18 @@ class LutTrainer():
 
             accum_loss = numpy.sum(sum_loss,1)
             selected_findex = accum_loss.argmin()
-            lut_machine.selected_indices = selected_findex*numpy.ones([self.num_outputs,1],'int16')
+            selected_indices = selected_findex*numpy.ones([self.num_outputs,1],'int16')
 
             for output_index in range(self.num_outputs):
                 fea_grad[:,output_index] = self.compute_grad_hist(loss_grad[:,output_index],fea[:,selected_findex])
 
 
         # Assign the values to LookUp Table
-        lut_machine.luts[fea_grad <= 0.0] = -1
-        return lut_machine
+        luts[fea_grad <= 0.0] = -1
+        return LUTMachine(luts, selected_indices)
+
+
+
 
 
 
