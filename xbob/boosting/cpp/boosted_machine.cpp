@@ -1,5 +1,6 @@
 #include "Machines.h"
 #include <sstream>
+#include <set>
 
 BoostedMachine::BoostedMachine() :
   m_weak_machines(),
@@ -68,14 +69,14 @@ void BoostedMachine::forward3(const blitz::Array<uint16_t,2>& features, blitz::A
   }
 }
 
-blitz::Array<uint64_t,1> BoostedMachine::getIndices() const{
-  std::set<uint64_t> indices;
+blitz::Array<int,1> BoostedMachine::getIndices() const{
+  std::set<int> indices;
   for (unsigned i = 0; i < m_weak_machines.size(); ++i){
-    const blitz::Array<uint64_t,1>& ind = m_weak_machines[i]->getIndices();
+    const blitz::Array<int,1>& ind = m_weak_machines[i]->getIndices();
     indices.insert(ind.begin(), ind.end());
   }
 
-  blitz::Array<uint64_t,1> ret(indices.size());
+  blitz::Array<int,1> ret(indices.size());
   std::copy(indices.begin(), indices.end(), ret.begin());
   return ret;
 }
@@ -115,5 +116,8 @@ void BoostedMachine::load(bob::io::HDF5File& file){
     machine_name = fns.str();
   }
 
+  if (m_weak_machines.empty()){
+    throw std::runtime_error("Could not read weak machines.");
+  }
 }
 

@@ -14,18 +14,18 @@ import numpy
 import math
 
 class StumpMachine():
-    """ The StumpMachine class consist of the core elements of the Stump weak classfier i.e. the threshold,
+    """ The StumpMachine class consist of the core elements of the Stump weak classifier i.e. the threshold,
         the polarity and the feature index corresponding to the weak classifier.  """
 
 
-    def  __init__(self, threshold = 0, polarity = 0, selected_indices = 0):
+    def  __init__(self, threshold = 0, polarity = 0, selected_index = 0):
         """ Initialize the stump classifier"""
         self.threshold = threshold
         self.polarity = polarity
-        self.selected_indices = selected_indices
-        if isinstance(self.selected_indices, int):
-            self.selected_indices = numpy.array([self.selected_indices], dtype=numpy.int)
+        self.selected_index = numpy.int32(selected_index)
 
+    def feature_indices(self):
+      return [self.selected_index]
 
     def get_weak_scores(self,test_features):
 
@@ -45,7 +45,7 @@ class StumpMachine():
         weak_scores = numpy.ones([numSamp,1])
 
         # Select feature corresponding to the specific index
-        weak_features = test_features[:,self.selected_indices]
+        weak_features = test_features[:,self.selected_index]
 
         # classify the features and compute the score
         weak_scores[weak_features < self.threshold] = -1
@@ -61,33 +61,28 @@ class StumpMachine():
       Output: a single number (+1/-1)
       """
       # classify the features and compute the score
-      return self.polarity * (-1. if feature[self.selected_indices] < self.threshold else 1.)
+      return self.polarity * (-1. if feature[self.selected_index] < self.threshold else 1.)
 
 
     def save(self, hdf5File):
       """Saves the current state of this machine to the given HDF5File."""
-      hdf5File.set("Indices", self.selected_indices)
+      hdf5File.set("Index", self.selected_index)
       hdf5File.set("Threshold", self.threshold)
       hdf5File.set("Polarity", self.polarity)
 
     def load(self, hdf5File):
       """Reads the state of this machine from the given HDF5File."""
-      self.selected_indices = hdf5File.read("Indices")
+      self.selected_index = hdf5File.read("Index")
       self.threshold = hdf5File.read("Threshold")
       self.polarity = hdf5File.read("Polarity")
-      if isinstance(self.selected_indices, int):
-        self.selected_indices = numpy.array([self.selected_indices], dtype=numpy.int)
 
 
+from .. import StumpMachine as CppStumpMachine
 
 class StumpTrainer():
     """ The weak trainer class for training stumps as classifiers. The trainer is parametrized
     the threshold and the polarity.
     """
-
-
-
-
 
     def compute_weak_trainer(self, fea, loss_grad):
 
@@ -122,7 +117,7 @@ class StumpTrainer():
 
         #  Find the optimum id and its corresponding trainer
         opt_id = gain.argmax()
-        return StumpMachine(threshold[opt_id], polarity[opt_id], opt_id)
+        return CppStumpMachine(threshold[opt_id], polarity[opt_id], numpy.int32(opt_id))
 
 
 
@@ -200,9 +195,12 @@ class LutMachine():
                     type: Integer
 
         """
-        self.luts = numpy.ones((num_entries, num_outputs), dtype = numpy.int)
-        self.selected_indices = numpy.zeros((num_outputs,), 'int16')
+        self.luts = numpy.ones((num_entries, num_outputs), numpy.float64)
+        self.selected_indices = numpy.zeros((num_outputs,), numpy.int32)
 
+
+    def feature_indices(self):
+      return self.selected_indices
 
 
     def get_weak_scores(self, features):
@@ -249,6 +247,7 @@ class LutMachine():
       self.selected_indices = hdf5File.read("Indices")
       if isinstance(self.selected_indices, int):
         self.selected_indices = numpy.array([self.selected_indices], dtype=numpy.int)
+
 
 
 from .. import LUTMachine
@@ -311,7 +310,7 @@ class LutTrainer():
         # num_outputs = loss_grad.shape[1]
         fea_grad = numpy.zeros([self.num_entries, self.num_outputs])
         luts = numpy.ones((self.num_entries, self.num_outputs), numpy.float64)
-        selected_indices = numpy.ndarray((self.num_outputs,), numpy.uint64)
+        selected_indices = numpy.ndarray((self.num_outputs,), numpy.int32)
 
         # Compute the sum of the gradient based on the feature values or the loss associated with each
         # feature index

@@ -70,6 +70,7 @@ setup(
       Extension(
         'xbob.boosting._boosting',
         [
+          "xbob/boosting/cpp/stumpmachine.cpp",
           "xbob/boosting/cpp/lutmachine.cpp",
           "xbob/boosting/cpp/boosted_machine.cpp",
           "xbob/boosting/cpp/bindings.cpp",

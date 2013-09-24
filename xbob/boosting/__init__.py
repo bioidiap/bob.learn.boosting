@@ -1,5 +1,5 @@
 # import the C++ stuff
-from ._boosting import BoostedMachine, LUTMachine
+from ._boosting import StumpMachine, LUTMachine, BoostedMachine
 
 import core
 import features

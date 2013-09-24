@@ -1,8 +1,9 @@
-#include <Machines.h>
+#include "Machines.h"
 #include <bob/core/cast.h>
 #include <assert.h>
+#include <set>
 
-LUTMachine::LUTMachine(const blitz::Array<double,2> look_up_tables, const blitz::Array<uint64_t,1> indices):
+LUTMachine::LUTMachine(const blitz::Array<double,2> look_up_tables, const blitz::Array<int,1> indices):
   m_look_up_tables(look_up_tables.shape()),
   m_indices(indices.shape()),
   m_look_up_table(),
@@ -56,19 +57,28 @@ void LUTMachine::forward3(const blitz::Array<uint16_t,2>& features, blitz::Array
   }
 }
 
-blitz::Array<uint64_t,1> LUTMachine::getIndices() const{
-  std::set<uint64_t> indices;
+blitz::Array<int,1> LUTMachine::getIndices() const{
+  std::set<int> indices;
   for (int i = 0; i < m_indices.extent(0); ++i){
     indices.insert(m_indices(i));
   }
-  blitz::Array<uint64_t, 1> ret(indices.size());
+  blitz::Array<int, 1> ret(indices.size());
   std::copy(indices.begin(), indices.end(), ret.begin());
   return ret;
 }
 
 void LUTMachine::load(bob::io::HDF5File& file){
-  m_look_up_tables.reference(bob::core::array::cast<double>(file.readArray<int64_t,2>("LUT")));
-  m_indices.reference(bob::core::array::cast<uint64_t>(file.readArray<int64_t,1>("Indices")));
+  try{
+    m_look_up_tables.reference(file.readArray<double,2>("LUT"));
+  }catch (std::exception){
+    m_look_up_tables.reference(bob::core::array::cast<double>(file.readArray<int64_t,2>("LUT")));
+  }
+  try{
+    m_indices.reference(file.readArray<int,1>("Indices"));
+  }catch (std::exception){
+    m_indices.reference(bob::core::array::cast<int>(file.readArray<int64_t,1>("Indices")));
+  }
+
   m_look_up_table.reference(m_look_up_tables(blitz::Range::all(), 0));
   m_index = m_indices(0);
 }

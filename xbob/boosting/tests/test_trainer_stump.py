@@ -29,8 +29,8 @@ class TestStumpTrainer(unittest.TestCase):
 
         self.assertTrue(stump.threshold <= numpy.max(x_train))
         self.assertTrue(stump.threshold >= numpy.min(x_train))
-        self.assertTrue(stump.selected_indices >= 0)
-        self.assertTrue(stump.selected_indices < dim)
+        self.assertTrue(stump.feature_indices() >= 0)
+        self.assertTrue(stump.feature_indices() < dim)
 
 
 
@@ -42,7 +42,7 @@ class TestStumpTrainer(unittest.TestCase):
                                    [ 1.03220648,  0.20467357,  0.67769647,  0.57652722,  0.45538562],
                                    [ 1.49901643,  1.34450249,  0.08667704,  0.33658217, -1.32629319]], 'float64')
 
-       
+
         num_samples = 4
         dim = 5
         selected_index = 2
@@ -59,7 +59,7 @@ class TestStumpTrainer(unittest.TestCase):
 
         stump = trainer.compute_weak_trainer(x_train,loss)
 
-        self.assertEqual(stump.selected_indices, selected_index)
+        self.assertEqual(stump.feature_indices(), selected_index)
 
     def test_stump_polarity(self):
         # test the stump trainer if the polarity is reversed with change in targets sign
@@ -85,7 +85,7 @@ class TestStumpTrainer(unittest.TestCase):
 
         stump = trainer.compute_weak_trainer(x_train,loss)
 
-        self.assertEqual(stump.selected_indices, selected_index)
+        self.assertEqual(stump.feature_indices(), selected_index)
 
         polarity = stump.polarity
 
@@ -93,9 +93,9 @@ class TestStumpTrainer(unittest.TestCase):
         y_train = - y_train
         t = y_train*scores
         loss = -y_train*(numpy.exp(y_train*scores))
-        
+
         stump = trainer.compute_weak_trainer(x_train,loss)
-        polarity_rev = stump.polarity 
+        polarity_rev = stump.polarity
         self.assertEqual(polarity, -polarity_rev)
 
     def test_threshold(self):
@@ -123,22 +123,20 @@ class TestStumpTrainer(unittest.TestCase):
 
         stump = trainer.compute_weak_trainer(x_train,loss)
 
-        print stump.threshold 
-
         self.assertTrue(stump.threshold > delta2)
         self.assertTrue(stump.threshold < delta1)
 
 
     def test_compute_thresh(self):
-        # Test the threshold for a single feature 
+        # Test the threshold for a single feature
         trainer = xbob.boosting.core.trainers.StumpTrainer()
 
         num_samples = 10
         # The value of feature for class 1
-        fea1 = 1                          
-        # The value of the feature for class 2   
+        fea1 = 1
+        # The value of the feature for class 2
         fea2 = 10
-        
+
         # feature vector for 10 samples
         features = numpy.array([fea1, fea1,fea1,fea1,fea1,fea2,fea2,fea2,fea2,fea2])
         label = numpy.array([1,1,1,1,1,-1, -1, -1,-1,-1])
@@ -164,10 +162,10 @@ class TestStumpTrainer(unittest.TestCase):
 
         num_samples = 10
         # The value of feature for class 1
-        fea1 = 1                          
-        # The value of the feature for class 2   
+        fea1 = 1
+        # The value of the feature for class 2
         fea2 = 10
-        
+
         # feature vector for 10 samples
         features = numpy.array([fea1, fea1, fea2, fea1, fea2, fea1, fea2, fea1, fea2, fea2])
         label =     numpy.array([ 1,    1,   -1,   1,    -1,    1,   -1,   1,    -1,  -1])
@@ -193,10 +191,10 @@ class TestStumpTrainer(unittest.TestCase):
 
         num_samples = 10
         # The value of feature for class 1
-        fea1 = 10                          
-        # The value of the feature for class 2   
+        fea1 = 10
+        # The value of the feature for class 2
         fea2 = 1
-        
+
         # feature vector for 10 samples
         features = numpy.array([fea1, fea1, fea2, fea1, fea2, fea1, fea2, fea1, fea2, fea2])
         label =     numpy.array([ 1,    1,   -1,   1,    -1,    1,   -1,   1,    -1,  -1])
@@ -206,7 +204,7 @@ class TestStumpTrainer(unittest.TestCase):
 
         trained_polarity, trained_threshold, trained_gain = trainer.compute_thresh(features, loss)
 
-        
+
         if(fea1 < fea2):
             polarity = -1
         else:

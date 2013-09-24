@@ -259,7 +259,7 @@ class BoostMachine():
 
     def _update(self):
       """ Initializes internal variables."""
-      self.selected_indices = set([weak_trainer.selected_indices[i] for weak_trainer in self.weak_trainer for i in range(self.number_of_outputs)])
+      self.selected_indices = set([weak_trainer.feature_indices()[i] for weak_trainer in self.weak_trainer for i in range(self.number_of_outputs)])
       self._weak_results = numpy.ndarray((len(self.weak_trainer),), numpy.float64)
 
 
@@ -374,7 +374,7 @@ class BoostMachine():
         } [weak_machine_type]
         weak_machine.load(hdf5File)
         self.weak_trainer.append(weak_machine)
-        self.selected_indices |= set([weak_machine.selected_indices[i] for i in range(self.number_of_outputs)])
+        self.selected_indices |= set([weak_machine.feature_indices()[i] for i in range(self.number_of_outputs)])
         hdf5File.cd('..')
       self._update()
 

@@ -22,7 +22,7 @@ def get_image_3x3(val):
 class TestdlbpFeatures(unittest.TestCase):
     """Perform test for dlbp features"""
 
-    """ The neighbourhood is defined as 
+    """ The neighbourhood is defined as
         p0 | p1 | p2
         p7 | pc | p3
         p6 | p5 | p4 """
@@ -36,25 +36,24 @@ class TestdlbpFeatures(unittest.TestCase):
         self.assertTrue(returned_lbp == 255)
 
 
-        img_values = numpy.array([20,1,1,1,10,10,10,10,5]) 
+        img_values = numpy.array([20,1,1,1,10,10,10,10,5])
         img = get_image_3x3(img_values)
         returned_lbp = feature_extractor.dlbp(img)
-        print returned_lbp
         self.assertTrue(returned_lbp == 3)
 
-        img_values = numpy.array([1,20,1,1,10,10,10,10,5]) 
+        img_values = numpy.array([1,20,1,1,10,10,10,10,5])
         img = get_image_3x3(img_values)
         returned_lbp = feature_extractor.dlbp(img)
         self.assertTrue(returned_lbp == 12)
 
-        img_values = numpy.array([1,1,20,1,10,10,10,10,5]) 
+        img_values = numpy.array([1,1,20,1,10,10,10,10,5])
         img = get_image_3x3(img_values)
         returned_lbp = feature_extractor.dlbp(img)
         self.assertTrue(returned_lbp == 48)
 
-        img_values = numpy.array([1,1,1,20,10,10,10,10,5]) 
+        img_values = numpy.array([1,1,1,20,10,10,10,10,5])
         img = get_image_3x3(img_values)
         returned_lbp = feature_extractor.dlbp(img)
         self.assertTrue(returned_lbp == 192)
 
-        
+
