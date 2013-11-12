@@ -60,5 +60,5 @@ void StumpMachine::save(bob::io::HDF5File& file) const{
   file.set("Threshold", m_threshold);
   file.set("Polarity", m_polarity);
   file.set("Index", m_index);
-  file.setAttribute(".", "MachineType", "StumpMachine");
+  file.setAttribute(".", "MachineType", std::string("StumpMachine"));
 }

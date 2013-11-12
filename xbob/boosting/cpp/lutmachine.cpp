@@ -86,5 +86,5 @@ void LUTMachine::load(bob::io::HDF5File& file){
 void LUTMachine::save(bob::io::HDF5File& file) const{
   file.setArray("LUT", m_look_up_tables);
   file.setArray("Indices", m_indices);
-  file.setAttribute(".", "MachineType", "LUTMachine");
+  file.setAttribute(".", "MachineType", std::string("LUTMachine"));
 }
