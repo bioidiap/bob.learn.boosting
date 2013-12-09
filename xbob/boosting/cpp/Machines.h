@@ -14,7 +14,7 @@ class WeakMachine{
     virtual void forward3(const blitz::Array<uint16_t, 2>& features, blitz::Array<double,2> predictions) const {throw std::runtime_error("This function is not implemented for the given data type in the current class.");}
     virtual void forward3(const blitz::Array<double, 2>& features, blitz::Array<double,2> predictions) const {throw std::runtime_error("This function is not implemented for the given data type in the current class.");}
 
-    virtual blitz::Array<int,1> getIndices() const = 0;
+    virtual blitz::Array<int32_t,1> getIndices() const = 0;
 
     virtual void save(bob::io::HDF5File& file) const = 0;
     virtual void load(bob::io::HDF5File& file) = 0;
@@ -31,7 +31,7 @@ class StumpMachine : public WeakMachine{
     virtual double forward1(const blitz::Array<double, 1>& features) const;
     virtual void forward2(const blitz::Array<double, 2>& features, blitz::Array<double,1> predictions) const;
 
-    virtual blitz::Array<int,1> getIndices() const;
+    virtual blitz::Array<int32_t,1> getIndices() const;
 
     double getThreshold() const {return m_threshold;}
     double getPolarity() const {return m_polarity;}
@@ -45,7 +45,7 @@ class StumpMachine : public WeakMachine{
     // the LUT for the multi-variate case
     double m_threshold;
     double m_polarity;
-    int m_index;
+    int32_t m_index;
 };
 
 
@@ -58,7 +58,7 @@ class LUTMachine : public WeakMachine{
     virtual void forward2(const blitz::Array<uint16_t, 2>& features, blitz::Array<double,1> predictions) const;
     virtual void forward3(const blitz::Array<uint16_t, 2>& features, blitz::Array<double,2> predictions) const;
 
-    virtual blitz::Array<int,1> getIndices() const;
+    virtual blitz::Array<int32_t,1> getIndices() const;
 
     virtual void save(bob::io::HDF5File& file) const;
     virtual void load(bob::io::HDF5File& file);
@@ -68,10 +68,10 @@ class LUTMachine : public WeakMachine{
   private:
     // the LUT for the multi-variate case
     blitz::Array<double,2> m_look_up_tables;
-    blitz::Array<int,1> m_indices;
+    blitz::Array<int32_t,1> m_indices;
     // for speed reasons, we also keep the LUT for the uni-variate case
     blitz::Array<double,1> m_look_up_table;
-    int m_index;
+    int32_t m_index;
 };
 
 
@@ -104,9 +104,11 @@ class BoostedMachine{
     // predicts the output and the labels for the given features (multi-variate case)
     void forward3(const blitz::Array<uint16_t, 2>& features, blitz::Array<double,2> predictions, blitz::Array<double,2> labels) const;
 
-    blitz::Array<int,1> getIndices() const;
+    blitz::Array<int32_t,1> getIndices(int start = 0, int end = -1) const;
 
     const blitz::Array<double,2> getWeights() const {return m_weights;}
+
+    const std::vector<boost::shared_ptr<WeakMachine> >& getWeakMachines() const {return m_weak_machines;}
 
     // writes the machine to file
     void save(bob::io::HDF5File& file) const;

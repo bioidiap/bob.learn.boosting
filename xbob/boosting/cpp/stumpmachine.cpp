@@ -44,8 +44,8 @@ void StumpMachine::forward2(const blitz::Array<uint16_t, 2>& features, blitz::Ar
 }
 
 
-blitz::Array<int,1> StumpMachine::getIndices() const{
-  blitz::Array<int, 1> ret(1);
+blitz::Array<int32_t,1> StumpMachine::getIndices() const{
+  blitz::Array<int32_t, 1> ret(1);
   ret = m_index;
   return ret;
 }
@@ -53,7 +53,7 @@ blitz::Array<int,1> StumpMachine::getIndices() const{
 void StumpMachine::load(bob::io::HDF5File& file){
   m_threshold = file.read<double>("Threshold");
   m_polarity = file.read<double>("Polarity");
-  m_index = file.read<int>("Index");
+  m_index = file.read<int32_t>("Index");
 }
 
 void StumpMachine::save(bob::io::HDF5File& file) const{

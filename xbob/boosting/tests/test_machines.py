@@ -105,7 +105,7 @@ def test_cpp_machine():
   # try to read the machine from the temp file, which was written with the python version
   f = get_temp_file()
   new_machine = xbob.boosting.BoostedMachine(bob.io.HDF5File(f))
-  assert (new_machine.alpha() == 1).all()
+  assert (new_machine.alpha == 1).all()
 
   os.remove(get_temp_file())
 

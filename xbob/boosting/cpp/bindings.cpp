@@ -1,7 +1,10 @@
+#include <boost/make_shared.hpp>
 #include <boost/python.hpp>
+#include <boost/python/stl_iterator.hpp>
 
 #include <bob/config.h>
 #include <bob/python/ndarray.h>
+#include <bob/python/gil.h>
 
 #include "Machines.h"
 
@@ -12,6 +15,47 @@ static void f12(StumpMachine& s, const blitz::Array<double,2>& f, blitz::Array<d
 
 static double f21(StumpMachine& s, const blitz::Array<uint16_t,1>& f){return s.forward1(f);}
 static void f22(StumpMachine& s, const blitz::Array<uint16_t,2>& f, blitz::Array<double,1> p){s.forward2(f,p);}
+
+
+static double forward1(const BoostedMachine& self, const blitz::Array<uint16_t, 1>& features){
+  bob::python::no_gil t;
+  return self.forward1(features);
+}
+
+static void forward2(const BoostedMachine& self, const blitz::Array<uint16_t, 2>& features, blitz::Array<double,1> predictions, blitz::Array<double,1> labels){
+  bob::python::no_gil t;
+  self.forward2(features, predictions, labels);
+}
+
+static void forward3(const BoostedMachine& self, const blitz::Array<uint16_t, 2>& features, blitz::Array<double,2> predictions, blitz::Array<double,2> labels){
+  bob::python::no_gil t;
+  self.forward3(features, predictions, labels);
+}
+
+
+static boost::shared_ptr<BoostedMachine> init_from_vector_of_weak2(object weaks, const blitz::Array<double,1>& weights){
+  stl_input_iterator<boost::shared_ptr<WeakMachine> > dbegin(weaks), dend;
+  boost::shared_ptr<BoostedMachine> strong = boost::make_shared<BoostedMachine>();
+
+  for (int i = 0; dbegin != dend; ++dbegin, ++i){
+    strong->add_weak_machine2(*dbegin, weights(i));
+  }
+  return strong;
+}
+
+static object get_weak_machines(const BoostedMachine& self){
+  const std::vector<boost::shared_ptr<WeakMachine> >& weaks = self.getWeakMachines();
+  list ret;
+  for (std::vector<boost::shared_ptr<WeakMachine> >::const_iterator it = weaks.begin(); it != weaks.end(); ++it){
+    ret.append(*it);
+  }
+  return ret;
+}
+
+static blitz::Array<int32_t, 1> get_indices(const BoostedMachine& self){
+  return self.getIndices();
+}
+
 
 BOOST_PYTHON_MODULE(_boosting) {
   bob::python::setup_python("Bindings for the xbob.boosting machines.");
@@ -49,15 +93,22 @@ BOOST_PYTHON_MODULE(_boosting) {
   class_<BoostedMachine, boost::shared_ptr<BoostedMachine> >("BoostedMachine",  "A machine containing of several weak machines", no_init)
     .def(init<>(arg("self"), "Creates an empty machine."))
     .def(init<bob::io::HDF5File&>((arg("self"), arg("file")), "Creates a new machine from file"))
+    .def("__init__", make_constructor(&init_from_vector_of_weak2, default_call_policies(), (arg("weak_classifiers"), arg("weights"))), "Uses the given list of weak classifiers and their weights.")
     .def("add_weak_machine", &BoostedMachine::add_weak_machine1, (arg("self"), arg("machine"), arg("weight")), "Adds the given weak machine with the given weight (uni-variate)")
     .def("add_weak_machine", &BoostedMachine::add_weak_machine2, (arg("self"), arg("machine"), arg("weights")), "Adds the given weak machine with the given weights (multi-variate)")
     .def("__call__", &BoostedMachine::forward1, (arg("self"), arg("features")), "Returns the prediction for the given feature vector.")
     .def("__call__", &BoostedMachine::forward2, (arg("self"), arg("features"), arg("predictions"), arg("labels")), "Computes the predictions and the labels for the given feature set (uni-variate).")
     .def("__call__", &BoostedMachine::forward3, (arg("self"), arg("features"), arg("predictions"), arg("labels")), "Computes the predictions and the labels for the given feature set (multi-variate).")
+    .def("forward_p", &forward1, (arg("self"), arg("features")), "Returns the prediction for the given feature vector.")
+    .def("forward_p", &forward2, (arg("self"), arg("features"), arg("predictions"), arg("labels")), "Computes the predictions and the labels for the given feature set (uni-variate).")
+    .def("forward_p", &forward3, (arg("self"), arg("features"), arg("predictions"), arg("labels")), "Computes the predictions and the labels for the given feature set (multi-variate).")
     .def("load", &BoostedMachine::load, "Reads a Machine from file")
     .def("save", &BoostedMachine::save, "Writes the machine to file")
 
-    .def("feature_indices", &BoostedMachine::getIndices, (arg("self")), "Returns the indices required for this machine.")
-    .def("alpha", &BoostedMachine::getWeights, (arg("self")), "Returns the weights for the weak machines.")
+    .def("feature_indices", &BoostedMachine::getIndices, (arg("self"), arg("start")=0, arg("end")=-1), "Get the indices required for this machine. If given, start and end limits the weak machines.")
+    .add_property("indices", &get_indices, "The indices required for this machine.")
+    .add_property("alpha", &BoostedMachine::getWeights, "The weights for the weak machines.")
+    .add_property("weights", &BoostedMachine::getWeights, "The weights for the weak machines.")
+    .add_property("weak_machines", &get_weak_machines, "The weak machines.")
   ;
 }

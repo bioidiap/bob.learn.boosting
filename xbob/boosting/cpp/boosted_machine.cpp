@@ -69,14 +69,15 @@ void BoostedMachine::forward3(const blitz::Array<uint16_t,2>& features, blitz::A
   }
 }
 
-blitz::Array<int,1> BoostedMachine::getIndices() const{
-  std::set<int> indices;
-  for (unsigned i = 0; i < m_weak_machines.size(); ++i){
-    const blitz::Array<int,1>& ind = m_weak_machines[i]->getIndices();
+blitz::Array<int,1> BoostedMachine::getIndices(int start, int end) const{
+  std::set<int32_t> indices;
+  if (end < 0) end = m_weak_machines.size();
+  for (int i = start; i < end; ++i){
+    const blitz::Array<int32_t,1>& ind = m_weak_machines[i]->getIndices();
     indices.insert(ind.begin(), ind.end());
   }
 
-  blitz::Array<int,1> ret(indices.size());
+  blitz::Array<int32_t,1> ret(indices.size());
   std::copy(indices.begin(), indices.end(), ret.begin());
   return ret;
 }

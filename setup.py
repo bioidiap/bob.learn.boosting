@@ -57,9 +57,7 @@ setup(
     # privileges when using buildout.
     install_requires=[
       'setuptools',
-      'bob', # base signal proc./machine learning library
-      'xbob.db.mnist',
-      'xbob.db.banca'
+      'bob' # base signal proc./machine learning library
     ],
 
     cmdclass={
@@ -79,7 +77,7 @@ setup(
           'bob-io',
         ],
         include_dirs = [
-          "xbob/boosting/cpp"
+          "/idiap/user/mguenther/Bob/release/include",
         ],
 # STUFF for DEBUGGING goes here (requires DEBUG bob version...):
 #        extra_compile_args = [
