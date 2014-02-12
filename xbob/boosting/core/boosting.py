@@ -141,7 +141,9 @@ class Boost:
         self.weak_trainer_type = trainer_type
 
 
-
+    def get_loss_function(self):
+      """Returns the loss function this trainer will use."""
+      return losses.LOSS_FUNCTIONS[self.loss_type]()
 
 
     def train(self, fset, targets, boosted_machine = None):
@@ -188,8 +190,7 @@ class Boost:
         else:
           machine = BoostedMachine()
 
-        loss_class = losses.LOSS_FUNCTIONS[self.loss_type]
-        loss_func = loss_class()
+        loss_func = self.get_loss_function()
 
         # For lut trainer the features should be integers
         #if(self.weak_trainer_type == 'LutTrainer'):
