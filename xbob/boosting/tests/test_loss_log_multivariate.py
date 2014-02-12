@@ -20,14 +20,14 @@ class TestLogLossMulti(unittest.TestCase):
         alpha = 0.5
         weak_scores = numpy.array([[0.2, 0.4], [0.5, 0.6]], 'float64')
         prev_scores = numpy.array([[0.1, 0.2],[0.3, 0.4]], 'float64')
-        
+
         # check the loss dimensions
-        loss_value = loss_function.update_loss(targets, score) 
+        loss_value = loss_function.loss(targets, score)
         self.assertTrue(loss_value.shape[0] == num_samples)
         self.assertTrue(loss_value.shape[1] == num_dimension)
 
         # Check loss gradient
-        grad_value = loss_function.update_loss_grad( targets, score)
+        grad_value = loss_function.loss_gradient( targets, score)
         self.assertTrue(grad_value.shape[0] == num_samples)
         self.assertTrue(grad_value.shape[1] == num_dimension)
 
@@ -53,14 +53,14 @@ class TestLogLossMulti(unittest.TestCase):
         alpha = 0.5
         weak_scores = numpy.array([[0.2, 0.4], [0.5, 0.6]], 'float64')
         prev_scores = numpy.array([[0.1, 0.2],[0.3, 0.4]], 'float64')
-        
+
         # check the loss values
-        loss_value = loss_function.update_loss(targets, score) 
+        loss_value = loss_function.loss(targets, score)
         val1 = numpy.log(1 + numpy.exp(- targets * score))
         self.assertTrue((loss_value == val1).all())
 
         # Check loss gradient
-        grad_value = loss_function.update_loss_grad( targets, score)
+        grad_value = loss_function.loss_gradient( targets, score)
         temp = numpy.exp(-targets * score)
         val2 = -(targets * temp* (1/(1 + temp)) )
         self.assertTrue((grad_value == val2).all())
@@ -68,7 +68,7 @@ class TestLogLossMulti(unittest.TestCase):
         # Check loss sum
         loss_sum = loss_function.loss_sum(alpha, targets, prev_scores, weak_scores)
         curr_scores = prev_scores + alpha*weak_scores
-        
+
         val3 = sum(numpy.log(1 + numpy.exp(-targets * curr_scores)))
         self.assertTrue((val3 == loss_sum).all())
 

@@ -3,27 +3,28 @@ import random
 import xbob.boosting
 import numpy
 
-class TestExpLossMulti(unittest.TestCase):
+class TestJesorskyLossMulti(unittest.TestCase):
 
     """ Test the loss function using multivariate data  """
 
-    def test_log_multivariate_dimensions(self):
+    def test_multivariate_dimensions(self):
 
         """ Check the loss function values for multivariate targets """
 
-        loss_function = xbob.boosting.core.losses.ExpLossFunction()
-        num_samples = 3
-        num_outputs = 2
-        targets = numpy.array([[1, -1], [-1, 1], [0, 0]])
-        score = numpy.array([[0.5, 0.5], [0.5, 0.5], [0.5, 0.5]], 'float64')
+        loss_function = xbob.boosting.core.losses.JesorskyLossFunction()
+        num_samples = 2
+        num_outputs = 4
+        targets = numpy.array([[10, 10, 10, 30], [12, 11, 13, 29]])
+        score = numpy.array([[8, 9, 7, 34], [11, 6, 16, 26]], 'float64')
         alpha = 0.5
-        weak_scores = numpy.array([[0.2, 0.4], [0.5, 0.6], [0.5, 0.5]], 'float64')
-        prev_scores = numpy.array([[0.1, 0.2],[0.3, 0.4], [0.5, 0.5]], 'float64')
+        weak_scores = numpy.array([[0.2, 0.4, 0.5, 0.6], [0.5, 0.5, 0.5, 0.5]], 'float64')
+        prev_scores = numpy.array([[0.1, 0.2, 0.3, 0.4], [0.5, 0.5, 0.5, 0.5]], 'float64')
+#        print targets.shape
 
         # check the loss dimensions
         loss_value = loss_function.loss(targets, score)
         self.assertTrue(loss_value.shape[0] == num_samples)
-        self.assertTrue(loss_value.shape[1] == num_outputs)
+        self.assertTrue(loss_value.shape[1] == 1)
 
         # Check loss gradient
         grad_value = loss_function.loss_gradient( targets, score)
@@ -32,7 +33,7 @@ class TestExpLossMulti(unittest.TestCase):
 
         # Check loss sum
         loss_sum = loss_function.loss_sum(alpha, targets, prev_scores, weak_scores)
-        self.assertTrue(loss_sum.shape[0] == num_outputs)
+        self.assertTrue(loss_sum.shape[0] == 1)
 
 
         # Check the gradient sum
@@ -41,17 +42,18 @@ class TestExpLossMulti(unittest.TestCase):
 
 
 
-    def test_exp_negative_target(self):
+    def notest_negative_target(self):
 
-        loss_function = xbob.boosting.core.losses.ExpLossFunction()
+        loss_function = xbob.boosting.core.losses.JesorskyLossFunction()
         num_samples = 2
         num_dimension = 2
-        targets = numpy.array([[1, -1], [-1, 1]])
-        score = numpy.array([[0.5, 0.5], [0.5, 0.5]], 'float64')
+        targets = numpy.array([[10, 10, 10, 30], [12, 11, 13, 29]])
+        score = numpy.array([[8, 9, 7, 34], [11, 6, 16, 26]], 'float64')
         alpha = 0.5
-        weak_scores = numpy.array([[0.2, 0.4], [0.5, 0.6]], 'float64')
-        prev_scores = numpy.array([[0.1, 0.2],[0.3, 0.4]], 'float64')
+        weak_scores = numpy.array([[0.2, 0.4, 0.5, 0.6], [0.5, 0.5, 0.5, 0.5]], 'float64')
+        prev_scores = numpy.array([[0.1, 0.2, 0.3, 0.4], [0.5, 0.5, 0.5, 0.5]], 'float64')
 
+        # TODO: implement this test properly
         # check the loss values
         loss_value = loss_function.loss(targets, score)
         val1 = numpy.exp(- targets * score)

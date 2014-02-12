@@ -2,280 +2,214 @@ import numpy
 import math
 
 
+class LossFunction:
 
-class ExpLossFunction():
-    """ The class to implement the exponential loss function for the boosting framework. 
+  def loss(self, targets, scores):
+    raise NotImplementedError("This is a pure abstract function. Please implement that in your derived class.")
+
+  def loss_gradient(self, targets, scores):
+    raise NotImplementedError("This is a pure abstract function. Please implement that in your derived class.")
+
+
+  def loss_sum(self, alpha, targets, prediction_scores, weak_scores):
+    """The function computes the sum of the loss which is used to find the optimized values of alpha (x).
+
+    The functions computes sum of loss values which is required during the linesearch step for the optimization of the alpha.
+    This function is given as the input for the lbfgs optimization function.
+
+    Inputs:
+    alpha: The current value of the alpha.
+       type: float
+
+    targets: The targets for the samples
+             type: numpy array (# number of samples x # number of outputs)
+
+    pred_scores: The cumulative prediction scores of the samples until the previous round of the boosting.
+             type: numpy array (# number of samples x # number of outputs)
+
+    curr_scores: The prediction scores of the samples for the current round of the boosting.
+             type: numpy array (# number of samples x # number of outputs)
+
+
+    Return:
+    sum_loss: The sum of the loss values for the current value of the alpha
+             type: float
     """
 
+    # compute the scores and loss for the current alpha
+    curr_scores = prediction_scores + alpha * weak_scores
+    loss = self.loss(targets, curr_scores)
 
-    def update_loss(self, targets, scores):
-        """The function computes the exponential loss values using prediction scores and targets.
-
-        Inputs: 
-        targets: The targets for the samples
-                 type: numpy array (# number of samples x #number of outputs)
-        
-        scores: The current prediction scores for the samples.
-                type: numpy array (# number of samples) 
-
-        Return:
-        loss: The loss values for the samples     """
-
-        return numpy.exp(-(targets * scores))
-        #return loss 
-
-    def update_loss_grad(self, targets, scores):
-        """The function computes the gradient of the exponential loss function using prediction scores and targets.
-
-        Inputs: 
-        targets: The targets for the samples
-                 type: numpy array (# number of samples x #number of outputs)
-        
-        scores: The current prediction scores for the samples.
-                type: numpy array (# number of samples) 
-
-        Return:
-        gradient: The loss gradient values for the samples     """
-        loss = numpy.exp(-(targets * scores))
-        loss_grad = -targets * loss
-        return loss_grad
-        #return loss_grad
-
-    #def loss_sum(self, *args):
-    def loss_sum(self, alpha, targets, prediction_scores, weak_scores):
-        """The function computes the sum of the exponential loss which is used to find the optimized values of alpha (x).
-         
-        The functions computes sum of loss values which is required during the linesearch step for the optimization of the alpha.
-        This function is given as the input for the lbfgs optimization function. 
-
-        Inputs: 
-        alpha: The current value of the alpha.
-           type: float
-
-        targets: The targets for the samples
-                 type: numpy array (# number of samples x #number of outputs)
-        
-        pred_scores: The cumulative prediction scores of the samples until the previous round of the boosting.
-                 type: numpy array (# number of samples) 
-
-        curr_scores: The prediction scores of the samples for the current round of the boosting.
-                 type: numpy array (# number of samples) 
+    # compute the sum of the loss
+    return numpy.sum(loss, 0)
 
 
-        Return:
-        sum_loss: The sum of the loss values for the current value of the alpha    
-                 type: float"""
-        """
-        # initialize the values
-        x = args[0]
-        targets = args[1]
-        pred_scores = args[2]
-        weak_scores = args[3]
-        """
-        
-        # compute the scores and loss for the current alpha
-        curr_scores = prediction_scores + alpha * weak_scores
-        loss = self.update_loss(targets, curr_scores)
+  def loss_grad_sum(self, alpha, targets, prediction_scores, weak_scores):
+    """The function computes the gradient as the sum of the derivatives per sample which is used to find the optimized values of alpha (x).
 
-        # compute the sum of the loss
-        sum_loss = numpy.sum(loss,0)
-        return sum_loss
-        
+    The functions computes sum of loss values which is required during the linesearch step for the optimization of the alpha.
+    This function is given as the input for the lbfgs optimization function.
 
-    def loss_grad_sum(self, alpha, targets, prediction_scores, weak_scores):
-        """The function computes the sum of the exponential loss which is used to find the optimized values of alpha (x).
-         
-        The functions computes sum of loss values which is required during the linesearch step for the optimization of the alpha.
-        This function is given as the input for the lbfgs optimization function. 
+    Inputs:
+    alpha: The current value of the alpha.
+       type: float
 
-        Inputs: 
-        x: The current value of the alpha.
-           type: float
+    targets: The targets for the samples
+             type: numpy array (# number of samples x # number of outputs)
 
-        targets: The targets for the samples
-                 type: numpy array (# number of samples x #number of outputs)
-        
-        pred_scores: The cumulative prediction scores of the samples until the previous round of the boosting.
-                 type: numpy array (# number of samples) 
+    pred_scores: The cumulative prediction scores of the samples until the previous round of the boosting.
+             type: numpy array (# number of samples x # number of outputs)
 
-        curr_scores: The prediction scores of the samples for the current round of the boosting.
-                 type: numpy array (# number of samples) 
+    curr_scores: The prediction scores of the samples for the current round of the boosting.
+             type: numpy array (# number of samples x # number of outputs)
 
 
-        Return:
-        sum_loss: The sum of the loss gradient values for the current value of the alpha    
-                 type: float"""
-
-        """
-        # initialize the values
-        x = args[0]
-        targets = args[1]
-        pred_scores = args[2]
-        weak_scores = args[3]
-        """
-
-        # compute the loss gradient for the updated score
-        curr_scores = prediction_scores + alpha *weak_scores
-        loss_grad = self.update_loss_grad(targets, curr_scores)
-
-        # take the sum of the loss gradient values
-        sum_grad = numpy.sum(loss_grad*weak_scores, 0)
-        return sum_grad
-
-
-
-
-"""Log loss function """
-class LogLossFunction():
-    """ The class to implement the logit loss function for the boosting framework. 
+    Returns
+      The sum of the loss gradient values for the current value of the alpha
+      type: numpy array (# number of outputs)
     """
-    def update_loss(self, targets, scores):
-        """The function computes the exponential loss values using prediction scores and targets.
 
-        Inputs: 
-        targets: The targets for the samples
-                 type: numpy array (# number of samples x #number of outputs)
-        
-        scores: The current prediction scores for the samples.
-                type: numpy array (# number of samples) 
+    # compute the loss gradient for the updated score
+    curr_scores = prediction_scores + alpha * weak_scores
+    loss_grad = self.loss_gradient(targets, curr_scores)
 
-        Return:
-        loss: The loss values for the samples     """
-        e = numpy.exp(-(targets * scores))
-        return numpy.log(1 + e)
+    # take the sum of the loss gradient values
+    return numpy.sum(loss_grad * weak_scores, 0)
 
 
-    def update_loss_grad(self, targets, scores):
-        """The function computes the gradient of the exponential loss function using prediction scores and targets.
+class ExpLossFunction(LossFunction):
+  """ The class to implement the exponential loss function for the boosting framework.
+  """
+  def loss(self, targets, scores):
+    """The function computes the exponential loss values using prediction scores and targets.
 
-        Inputs: 
-        targets: The targets for the samples
-                 type: numpy array (# number of samples x #number of outputs)
-        
-        scores: The current prediction scores for the samples.
-                type: numpy array (# number of samples x # number of outputs) 
+    Inputs:
+    targets: The targets for the samples
+             type: numpy array (# number of samples x # number of outputs)
 
-        Return:
-        gradient: The loss gradient values for the samples     """
-        e = numpy.exp(-(targets * scores))
-        denom = 1/(1 + e)
-        return - targets* e* denom
+    scores: The current prediction scores for the samples.
+            type: numpy array (# number of samples x # number of outputs)
 
-    def loss_sum(self, alpha, targets, prediction_scores, weak_scores):
-        """The function computes the sum of the logit loss which is used to find the optimized values of alpha (x).
-         
-        The functions computes sum of loss values which is required during the linesearch step for the optimization of the alpha.
-        This function is given as the input for the lbfgs optimization function. 
+    Returns
+      The loss values for the samples
+    """
+    return numpy.exp(-(targets * scores))
 
-        Inputs: 
-        x: The current value of the alpha.
-           type: float
+  def loss_gradient(self, targets, scores):
+    """The function computes the gradient of the exponential loss function using prediction scores and targets.
 
-        targets: The targets for the samples
-                 type: numpy array (# number of samples x #number of outputs)
-        
-        prediction_scores: The cumulative prediction scores of the samples until the previous round of the boosting.
-                 type: numpy array (# number of samples) 
+    Inputs:
+    targets: The targets for the samples
+             type: numpy array (# number of samples x # number of outputs)
 
-        weak_scores: The prediction scores of the samples for the current round of the boosting.
-                 type: numpy array (# number of samples) 
+    scores: The current prediction scores for the samples.
+            type: numpy array (# number of samples x # number of outputs)
 
-
-        Return:
-        sum_loss: The sum of the loss values for the current value of the alpha    
-                 type: float"""
-
-        """
-        x = args[0]
-        targets = args[1]
-        pred_scores = args[2]
-        weak_scores = args[3]
-        """
-        curr_scores = prediction_scores + alpha*weak_scores
-        loss = self.update_loss(targets, curr_scores)
-        sum_loss = numpy.sum(loss,0)
-        return sum_loss
-        
-    def loss_grad_sum(self, alpha, targets, prediction_scores, weak_scores):
-        """The function computes the sum of the logit loss gradient which is used to find the optimized values of alpha (x).
-         
-        The functions computes sum of loss values which is required during the linesearch step for the optimization of the alpha.
-        This function is given as the input for the lbfgs optimization function. 
-
-        Inputs: 
-        x: The current value of the alpha.
-           type: float
-
-        targets: The targets for the samples
-                 type: numpy array (# number of samples x #number of outputs)
-        
-        pred_scores: The cumulative prediction scores of the samples until the previous round of the boosting.
-                 type: numpy array (# number of samples) 
-
-        curr_scores: The prediction scores of the samples for the current round of the boosting.
-                 type: numpy array (# number of samples) 
+    Returns
+      The loss gradient values for the samples
+    """
+    loss = numpy.exp(-(targets * scores))
+    return -targets * loss
 
 
-        Return:
-        sum_loss: The sum of the loss gradient values for the current value of the alpha    
-                 type: float"""
-        """
-        x = args[0]
-        targets = args[1]
-        pred_scores = args[2]
-        weak_scores = args[3]
-        """
-        curr_scores = prediction_scores + alpha*weak_scores
-        loss_grad = self.update_loss_grad( targets, curr_scores)
-        sum_grad = numpy.sum(loss_grad*weak_scores, 0)
-        return sum_grad
+class LogLossFunction(LossFunction):
+  """ The class to implement the logit loss function for the boosting framework.
+  """
+  def loss(self, targets, scores):
+    """The function computes the exponential loss values using prediction scores and targets.
+
+    Inputs:
+    targets: The targets for the samples
+             type: numpy array (# number of samples x # number of outputs)
+
+    scores: The current prediction scores for the samples.
+            type: numpy array (# number of samples x # number of outputs)
+
+    Returns
+      The loss values for the samples
+    """
+    e = numpy.exp(-(targets * scores))
+    return numpy.log(1 + e)
 
 
-    """def loss_sum(self, targets, scores):
-        loss = self.update_loss(self,targets, scores)
-        return np.sum(loss, 0)
+  def loss_gradient(self, targets, scores):
+    """The function computes the gradient of the exponential loss function using prediction scores and targets.
 
-    def loss_grad_sum(self, targets, scores)
-        loss_grad = self.update_loss_grad(self, targets, scores)"""
+    Inputs:
+    targets: The targets for the samples
+             type: numpy array (# number of samples x # number of outputs)
+
+    scores: The current prediction scores for the samples.
+            type: numpy array (# number of samples x # number of outputs)
+
+    Returns
+      The loss gradient values for the samples
+    """
+    e = numpy.exp(-(targets * scores))
+    denom = 1./(1. + e)
+    return - targets * e * denom
 
 
-"""Tangent loss function """
 
 class TangLossFunction():
-    def update_loss(self, targets, scores):
-        loss = (2* numpy.arctan(targets * scores) -1)**2
-        return loss
+  """Tangent loss function """
+  def loss(self, targets, scores):
+      return (2. * numpy.arctan(targets * scores) -1)**2
 
-    def update_loss_grad(self, targets, scores):
-        m = targets*scores
-        numer = 4*(2*numpy.arctan(m) -1)
-        denom = 1 + m**2
-        loss_grad = numer/denom
-        return loss_grad
+  def loss_gradient(self, targets, scores):
+    m = targets*scores
+    numer = 4.*(2. * numpy.arctan(m) - 1.)
+    denom = 1. + m**2
+    return numer/denom
 
-    def loss_sum(self, *args):
-        x = args[0]
-        targets = args[1]
-        pred_scores = args[2]
-        weak_scores = args[3]
-        curr_scores_x = pred_scores + x*weak_scores
-        loss = self.update_loss(targets, curr_scores_x)
-        return numpy.sum(loss, 0)
-        
-    #@abstractmethod
-    def loss_grad_sum(self, *args):
-        x = args[0]
-        targets = args[1]
-        pred_scores = args[2]
-        weak_scores = args[3]
-        curr_scores_x = pred_scores + x*weak_scores
-        loss_grad = self.update_loss_grad( targets, curr_scores_x)
-        return numpy.sum(loss_grad*weak_scores, 0)
 
+
+class JesorskyLossFunction (LossFunction):
+
+  def _inter_eye_distance(self, targets):
+    """Computes the inter eye distance from the given target vector.
+    It assumes that the eyes are stored as the first two elements in the vector,
+    as: [0]: re_y [1]: re_x, [2]: le_y, [3]: re_x
+    """
+    return math.sqrt((targets[0] - targets[2])**2 + (targets[1] - targets[3])**2)
+
+  def loss(self, targets, scores):
+    """Computes the jesorsky loss for the given target and score vectors."""
+
+    """
+    errors = numpy.ndarray(targets.shape[0], numpy.float)
+    for i in range(targets.shape[0]):
+      scale = 0.5/self._inter_eye_distance(targets[i])
+      errors[i] = math.sqrt(numpy.sum((targets[i] - scores[i])**2)) * scale
+    """
+    errors = numpy.zeros((targets.shape[0],1), numpy.float)
+    for i in range(targets.shape[0]):
+      scale = 0.5/self._inter_eye_distance(targets[i])
+      for j in range(0, targets.shape[1], 2):
+        dx = scores[i,j] - targets[i,j]
+        dy = scores[i,j+1] - targets[i,j+1]
+        errors[i,0] += math.sqrt(dx**2 + dy**2) * scale
+
+    return errors
+
+  def loss_gradient(self, targets, scores):
+    """Computes the gradient of the jesorsky loss."""
+    gradient = numpy.ndarray(targets.shape, numpy.float)
+    for i in range(targets.shape[0]):
+      scale = 0.5/self._inter_eye_distance(targets[i])
+      for j in range(0, targets.shape[1], 2):
+        dx = scores[i,j] - targets[i,j]
+        dy = scores[i,j+1] - targets[i,j+1]
+        error = math.sqrt(dx**2 + dy**2)
+        gradient[i,j] = dx * scale / error
+        gradient[i,j+1] = dy * scale / error
+
+    return gradient
 
 
 LOSS_FUNCTIONS = {'log':LogLossFunction,
                   'exp':ExpLossFunction,
-                  'tang':TangLossFunction}
+                  'tang':TangLossFunction,
+                  'jesorsky':JesorskyLossFunction}
 
 

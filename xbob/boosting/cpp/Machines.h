@@ -8,11 +8,14 @@ class WeakMachine{
     virtual double forward1(const blitz::Array<uint16_t, 1>& features) const {throw std::runtime_error("This function is not implemented for the given data type in the current class.");}
     virtual double forward1(const blitz::Array<double, 1>& features) const {throw std::runtime_error("This function is not implemented for the given data type in the current class.");}
 
-    virtual void forward2(const blitz::Array<uint16_t, 2>& features, blitz::Array<double,1> predictions) const {throw std::runtime_error("This function is not implemented for the given data type in the current class.");}
-    virtual void forward2(const blitz::Array<double, 2>& features, blitz::Array<double,1> predictions) const {throw std::runtime_error("This function is not implemented for the given data type in the current class.");}
+    virtual void forward2(const blitz::Array<uint16_t, 1>& features, blitz::Array<double,1> predictions) const {throw std::runtime_error("This function is not implemented for the given data type in the current class.");}
+    virtual void forward2(const blitz::Array<double, 1>& features, blitz::Array<double,1> predictions) const {throw std::runtime_error("This function is not implemented for the given data type in the current class.");}
 
-    virtual void forward3(const blitz::Array<uint16_t, 2>& features, blitz::Array<double,2> predictions) const {throw std::runtime_error("This function is not implemented for the given data type in the current class.");}
-    virtual void forward3(const blitz::Array<double, 2>& features, blitz::Array<double,2> predictions) const {throw std::runtime_error("This function is not implemented for the given data type in the current class.");}
+    virtual void forward3(const blitz::Array<uint16_t, 2>& features, blitz::Array<double,1> predictions) const {throw std::runtime_error("This function is not implemented for the given data type in the current class.");}
+    virtual void forward3(const blitz::Array<double, 2>& features, blitz::Array<double,1> predictions) const {throw std::runtime_error("This function is not implemented for the given data type in the current class.");}
+
+    virtual void forward4(const blitz::Array<uint16_t, 2>& features, blitz::Array<double,2> predictions) const {throw std::runtime_error("This function is not implemented for the given data type in the current class.");}
+    virtual void forward4(const blitz::Array<double, 2>& features, blitz::Array<double,2> predictions) const {throw std::runtime_error("This function is not implemented for the given data type in the current class.");}
 
     virtual blitz::Array<int32_t,1> getIndices() const = 0;
 
@@ -26,10 +29,10 @@ class StumpMachine : public WeakMachine{
     StumpMachine(bob::io::HDF5File& file);
 
     virtual double forward1(const blitz::Array<uint16_t, 1>& features) const;
-    virtual void forward2(const blitz::Array<uint16_t, 2>& features, blitz::Array<double,1> predictions) const;
+    virtual void forward3(const blitz::Array<uint16_t, 2>& features, blitz::Array<double,1> predictions) const;
 
     virtual double forward1(const blitz::Array<double, 1>& features) const;
-    virtual void forward2(const blitz::Array<double, 2>& features, blitz::Array<double,1> predictions) const;
+    virtual void forward3(const blitz::Array<double, 2>& features, blitz::Array<double,1> predictions) const;
 
     virtual blitz::Array<int32_t,1> getIndices() const;
 
@@ -55,8 +58,9 @@ class LUTMachine : public WeakMachine{
     LUTMachine(bob::io::HDF5File& file);
 
     virtual double forward1(const blitz::Array<uint16_t, 1>& features) const;
-    virtual void forward2(const blitz::Array<uint16_t, 2>& features, blitz::Array<double,1> predictions) const;
-    virtual void forward3(const blitz::Array<uint16_t, 2>& features, blitz::Array<double,2> predictions) const;
+    virtual void forward2(const blitz::Array<uint16_t, 1>& features, blitz::Array<double,1> predictions) const;
+    virtual void forward3(const blitz::Array<uint16_t, 2>& features, blitz::Array<double,1> predictions) const;
+    virtual void forward4(const blitz::Array<uint16_t, 2>& features, blitz::Array<double,2> predictions) const;
 
     virtual blitz::Array<int32_t,1> getIndices() const;
 
@@ -98,11 +102,20 @@ class BoostedMachine{
     // predicts the output for the given single feature
     double forward1(const blitz::Array<uint16_t, 1>& features) const;
 
+    // predicts the output for the given features (multi-variate case)
+    void forward2(const blitz::Array<uint16_t, 1>& features, blitz::Array<double,1> predictions) const;
+
+    // predicts the output for the given features (uni-variate case)
+    void forward3(const blitz::Array<uint16_t, 2>& features, blitz::Array<double,1> predictions) const;
+
+    // predicts the output for the given features (multi-variate case)
+    void forward4(const blitz::Array<uint16_t, 2>& features, blitz::Array<double,2> predictions) const;
+
     // predicts the output and the labels for the given features (uni-variate case)
-    void forward2(const blitz::Array<uint16_t, 2>& features, blitz::Array<double,1> predictions, blitz::Array<double,1> labels) const;
+    void forward5(const blitz::Array<uint16_t, 2>& features, blitz::Array<double,1> predictions, blitz::Array<double,1> labels) const;
 
     // predicts the output and the labels for the given features (multi-variate case)
-    void forward3(const blitz::Array<uint16_t, 2>& features, blitz::Array<double,2> predictions, blitz::Array<double,2> labels) const;
+    void forward6(const blitz::Array<uint16_t, 2>& features, blitz::Array<double,2> predictions, blitz::Array<double,2> labels) const;
 
     blitz::Array<int32_t,1> getIndices(int start = 0, int end = -1) const;
 
@@ -116,6 +129,8 @@ class BoostedMachine{
     // loads the machine from file
     void load(bob::io::HDF5File& file);
 
+    int numberOfOutputs() const {return m_weights.extent(1);}
+
   private:
     std::vector<boost::shared_ptr<WeakMachine> > m_weak_machines;
     blitz::Array<double,2> m_weights;
@@ -125,3 +140,11 @@ class BoostedMachine{
     mutable blitz::Array<double,1> _predictions1;
     mutable blitz::Array<double,2> _predictions2;
 };
+
+inline void weighted_histogram(const blitz::Array<uint16_t,1>& features, const blitz::Array<double,1>& weights, blitz::Array<double,1>& histogram){
+  assert(features.extent(0) == weights.extent(0));
+  histogram = 0.;
+  for (int i = features.extent(0); i--;){
+    histogram((int)features(i)) += weights(i);
+  }
+}

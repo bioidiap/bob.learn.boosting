@@ -11,27 +11,20 @@
 using namespace boost::python;
 
 static double f11(StumpMachine& s, const blitz::Array<double,1>& f){return s.forward1(f);}
-static void f12(StumpMachine& s, const blitz::Array<double,2>& f, blitz::Array<double,1> p){s.forward2(f,p);}
+static void f12(StumpMachine& s, const blitz::Array<double,2>& f, blitz::Array<double,1> p){s.forward3(f,p);}
 
 static double f21(StumpMachine& s, const blitz::Array<uint16_t,1>& f){return s.forward1(f);}
-static void f22(StumpMachine& s, const blitz::Array<uint16_t,2>& f, blitz::Array<double,1> p){s.forward2(f,p);}
+static void f22(StumpMachine& s, const blitz::Array<uint16_t,2>& f, blitz::Array<double,1> p){s.forward3(f,p);}
 
 
-static double forward1(const BoostedMachine& self, const blitz::Array<uint16_t, 1>& features){
-  bob::python::no_gil t;
-  return self.forward1(features);
-}
+static double forward1(const BoostedMachine& self, const blitz::Array<uint16_t, 1>& features){bob::python::no_gil t; return self.forward1(features);}
+static void forward2(const BoostedMachine& self, const blitz::Array<uint16_t, 1>& features, blitz::Array<double,1> predictions){bob::python::no_gil t; self.forward2(features, predictions);}
 
-static void forward2(const BoostedMachine& self, const blitz::Array<uint16_t, 2>& features, blitz::Array<double,1> predictions, blitz::Array<double,1> labels){
-  bob::python::no_gil t;
-  self.forward2(features, predictions, labels);
-}
+static void forward3(const BoostedMachine& self, const blitz::Array<uint16_t, 2>& features, blitz::Array<double,1> predictions){bob::python::no_gil t; self.forward3(features, predictions);}
+static void forward4(const BoostedMachine& self, const blitz::Array<uint16_t, 2>& features, blitz::Array<double,2> predictions){bob::python::no_gil t; self.forward4(features, predictions);}
 
-static void forward3(const BoostedMachine& self, const blitz::Array<uint16_t, 2>& features, blitz::Array<double,2> predictions, blitz::Array<double,2> labels){
-  bob::python::no_gil t;
-  self.forward3(features, predictions, labels);
-}
-
+static void forward5(const BoostedMachine& self, const blitz::Array<uint16_t, 2>& features, blitz::Array<double,1> predictions, blitz::Array<double,1> labels){bob::python::no_gil t; self.forward5(features, predictions, labels);}
+static void forward6(const BoostedMachine& self, const blitz::Array<uint16_t, 2>& features, blitz::Array<double,2> predictions, blitz::Array<double,2> labels){bob::python::no_gil t; self.forward6(features, predictions, labels);}
 
 static boost::shared_ptr<BoostedMachine> init_from_vector_of_weak2(object weaks, const blitz::Array<double,1>& weights){
   stl_input_iterator<boost::shared_ptr<WeakMachine> > dbegin(weaks), dend;
@@ -54,6 +47,12 @@ static object get_weak_machines(const BoostedMachine& self){
 
 static blitz::Array<int32_t, 1> get_indices(const BoostedMachine& self){
   return self.getIndices();
+}
+
+static blitz::Array<double, 1> w_hist(bob::python::const_ndarray features, bob::python::const_ndarray weights, const uint16_t bin_count){
+  blitz::Array<double,1> retval(bin_count);
+  weighted_histogram(features.bz<uint16_t,1>(), weights.bz<double,1>(), retval);
+  return retval;
 }
 
 
@@ -81,8 +80,9 @@ BOOST_PYTHON_MODULE(_boosting) {
     .def(init<const blitz::Array<double,2>&, const blitz::Array<int,1>&>((arg("self"), arg("look_up_tables"), arg("indices")), "Creates a LUTMachine with the given look-up-table and the feature indices, for which the LUT is valid."))
     .def(init<bob::io::HDF5File&>((arg("self"),arg("file")), "Creates a new machine from file."))
     .def("__call__", &LUTMachine::forward1, (arg("self"), arg("features")), "Returns the prediction for the given feature vector.")
-    .def("__call__", &LUTMachine::forward2, (arg("self"), arg("features"), arg("predictions")), "Computes the predictions for the given feature set (uni-variate).")
-    .def("__call__", &LUTMachine::forward3, (arg("self"), arg("features"), arg("predictions")), "Computes the predictions for the given feature set (multi-variate).")
+    .def("__call__", &LUTMachine::forward2, (arg("self"), arg("features"), arg("predictions")), "Computes the predictions for the given feature (multi-variate).")
+    .def("__call__", &LUTMachine::forward3, (arg("self"), arg("features"), arg("predictions")), "Computes the predictions for the given feature set (uni-variate).")
+    .def("__call__", &LUTMachine::forward4, (arg("self"), arg("features"), arg("predictions")), "Computes the predictions for the given feature set (multi-variate).")
     .def("load", &LUTMachine::load, "Reads a Machine from file")
     .def("save", &LUTMachine::save, "Writes the machine to file")
 
@@ -97,11 +97,17 @@ BOOST_PYTHON_MODULE(_boosting) {
     .def("add_weak_machine", &BoostedMachine::add_weak_machine1, (arg("self"), arg("machine"), arg("weight")), "Adds the given weak machine with the given weight (uni-variate)")
     .def("add_weak_machine", &BoostedMachine::add_weak_machine2, (arg("self"), arg("machine"), arg("weights")), "Adds the given weak machine with the given weights (multi-variate)")
     .def("__call__", &BoostedMachine::forward1, (arg("self"), arg("features")), "Returns the prediction for the given feature vector.")
-    .def("__call__", &BoostedMachine::forward2, (arg("self"), arg("features"), arg("predictions"), arg("labels")), "Computes the predictions and the labels for the given feature set (uni-variate).")
-    .def("__call__", &BoostedMachine::forward3, (arg("self"), arg("features"), arg("predictions"), arg("labels")), "Computes the predictions and the labels for the given feature set (multi-variate).")
+    .def("__call__", &BoostedMachine::forward2, (arg("self"), arg("features"), arg("predictions")), "Computes the predictions for the given feature vector (multi-variate).")
+    .def("__call__", &BoostedMachine::forward3, (arg("self"), arg("features"), arg("predictions")), "Computes the predictions for the given feature set (uni-variate).")
+    .def("__call__", &BoostedMachine::forward4, (arg("self"), arg("features"), arg("predictions")), "Computes the predictions for the given feature set (multi-variate).")
+    .def("__call__", &BoostedMachine::forward5, (arg("self"), arg("features"), arg("predictions"), arg("labels")), "Computes the predictions and the labels for the given feature set (uni-variate).")
+    .def("__call__", &BoostedMachine::forward6, (arg("self"), arg("features"), arg("predictions"), arg("labels")), "Computes the predictions and the labels for the given feature set (multi-variate).")
     .def("forward_p", &forward1, (arg("self"), arg("features")), "Returns the prediction for the given feature vector.")
-    .def("forward_p", &forward2, (arg("self"), arg("features"), arg("predictions"), arg("labels")), "Computes the predictions and the labels for the given feature set (uni-variate).")
-    .def("forward_p", &forward3, (arg("self"), arg("features"), arg("predictions"), arg("labels")), "Computes the predictions and the labels for the given feature set (multi-variate).")
+    .def("forward_p", &forward2, (arg("self"), arg("features"), arg("predictions")), "Computes the predictions for the given feature vector (multi-variate).")
+    .def("forward_p", &forward3, (arg("self"), arg("features"), arg("predictions")), "Computes the predictions for the given feature set (uni-variate).")
+    .def("forward_p", &forward4, (arg("self"), arg("features"), arg("predictions")), "Computes the predictions for the given feature set (multi-variate).")
+    .def("forward_p", &forward5, (arg("self"), arg("features"), arg("predictions"), arg("labels")), "Computes the predictions and the labels for the given feature set (uni-variate).")
+    .def("forward_p", &forward6, (arg("self"), arg("features"), arg("predictions"), arg("labels")), "Computes the predictions and the labels for the given feature set (multi-variate).")
     .def("load", &BoostedMachine::load, "Reads a Machine from file")
     .def("save", &BoostedMachine::save, "Writes the machine to file")
 
@@ -109,6 +115,9 @@ BOOST_PYTHON_MODULE(_boosting) {
     .add_property("indices", &get_indices, "The indices required for this machine.")
     .add_property("alpha", &BoostedMachine::getWeights, "The weights for the weak machines.")
     .add_property("weights", &BoostedMachine::getWeights, "The weights for the weak machines.")
+    .add_property("outputs", &BoostedMachine::numberOfOutputs, "The number of outputs of the multi-variate classifier (1 in case of uni-variate classifier).")
     .add_property("weak_machines", &get_weak_machines, "The weak machines.")
   ;
+
+  def("weighted_histogram", &w_hist, (arg("features"), arg("weights"), arg("bin_count")), "Computes the histogram of features, using the given weight for each feature.");
 }

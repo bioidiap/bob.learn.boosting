@@ -250,7 +250,7 @@ class LutMachine():
 
 
 
-from .. import LUTMachine
+from .. import LUTMachine, weighted_histogram
 
 class LutTrainer():
     """ The LutTrainer class contain methods to learn weak trainer using LookUp Tables.
@@ -381,7 +381,7 @@ class LutTrainer():
         for feature_index in range(num_fea):
             for output_index in range(self.num_outputs):
                 hist_grad = self.compute_grad_hist(loss_grad[:,output_index],fea[:,feature_index])
-                sum_loss[feature_index,output_index] = - sum(abs(hist_grad))
+                sum_loss[feature_index,output_index] = - numpy.sum(numpy.abs(hist_grad))
 
 
         return sum_loss
@@ -400,16 +400,8 @@ class LutTrainer():
                fval: single feature selected for all samples. No. of samples x 1
 
         return: hist_grad: The sum of the loss gradient"""
-        # initialize the values
-        # hist_grad = numpy.zeros([self.num_entries])
-
-
-
         # compute the sum of the gradient
-        hist_grad, bin_val = numpy.histogram(features, bins = self.num_entries, range = (0,self.num_entries-1), weights = loss_grado)
-        # hist_grad = [sum(loss_grado[features == feature_value]) for feature_value in xrange(self.num_entries)]
-        #for feature_value in range(self.num_entries):
-        #    hist_grad[feature_value] = sum(loss_grado[features == feature_value])
+        hist_grad = weighted_histogram(features, loss_grado, self.num_entries)
         return hist_grad
 
 

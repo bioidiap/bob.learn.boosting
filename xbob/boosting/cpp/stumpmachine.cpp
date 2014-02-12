@@ -26,7 +26,7 @@ double StumpMachine::forward1(const blitz::Array<double, 1>& features) const{
   return _predict(features((int)m_index));
 }
 
-void StumpMachine::forward2(const blitz::Array<double, 2>& features, blitz::Array<double,1> predictions) const{
+void StumpMachine::forward3(const blitz::Array<double, 2>& features, blitz::Array<double,1> predictions) const{
   for (int i = features.extent(0); i--;){
     predictions(i) = _predict(features(i, (int)m_index));
   }
@@ -37,7 +37,7 @@ double StumpMachine::forward1(const blitz::Array<uint16_t, 1>& features) const{
   return _predict(features((int)m_index));
 }
 
-void StumpMachine::forward2(const blitz::Array<uint16_t, 2>& features, blitz::Array<double,1> predictions) const{
+void StumpMachine::forward3(const blitz::Array<uint16_t, 2>& features, blitz::Array<double,1> predictions) const{
   for (int i = features.extent(0); i--;){
     predictions(i) = _predict(features(i, (int)m_index));
   }

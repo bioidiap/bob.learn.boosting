@@ -27,22 +27,37 @@ LUTMachine::LUTMachine(bob::io::HDF5File& file):
 }
 
 double LUTMachine::forward1(const blitz::Array<uint16_t,1>& features) const{
+  // univariate, single feature
   assert ( features.extent(0) > m_index );
   assert ( features((int)m_index) < m_look_up_table.extent(0) );
   return m_look_up_table((int)features(m_index));
 }
 
-void LUTMachine::forward2(const blitz::Array<uint16_t,2>& features, blitz::Array<double,1> predictions) const{
+
+void LUTMachine::forward2(const blitz::Array<uint16_t,1>& features, blitz::Array<double,1> predictions) const{
+  // multi-variate, single feature
+  assert ( m_indices.extent(0) == predictions.extent(0) );
+  for (int j = 0; j < m_indices.extent(0); ++j){
+    assert ( features.extent(0) > m_indices(j) );
+  }
+  for (int j = 0; j < m_indices.extent(0); ++j){
+    predictions(j) = m_look_up_tables((int)features(m_indices(j)), j);
+  }
+}
+
+void LUTMachine::forward3(const blitz::Array<uint16_t,2>& features, blitz::Array<double,1> predictions) const{
+  // univariate, several features
   assert ( predictions.extent(0) == features.extent(0) );
   assert ( features.extent(1) > m_index );
   for (int i = features.extent(0); i--;)
     assert ( features(i, (int)m_index) < m_look_up_table.extent(0) );
   for (int i = 0; i < features.extent(0); ++i){
-    predictions(i) = m_look_up_table((int)features(i, (int)m_index));
+    predictions(i) = m_look_up_table((int)features(i, m_index));
   }
 }
 
-void LUTMachine::forward3(const blitz::Array<uint16_t,2>& features, blitz::Array<double,2> predictions) const{
+void LUTMachine::forward4(const blitz::Array<uint16_t,2>& features, blitz::Array<double,2> predictions) const{
+  // multi-variate, several features
   assert ( predictions.extent(0) == features.extent(0) );
   assert ( predictions.extent(1) == m_indices.extent(0) );
   assert ( m_look_up_tables.extent(1) == m_indices.extent(0) );
@@ -52,7 +67,7 @@ void LUTMachine::forward3(const blitz::Array<uint16_t,2>& features, blitz::Array
 
   for (int i = 0; i < features.extent(0); ++i){
     for (int j = 0; j < m_indices.extent(0); ++j){
-      predictions(i,j) = m_look_up_tables((int)features(i, (int)m_indices(j)), j);
+      predictions(i,j) = m_look_up_tables((int)features(i, m_indices(j)), j);
     }
   }
 }

@@ -180,9 +180,14 @@ class Boost:
             targets = targets[:,numpy.newaxis]
 
         num_op = targets.shape[1]
-        machine = BoostedMachine() if boosted_machine is None else boosted_machine
         num_samp = fset.shape[0]
         pred_scores = numpy.zeros([num_samp,num_op])
+        if boosted_machine is not None:
+          machine =  boosted_machine
+          machine(fset, pred_scores)
+        else:
+          machine = BoostedMachine()
+
         loss_class = losses.LOSS_FUNCTIONS[self.loss_type]
         loss_func = loss_class()
 
@@ -203,25 +208,25 @@ class Boost:
         logger.info("Starting %d rounds of boosting" % self.num_rnds)
         for r in range(self.num_rnds):
 
+            logger.debug("Starting round %d" % (r+1))
 
             # Compute the gradient of the loss function, l'(y,f(x)) using loss_class
-            loss_grad = loss_func.update_loss_grad(targets,pred_scores)
+            loss_grad = loss_func.loss_gradient(targets,pred_scores)
 
             # Select the best weak machine for current round of boosting
             curr_weak_machine = weak_trainer.compute_weak_trainer(fset, loss_grad)
 
             # Compute the classification scores of the samples based only on the current round weak classifier (g_r)
             curr_pred_scores = numpy.zeros([num_samp,num_op], numpy.float64)
+
             curr_weak_machine(fset, curr_pred_scores)
 
             # Initialize the start point for lbfgs minimization
             init_point = numpy.zeros(num_op)
 
-
             # Perform lbfgs minimization and compute the scale (alpha_r) for current weak trainer
             lbfgs_struct = scipy.optimize.fmin_l_bfgs_b(loss_func.loss_sum, init_point, fprime = loss_func.loss_grad_sum, args = (targets, pred_scores, curr_pred_scores))
             alpha = lbfgs_struct[0]
-
 
             # Update the prediction score after adding the score from the current weak classifier f(x) = f(x) + alpha_r*g_r
             pred_scores = pred_scores + alpha*curr_pred_scores
@@ -230,7 +235,7 @@ class Boost:
             # Add the current trainer into the boosting machine
             machine.add_weak_machine(curr_weak_machine, alpha)
 
-            logger.debug("Finished round %d / %r" % (r+1, self.num_rnds))
+            logger.info("Finished round %d / %d" % (r+1, self.num_rnds))
 
         return machine
 

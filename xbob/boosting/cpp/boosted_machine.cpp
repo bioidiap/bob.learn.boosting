@@ -31,6 +31,7 @@ void BoostedMachine::add_weak_machine2(const boost::shared_ptr<WeakMachine> weak
 
 
 double BoostedMachine::forward1(const blitz::Array<uint16_t,1>& features) const{
+  // univariate, single feature
   double sum = 0.;
   //TODO: optimize using STL
   for (int i = m_weak_machines.size(); i--;){
@@ -39,35 +40,58 @@ double BoostedMachine::forward1(const blitz::Array<uint16_t,1>& features) const{
   return sum;
 }
 
-void BoostedMachine::forward2(const blitz::Array<uint16_t,2>& features, blitz::Array<double,1> predictions, blitz::Array<double,1> labels) const{
+void BoostedMachine::forward2(const blitz::Array<uint16_t,1>& features, blitz::Array<double,1> predictions) const{
+  // multi-variate, single feature
   // initialize the predictions since they will be overwritten
   _predictions1.resize(predictions.shape());
   predictions = 0.;
   for (int i = m_weak_machines.size(); i--;){
     // predict locally
     m_weak_machines[i]->forward2(features, _predictions1);
-    predictions += _weights(i) * _predictions1;
+    predictions += m_weights(i) * _predictions1;
   }
-  // get the labels
-  for (int i = predictions.extent(0); i--;)
-    labels(i) = (predictions(i) > 0) * 2 - 1;
 }
 
-void BoostedMachine::forward3(const blitz::Array<uint16_t,2>& features, blitz::Array<double,2> predictions, blitz::Array<double,2> labels) const{
+void BoostedMachine::forward3(const blitz::Array<uint16_t,2>& features, blitz::Array<double,1> predictions) const{
+  // univariate, multiple features
+  // initialize the predictions since they will be overwritten
+  _predictions1.resize(predictions.shape());
+  predictions = 0.;
+  for (int i = m_weak_machines.size(); i--;){
+    // predict locally
+    m_weak_machines[i]->forward3(features, _predictions1);
+    predictions += _weights(i) * _predictions1;
+  }
+}
+
+void BoostedMachine::forward4(const blitz::Array<uint16_t,2>& features, blitz::Array<double,2> predictions) const{
   // initialize the predictions since they will be overwritten
   _predictions2.resize(predictions.shape());
   predictions = 0.;
   for (int i = m_weak_machines.size(); i--;){
     // predict locally
-    m_weak_machines[i]->forward3(features, _predictions2);
+    m_weak_machines[i]->forward4(features, _predictions2);
     predictions += m_weights(i) * _predictions2;
   }
+}
+
+
+void BoostedMachine::forward5(const blitz::Array<uint16_t,2>& features, blitz::Array<double,1> predictions, blitz::Array<double,1> labels) const{
+  forward3(features, predictions);
+  // get the labels
+  for (int i = predictions.extent(0); i--;)
+    labels(i) = (predictions(i) > 0) * 2 - 1;
+}
+
+void BoostedMachine::forward6(const blitz::Array<uint16_t,2>& features, blitz::Array<double,2> predictions, blitz::Array<double,2> labels) const{
+  forward4(features, predictions);
   // get the labels
   labels = -1;
   for (int i = predictions.extent(0); i--;){
     labels(i, blitz::maxIndex(predictions(i, blitz::Range::all()))[0]) = 1;
   }
 }
+
 
 blitz::Array<int,1> BoostedMachine::getIndices(int start, int end) const{
   std::set<int32_t> indices;
@@ -86,7 +110,7 @@ blitz::Array<int,1> BoostedMachine::getIndices(int start, int end) const{
 void BoostedMachine::save(bob::io::HDF5File& file) const{
   file.setAttribute(".", "version", 2);
   file.setArray("Weights", m_weights);
-  for (unsigned i = 0; i < m_weights.size(); ++i){
+  for (int i = 0; i < m_weights.extent(0); ++i){
     std::ostringstream fns;
     fns << "WeakMachine_" << i;
     file.createGroup(fns.str());
