@@ -1,27 +1,41 @@
-#include "Machines.h"
+#include "LUTMachine.h"
 #include <bob/core/cast.h>
 #include <assert.h>
 #include <set>
 
+LUTMachine::LUTMachine(const blitz::Array<double,1> look_up_table, const int index):
+  m_look_up_tables(look_up_table.extent(0), 1),
+  m_indices(1,1),
+  _look_up_table(),
+  _index(index)
+{
+  // we have to copy the array, otherwise weird things happen
+  m_look_up_tables(0, blitz::Range::all()) = look_up_table;
+  m_indices(0) = index;
+  // for the shortcut, we just reference the first row of the the look up tables
+  _look_up_table.reference(m_look_up_tables(blitz::Range::all(),0));
+  _index = m_indices(0);
+}
+
 LUTMachine::LUTMachine(const blitz::Array<double,2> look_up_tables, const blitz::Array<int,1> indices):
   m_look_up_tables(look_up_tables.shape()),
   m_indices(indices.shape()),
-  m_look_up_table(),
-  m_index(0)
+  _look_up_table(),
+  _index(0)
 {
   // we have to copy the array, otherwise weird things happen
   m_look_up_tables = look_up_tables;
   m_indices = indices;
   // for the shortcut, we just reference the first row of the the look up tables
-  m_look_up_table.reference(m_look_up_tables(blitz::Range::all(),0));
-  m_index = m_indices(0);
+  _look_up_table.reference(m_look_up_tables(blitz::Range::all(),0));
+  _index = m_indices(0);
 }
 
 LUTMachine::LUTMachine(bob::io::HDF5File& file):
   m_look_up_tables(),
   m_indices(),
-  m_look_up_table(),
-  m_index(0)
+  _look_up_table(),
+  _index(0)
 {
   load(file);
 }
@@ -29,8 +43,8 @@ LUTMachine::LUTMachine(bob::io::HDF5File& file):
 double LUTMachine::forward1(const blitz::Array<uint16_t,1>& features) const{
   // univariate, single feature
   assert ( features.extent(0) > m_index );
-  assert ( features((int)m_index) < m_look_up_table.extent(0) );
-  return m_look_up_table((int)features(m_index));
+  assert ( features((int)m_index) < _look_up_table.extent(0) );
+  return _look_up_table((int)features(_index));
 }
 
 
@@ -48,11 +62,11 @@ void LUTMachine::forward2(const blitz::Array<uint16_t,1>& features, blitz::Array
 void LUTMachine::forward3(const blitz::Array<uint16_t,2>& features, blitz::Array<double,1> predictions) const{
   // univariate, several features
   assert ( predictions.extent(0) == features.extent(0) );
-  assert ( features.extent(1) > m_index );
+  assert ( features.extent(1) > _index );
   for (int i = features.extent(0); i--;)
-    assert ( features(i, (int)m_index) < m_look_up_table.extent(0) );
+    assert ( features(i, (int)_index) < _look_up_table.extent(0) );
   for (int i = 0; i < features.extent(0); ++i){
-    predictions(i) = m_look_up_table((int)features(i, m_index));
+    predictions(i) = _look_up_table((int)features(i, _index));
   }
 }
 
@@ -94,8 +108,8 @@ void LUTMachine::load(bob::io::HDF5File& file){
     m_indices.reference(bob::core::array::cast<int>(file.readArray<int32_t,1>("Indices")));
   }
 
-  m_look_up_table.reference(m_look_up_tables(blitz::Range::all(), 0));
-  m_index = m_indices(0);
+  _look_up_table.reference(m_look_up_tables(blitz::Range::all(), 0));
+  _index = m_indices(0);
 }
 
 void LUTMachine::save(bob::io::HDF5File& file) const{

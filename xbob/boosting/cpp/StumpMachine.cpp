@@ -1,4 +1,4 @@
-#include "Machines.h"
+#include "StumpMachine.h"
 #include <bob/core/cast.h>
 #include <assert.h>
 #include <set>

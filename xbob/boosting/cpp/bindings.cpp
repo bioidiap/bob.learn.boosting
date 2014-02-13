@@ -6,17 +6,22 @@
 #include <bob/python/ndarray.h>
 #include <bob/python/gil.h>
 
-#include "Machines.h"
+#include "WeakMachine.h"
+#include "StumpMachine.h"
+#include "LUTMachine.h"
+#include "BoostedMachine.h"
+#include "Functions.h"
 
 using namespace boost::python;
 
+// Stump machine access
 static double f11(StumpMachine& s, const blitz::Array<double,1>& f){return s.forward1(f);}
 static void f12(StumpMachine& s, const blitz::Array<double,2>& f, blitz::Array<double,1> p){s.forward3(f,p);}
 
 static double f21(StumpMachine& s, const blitz::Array<uint16_t,1>& f){return s.forward1(f);}
 static void f22(StumpMachine& s, const blitz::Array<uint16_t,2>& f, blitz::Array<double,1> p){s.forward3(f,p);}
 
-
+// boosted machine access, which allows multi-threading
 static double forward1(const BoostedMachine& self, const blitz::Array<uint16_t, 1>& features){bob::python::no_gil t; return self.forward1(features);}
 static void forward2(const BoostedMachine& self, const blitz::Array<uint16_t, 1>& features, blitz::Array<double,1> predictions){bob::python::no_gil t; self.forward2(features, predictions);}
 
@@ -27,15 +32,16 @@ static void forward5(const BoostedMachine& self, const blitz::Array<uint16_t, 2>
 static void forward6(const BoostedMachine& self, const blitz::Array<uint16_t, 2>& features, blitz::Array<double,2> predictions, blitz::Array<double,2> labels){bob::python::no_gil t; self.forward6(features, predictions, labels);}
 
 static boost::shared_ptr<BoostedMachine> init_from_vector_of_weak2(object weaks, const blitz::Array<double,1>& weights){
-  stl_input_iterator<boost::shared_ptr<WeakMachine> > dbegin(weaks), dend;
+  stl_input_iterator<boost::shared_ptr<WeakMachine> > it(weaks), endIt;
   boost::shared_ptr<BoostedMachine> strong = boost::make_shared<BoostedMachine>();
 
-  for (int i = 0; dbegin != dend; ++dbegin, ++i){
-    strong->add_weak_machine2(*dbegin, weights(i));
+  for (int i = 0; it != endIt; ++it, ++i){
+    strong->add_weak_machine1(*it, weights(i));
   }
   return strong;
 }
 
+// Wrapper function to translate std::vector of WeakMachines (C++) into list of WeakMachines (Python)
 static object get_weak_machines(const BoostedMachine& self){
   const std::vector<boost::shared_ptr<WeakMachine> >& weaks = self.getWeakMachines();
   list ret;
@@ -45,11 +51,16 @@ static object get_weak_machines(const BoostedMachine& self){
   return ret;
 }
 
+// Wrapper function to have get_indices as a property of the Python object
 static blitz::Array<int32_t, 1> get_indices(const BoostedMachine& self){
   return self.getIndices();
 }
 
-static blitz::Array<double, 1> w_hist(bob::python::const_ndarray features, bob::python::const_ndarray weights, const uint16_t bin_count){
+// Wrapper functions for the weighted histogram
+static void weighted_histogram1(bob::python::const_ndarray features, bob::python::const_ndarray weights, blitz::Array<double,1> histogram){
+  weighted_histogram(features.bz<uint16_t,1>(), weights.bz<double,1>(), histogram);
+}
+static blitz::Array<double, 1> weighted_histogram2(bob::python::const_ndarray features, bob::python::const_ndarray weights, const uint16_t bin_count){
   blitz::Array<double,1> retval(bin_count);
   weighted_histogram(features.bz<uint16_t,1>(), weights.bz<double,1>(), retval);
   return retval;
@@ -59,8 +70,10 @@ static blitz::Array<double, 1> w_hist(bob::python::const_ndarray features, bob::
 BOOST_PYTHON_MODULE(_boosting) {
   bob::python::setup_python("Bindings for the xbob.boosting machines.");
 
+  // bind the weak machine
   class_<WeakMachine, boost::shared_ptr<WeakMachine>, boost::noncopyable>("WeakMachine", "Pure virtual base class for weak machines", no_init);
 
+  // bind the decision stump classifier
   class_<StumpMachine, boost::shared_ptr<StumpMachine>, bases<WeakMachine> >("StumpMachine", "A machine comparing features to a threshold.", no_init)
     .def(init<double, double, int >((arg("self"), arg("threshold"), arg("polarity"), arg("index")), "Creates a StumpMachine with the given threshold, polarity and the feature index, for which the machine is valid."))
     .def(init<bob::io::HDF5File&>((arg("self"),arg("file")), "Creates a new machine from file."))
@@ -76,8 +89,10 @@ BOOST_PYTHON_MODULE(_boosting) {
     .add_property("polarity", &StumpMachine::getPolarity, "The polarity for this machine.")
   ;
 
+  // bind the look-up-table classifier
   class_<LUTMachine, boost::shared_ptr<LUTMachine>, bases<WeakMachine> >("LUTMachine", "A machine containing a Look-Up-Table.", no_init)
-    .def(init<const blitz::Array<double,2>&, const blitz::Array<int,1>&>((arg("self"), arg("look_up_tables"), arg("indices")), "Creates a LUTMachine with the given look-up-table and the feature indices, for which the LUT is valid."))
+    .def(init<const blitz::Array<double,1>&, const int>((arg("self"), arg("look_up_table"), arg("index")), "Creates a LUTMachine with the given look-up-table and the feature index, for which the LUT is valid (uni-variate case)."))
+    .def(init<const blitz::Array<double,2>&, const blitz::Array<int,1>&>((arg("self"), arg("look_up_tables"), arg("indices")), "Creates a LUTMachine with the given look-up-table and the feature indices, for which the LUT is valid (multi-variate case)."))
     .def(init<bob::io::HDF5File&>((arg("self"),arg("file")), "Creates a new machine from file."))
     .def("__call__", &LUTMachine::forward1, (arg("self"), arg("features")), "Returns the prediction for the given feature vector.")
     .def("__call__", &LUTMachine::forward2, (arg("self"), arg("features"), arg("predictions")), "Computes the predictions for the given feature (multi-variate).")
@@ -90,6 +105,7 @@ BOOST_PYTHON_MODULE(_boosting) {
     .def("feature_indices", &LUTMachine::getIndices, "The indices into the feature vector required by this machine.")
   ;
 
+  // bind the boosted machine
   class_<BoostedMachine, boost::shared_ptr<BoostedMachine> >("BoostedMachine",  "A machine containing of several weak machines", no_init)
     .def(init<>(arg("self"), "Creates an empty machine."))
     .def(init<bob::io::HDF5File&>((arg("self"), arg("file")), "Creates a new machine from file"))
@@ -119,5 +135,7 @@ BOOST_PYTHON_MODULE(_boosting) {
     .add_property("weak_machines", &get_weak_machines, "The weak machines.")
   ;
 
-  def("weighted_histogram", &w_hist, (arg("features"), arg("weights"), arg("bin_count")), "Computes the histogram of features, using the given weight for each feature.");
+  // bind auxiliary functions
+  def("weighted_histogram", &weighted_histogram1, (arg("features"), arg("weights"), arg("histogram")), "Computes the histogram of features, using the given weight for each feature.");
+  def("weighted_histogram", &weighted_histogram2, (arg("features"), arg("weights"), arg("bin_count")), "Computes and returns the histogram of features, using the given weight for each feature.");
 }

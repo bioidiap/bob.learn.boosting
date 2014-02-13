@@ -1,4 +1,5 @@
-#include "Machines.h"
+#include "BoostedMachine.h"
+#include "Functions.h"
 #include <sstream>
 #include <set>
 
@@ -15,17 +16,18 @@ BoostedMachine::BoostedMachine(bob::io::HDF5File& file) :
   load(file);
 }
 
-void BoostedMachine::add_weak_machine1(const boost::shared_ptr<WeakMachine> weak_machine, const blitz::Array<double,1> weights){
-  m_weak_machines.push_back(weak_machine);
-  m_weights.resizeAndPreserve(m_weak_machines.size(), weights.extent(0));
-  m_weights(m_weights.extent(0)-1, blitz::Range::all()) = weights;
-  _weights.reference(m_weights(blitz::Range::all(), 0));
-}
-
-void BoostedMachine::add_weak_machine2(const boost::shared_ptr<WeakMachine> weak_machine, const double weight){
+void BoostedMachine::add_weak_machine1(const boost::shared_ptr<WeakMachine> weak_machine, const double weight){
   m_weak_machines.push_back(weak_machine);
   m_weights.resizeAndPreserve(m_weak_machines.size(), 1);
   m_weights(m_weights.extent(0)-1, 0) = weight;
+  _weights.reference(m_weights(blitz::Range::all(), 0));
+}
+
+
+void BoostedMachine::add_weak_machine2(const boost::shared_ptr<WeakMachine> weak_machine, const blitz::Array<double,1> weights){
+  m_weak_machines.push_back(weak_machine);
+  m_weights.resizeAndPreserve(m_weak_machines.size(), weights.extent(0));
+  m_weights(m_weights.extent(0)-1, blitz::Range::all()) = weights;
   _weights.reference(m_weights(blitz::Range::all(), 0));
 }
 

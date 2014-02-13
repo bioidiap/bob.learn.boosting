@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # vim: set fileencoding=utf-8 :
-# Andre Anjos <andre.anjos@idiap.ch>
-# Mon 16 Apr 08:18:08 2012 CEST
-
+# Manuel Guenther <manuel.guenther@idiap.ch>
+#Thu Feb 13 19:18:24 CET 2014
+#
 # This file contains the python (distutils/setuptools) instructions so your
 # package can be installed on **any** host system. It defines some basic
 # information like the package name for instance, or its homepage.
@@ -30,12 +30,12 @@ setup(
     # This is the basic information about your project. Modify all this
     # information before releasing code publicly.
     name='xbob.boosting',
-    version='0.1',
+    version='1.0.1a0',
     description='Boosting framework for Bob',
 
-    url='http://github.com/bioidiap/xbob.boosting',
+    url='https://gitlab.idiap.ch/manuel.guenther/xbob-boosting',
     license='GPLv3',
-    author='Rakesh mehta',
+    author='Rakesh Mehta',
     author_email='rakesh.mehta@idiap.ch',
 
     # If you have a better, long description of your package, place it on the
@@ -57,7 +57,7 @@ setup(
     # privileges when using buildout.
     install_requires=[
       'setuptools',
-      'bob' # base signal proc./machine learning library
+      'bob', # base signal proc./machine learning library
     ],
 
     cmdclass={
@@ -68,16 +68,13 @@ setup(
       Extension(
         'xbob.boosting._boosting',
         [
-          "xbob/boosting/cpp/stumpmachine.cpp",
-          "xbob/boosting/cpp/lutmachine.cpp",
-          "xbob/boosting/cpp/boosted_machine.cpp",
+          "xbob/boosting/cpp/StumpMachine.cpp",
+          "xbob/boosting/cpp/LUTMachine.cpp",
+          "xbob/boosting/cpp/BoostedMachine.cpp",
           "xbob/boosting/cpp/bindings.cpp",
         ],
         pkgconfig = [
           'bob-io',
-        ],
-        include_dirs = [
-          "/idiap/user/mguenther/Bob/release/include",
         ],
 # STUFF for DEBUGGING goes here (requires DEBUG bob version...):
 #        extra_compile_args = [
@@ -124,30 +121,15 @@ setup(
 
       # scripts should be declared using this entry:
       'console_scripts': [
-#        'mnist_binary_all.py = xbob.boosting.scripts.mnist_binary_all:main',
-#        'mnist_binary_one.py = xbob.boosting.scripts.mnist_binary_one:main',
-#        'mnist_multi.py = xbob.boosting.scripts.mnist_multi:main',
-#        'mnist_lbp.py = xbob.boosting.scripts.mnist_lbp:main',
-#        'mnist_multi_lbp.py = xbob.boosting.scripts.mnist_multi_lbp:main',
-#        'mnist_onevsall.py = xbob.boosting.scripts.mnist_onevsall:main',
-#        'mnist_onevsall_lbp.py = xbob.boosting.scripts.mnist_onevsall_lbp:main',
-#        'mnist_onevsall_block_lbp.py = xbob.boosting.scripts.mnist_onevsall_block_lbp:main',
-#        'mnist_multi_block_lbp.py = xbob.boosting.scripts.mnist_multi_block_lbp:main',
-        ],
+       ],
 
       # tests that are _exported_ (that can be executed by other packages) can
       # be signalized like this:
-      #'bob.test': [
-      #   'example = xbob.example.test:MyTests',
-      #   ],
+      'bob.test': [
+         'boosting = xbob.boosting.tests.test_boosting:TestBoosting',
+      ],
 
-      # finally, if you are writing a database package, you must declare the
-      # relevant entries like this:
-      #'bob.db': [
-      #  'example = xbob.example.driver:Interface',
-      #  ]
-      # Note: this is just an example, this package does not declare databases
-      },
+    },
 
     # Classifiers are important if you plan to distribute this package through
     # PyPI. You can find the complete list of classifiers that are valid and
@@ -159,5 +141,5 @@ setup(
       'Natural Language :: English',
       'Programming Language :: Python',
       'Topic :: Scientific/Engineering :: Artificial Intelligence',
-      ],
+    ],
 )

@@ -1,12 +1,16 @@
 *~
 *.swp
 *.pyc
+_*.so
 bin
 eggs
 parts
 .installed.cfg
 .mr.developer.cfg
+.settings
+build
 *.egg-info
+*egg
 src
 develop-eggs
 sphinx
