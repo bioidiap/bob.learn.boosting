@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 """The test script to perform the binary classification on the digits from the MNIST dataset.
-   The MNIST data is exported using the xbob.db.mnist module which provide the train and test 
+   The MNIST data is exported using the xbob.db.mnist module which provide the train and test
    partitions for the digits. Pixel values of grey scale images are used as features and the
    available algorithms for classification are Lut based Boosting and Stump based Boosting.
-   The script test all the possible combination of the two digits which results in 45 different 
-   binary classfication tests. 
+   The script test all the possible combination of the two digits which results in 45 different
+   binary classfication tests.
 
 
 """
@@ -23,7 +23,7 @@ def main():
     parser = argparse.ArgumentParser(description = " The arguments for the boosting. ")
     parser.add_argument('-t', default = 'StumpTrainer',dest = "trainer_type", type = string, choices = {'StumpTrainer', 'LutTrainer'}, help = "This is the type of trainer used for the boosting." )
     parser.add_argument('-r', default = 20, dest = "num_rnds", type = string , help = "The number of round for the boosting")
-    parser.add_argument('-l', default = 'exp', dest = "loss_type", type= string,choices = {'log','exp'} help = "The type of the loss function. Logit and Exponential functions are the avaliable options")
+    parser.add_argument('-l', default = 'exp', dest = "loss_type", type= string, choices = {'log','exp'}, help = "The type of the loss function. Logit and Exponential functions are the avaliable options")
     parser.add_argument('-s', default = 'indep', dest = "selection_type", choices = {'indep', 'shared'}, type = string, help = "The feature selection type for the LUT based trainer. For multivarite case the features can be selected by sharing or independently ")
     parser.add_argument('-n', default = 256, dest = "num_entries", type = int, help = "The number of entries in the LookUp table. It is the range of the feature values, e.g. if LBP features are used this values is 256.")
 
@@ -60,13 +60,13 @@ def main():
             boost_trainer = booster.Boost(args.trainer_type)
 
             # Set the parameters for the boosting
-            boost_trainer.num_rnds = args.num_rnds             
-            boost_trainer.loss_type = args.loss_type        
+            boost_trainer.num_rnds = args.num_rnds
+            boost_trainer.loss_type = args.loss_type
             boost_trainer.selection_type = args.selection_type
             boost_trainer.num_entries = args.num_entries
 
 
-            # Perform boosting of the feature set samp 
+            # Perform boosting of the feature set samp
             model = boost_trainer.train(fea_train, label_train)
 
             # Classify the test samples (testsamp) using the boosited classifier generated above

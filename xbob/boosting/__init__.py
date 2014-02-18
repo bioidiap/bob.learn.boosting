@@ -5,4 +5,5 @@ from ._boosting import StumpMachine, LUTMachine, BoostedMachine, weighted_histog
 import trainer
 import loss
 
+#import examples
 #import tests

@@ -24,6 +24,10 @@ class StumpMachine : public WeakMachine{
     virtual void forward3(const blitz::Array<double, 2>& features, blitz::Array<double,1> predictions) const;
     virtual void forward3(const blitz::Array<uint16_t, 2>& features, blitz::Array<double,1> predictions) const;
 
+    // forwarding of multiple features
+    virtual void forward4(const blitz::Array<double, 2>& features, blitz::Array<double,2> predictions) const;
+    virtual void forward4(const blitz::Array<uint16_t, 2>& features, blitz::Array<double,2> predictions) const;
+
     // the index used by this machine
     virtual blitz::Array<int32_t,1> getIndices() const;
 

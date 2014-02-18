@@ -17,9 +17,11 @@ using namespace boost::python;
 // Stump machine access
 static double f11(StumpMachine& s, const blitz::Array<double,1>& f){return s.forward1(f);}
 static void f12(StumpMachine& s, const blitz::Array<double,2>& f, blitz::Array<double,1> p){s.forward3(f,p);}
+static void f13(StumpMachine& s, const blitz::Array<double,2>& f, blitz::Array<double,2> p){s.forward4(f,p);}
 
 static double f21(StumpMachine& s, const blitz::Array<uint16_t,1>& f){return s.forward1(f);}
 static void f22(StumpMachine& s, const blitz::Array<uint16_t,2>& f, blitz::Array<double,1> p){s.forward3(f,p);}
+static void f23(StumpMachine& s, const blitz::Array<uint16_t,2>& f, blitz::Array<double,2> p){s.forward4(f,p);}
 
 // boosted machine access, which allows multi-threading
 static double forward1(const BoostedMachine& self, const blitz::Array<uint16_t, 1>& features){bob::python::no_gil t; return self.forward1(features);}
@@ -79,8 +81,10 @@ BOOST_PYTHON_MODULE(_boosting) {
     .def(init<bob::io::HDF5File&>((arg("self"),arg("file")), "Creates a new machine from file."))
     .def("__call__", &f11, (arg("self"), arg("features")), "Returns the prediction for the given feature vector.")
     .def("__call__", &f12, (arg("self"), arg("features"), arg("predictions")), "Computes the predictions for the given feature set (uni-variate only).")
+    .def("__call__", &f13, (arg("self"), arg("features"), arg("predictions")), "Computes the predictions for the given feature set (uni-variate only).")
     .def("__call__", &f21, (arg("self"), arg("features")), "Returns the prediction for the given feature vector.")
     .def("__call__", &f22, (arg("self"), arg("features"), arg("predictions")), "Computes the predictions for the given feature set (uni-variate only).")
+    .def("__call__", &f23, (arg("self"), arg("features"), arg("predictions")), "Computes the predictions for the given feature set (uni-variate only).")
     .def("load", &StumpMachine::load, "Reads a Machine from file")
     .def("save", &StumpMachine::save, "Writes the machine to file")
 

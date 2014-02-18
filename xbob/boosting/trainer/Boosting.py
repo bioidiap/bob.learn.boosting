@@ -1,6 +1,7 @@
 from .._boosting import BoostedMachine
 
 import numpy
+import scipy.optimize
 import logging
 logger = logging.getLogger('bob')
 
@@ -70,7 +71,6 @@ class Boosting:
     """ The function to initialize the boosting parameters.
 
     Keyword parameters:
-
       weak_trainer (trainer.LUTTrainer or trainer.StumpTrainer): The class to train weak machines.
 
       loss_function (a class derived from loss.LossFunction): The function to define the weights for the weak machines.
@@ -114,6 +114,7 @@ class Boosting:
 
     strong_predicted_scores = numpy.zeros((number_of_samples, number_of_outputs))
     weak_predicted_scores = numpy.ndarray((number_of_samples, number_of_outputs))
+
     if boosted_machine is not None:
       boosted_machine(training_features, strong_predicted_scores)
     else:
@@ -126,7 +127,7 @@ class Boosting:
       logger.debug("Starting round %d" % (round+1))
 
       # Compute the gradient of the loss function, l'(y,f(x)) using loss_class
-      loss_gradient = self.m_loss_function.loss_gradient(training_targets, predicted_scores)
+      loss_gradient = self.m_loss_function.loss_gradient(training_targets, strong_predicted_scores)
 
       # Select the best weak machine for current round of boosting
       weak_machine = self.m_trainer.train(training_features, loss_gradient)
@@ -135,12 +136,22 @@ class Boosting:
       weak_machine(training_features, weak_predicted_scores)
 
       # Perform L-BFGS minimization and compute the scale (alpha_r) for current weak machine
-      alpha = scipy.optimize.fmin_l_bfgs_b(
+      alpha, _, flags = scipy.optimize.fmin_l_bfgs_b(
           func   = self.m_loss_function.loss_sum,
           x0     = numpy.zeros(number_of_outputs),
-          fprime = loss_func.loss_grad_sum,
-          args   = (targets, pred_scores, curr_pred_scores)
-      )[0]
+          fprime = self.m_loss_function.loss_gradient_sum,
+          args   = (training_targets, strong_predicted_scores, weak_predicted_scores),
+#          disp = 1
+      )
+      # check output of L-BFGS
+      if flags['warnflag'] != 0:
+        msg = "too many function evaluations or too many iterations" if flags['warnflag'] == 1 else flags['task']
+        if (alpha == numpy.zeros(number_of_outputs)).all():
+          logger.error("L-BFGS returned zero weights with error '%d': %s" % (flags['warnflag'], msg))
+          return boosted_machine
+        else:
+          logger.warn("L-BFGS returned warning '%d': %s" % (flags['warnflag'], msg))
+
 
       # Update the prediction score after adding the score from the current weak classifier f(x) = f(x) + alpha_r*g_r
       strong_predicted_scores += alpha * weak_predicted_scores

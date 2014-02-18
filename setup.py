@@ -121,7 +121,11 @@ setup(
 
       # scripts should be declared using this entry:
       'console_scripts': [
-       ],
+          'boosting_example.py = xbob.boosting.examples.mnist:main',
+#          'mnist_binary_all.py = xbob.boosting.scripts.mnist_binary_all:main',
+#          'mnist_binary_one.py = xbob.boosting.scripts.mnist_binary_one:main',
+#          'mnist_multi.py = xbob.boosting.scripts.mnist_multi:main',
+      ],
 
       # tests that are _exported_ (that can be executed by other packages) can
       # be signalized like this:

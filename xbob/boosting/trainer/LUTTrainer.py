@@ -3,11 +3,13 @@ from .._boosting import LUTMachine, weighted_histogram
 import numpy
 
 class LUTTrainer():
-  """The LutTrainer class contain methods to learn weak trainer using Look-Up-Tables.
-  It can be used for multi-variate binary classification and regression."""
+  """The LUTTrainer contains methods to learn weak trainer using Look-Up-Tables (LUT).
+  It can be used for uni-variate and multi-variate binary classification and, as well as for multi-variate regression.
+  It requires that the features are discrete and have a maximum value.
+  """
 
   def __init__(self, maximum_feature_value, feature_length, number_of_outputs = 1, selection_type = 'independent'):
-    """ Function to initialize the parameters of the LUT Trainer that trains a weak LUTMachine.
+    """Initializes the parameters of the LUT Trainer that trains a weak LUTMachine.
 
     Keyword parameters
       maximum_feature_value (int): The number of entries for the LUT (i.e., the maximum value of the discrete feature)
@@ -21,6 +23,7 @@ class LUTTrainer():
         For the independent case the loss function is separately considered for each output.
         For shared selection type the sum of the loss function is taken over the outputs and a single feature is used for all the outputs.
         See Cosmin's thesis for more details.
+
     """
     self.m_maximum_feature_value = maximum_feature_value
     self.m_feature_length = feature_length
@@ -37,12 +40,12 @@ class LUTTrainer():
 
   def train(self, training_features, loss_gradient):
 
-    """ The function to learn the weak LUTMachine.
+    """Trains a weak LUTMachine.
 
     The function searches for a features index that minimizes (the length of) the loss gradient and computes the LUT corresponding to that feature index.
 
     Keyword parameters
-      training_features (int<#samples, #features>): The training features samples
+      training_features (uint16<#samples, #features>): The training features samples
 
       loss_gradient (float<#samples, #outputs>): The loss gradient values for the training samples
 

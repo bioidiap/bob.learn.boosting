@@ -10,13 +10,16 @@ Thus it conducts only one binary classifcation test.
 """
 
 
-import xbob.db.mnist
 import numpy
 import argparse
-import xbob.db.mnist
+import os
 
+import bob
+import xbob.db.mnist
 import xbob.boosting
 
+import logging
+logger = logging.getLogger('bob')
 
 TRAINER = {
   'stump' : xbob.boosting.trainer.StumpTrainer,
@@ -33,17 +36,91 @@ def command_line_arguments():
   """Defines the command line options."""
   parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
   parser.add_argument('-t', '--trainer-type', default = 'stump', choices = TRAINER.keys(), help = "The type of weak trainer used for boosting." )
-  parser.add_argument('-l', '--loss-type', default = 'exp', choices = LOSS.keys(), help = "The type of loss function used in boosting to compute the weights for the weak classifiers.")
-  parser.add_argument('-r', '--number-of-boosting-rounds', type = int, default = 20, help = "The number of boosting rounds, i.e., the number of weak classifiers.")
+  parser.add_argument('-l', '--loss-type', choices = LOSS.keys(), help = "The type of loss function used in boosting to compute the weights for the weak classifiers.")
+  parser.add_argument('-r', '--number-of-boosting-rounds', type = int, default = 100, help = "The number of boosting rounds, i.e., the number of weak classifiers.")
 
   parser.add_argument('-m', '--multi-variate', action = 'store_true', help = "Perform multi-variate training?")
   parser.add_argument('-s', '--feature-selection-style', default = 'independent', choices = {'indepenent', 'shared'}, help = "The feature selection style (only for multivariate classification with the LUT trainer).")
 
   parser.add_argument('-d', '--digits', type = int, nargs="+", choices=range(10), default=[5,6], help = "Select the digits you want to compare.")
+  parser.add_argument('-a', '--all-digits', action='store_true', help = "Use all digits")
   parser.add_argument('-n', '--number-of-elements', type = int, help = "For testing purposes: limit the number of training and test examples for each class.")
   parser.add_argument('-c', '--classifier-file', help = "If selected, the strong classifier will be stored in this file (or loaded from it if it already exists).")
+  parser.add_argument('-F', '--force', action='store_true', help = "Re-train the strong classifier, even if the --classifier-file already exists.")
 
-  return parser.parse_args()
+  parser.add_argument('-v', '--verbose', action = 'count', default = 0, help = "Increase the verbosity level (up too three times)")
+
+  args = parser.parse_args()
+
+  if args.trainer_type == 'stump' and args.multi_variate:
+    raise ValueError("The stump trainer cannot handle multi-variate training.")
+
+  if args.all_digits:
+    args.digits = range(10)
+  if len(args.digits) < 2:
+    raise ValueError("Please select at least two digits to classify, or --all to classify all digits")
+  if args.loss_type is None:
+    args.loss_type = 'exp' if args.trainer_type == 'stump' else 'log'
+
+  logger.setLevel({
+    0: logging.ERROR,
+    1: logging.WARNING,
+    2: logging.INFO,
+    3: logging.DEBUG
+  }[args.verbose])
+
+  return args
+
+
+def align(input, output, digits, multi_variate = False):
+  if multi_variate:
+    # just one classifier, with multi-variate output
+    input = numpy.vstack(input).astype(numpy.uint16)
+    # create output data
+    target = - numpy.ones((input.shape[0], len(output)))
+    output = numpy.hstack(output)
+    for i,d in enumerate(digits):
+      target[output == d, i] = 1
+    return {'multi' : (input, target)}
+
+  else:
+    # create pairs of one-to-one classifiers
+    problems = {}
+    for i, d1 in enumerate(digits):
+      for j, d2 in enumerate(digits[i+1:]):
+        key = "%d-vs-%d" % (d1, d2)
+        cur_input = numpy.vstack([input[i], input[j+1]]).astype(numpy.uint16)
+        target = numpy.ones((cur_input.shape[0]))
+        target[output[i].shape[0]:target.shape[0]] = -1
+        problems[key] = (cur_input, target)
+    return problems
+
+
+def read_data(db, which, digits, count, multi_variate):
+  input = []
+  output = []
+  for d in digits:
+    digit_data = db.data(which, labels = d)
+    if count is not None:
+      digit_data = (digit_data[0][:count], digit_data[1][:count])
+    input.append(digit_data[0])
+    output.append(digit_data[1])
+
+  return align(input, output, digits, multi_variate)
+
+
+def performance(targets, labels, key, multi_variate):
+    difference = targets == labels
+
+    if multi_variate:
+      sum = numpy.sum(difference, 1)
+      print "Classified", numpy.sum(sum == difference.shape[1]), "of", difference.shape[0], "elements correctly"
+      accuracy = float(numpy.sum(sum == difference.shape[1])) / difference.shape[0]
+    else:
+      print "Classified", numpy.sum(difference), "of", difference.shape[0], "elements correctly"
+      accuracy = float(numpy.sum(difference)) / difference.shape[0]
+
+    print "The classification accuracy for", key, "is", accuracy * 100, "%"
 
 
 def main():
@@ -51,55 +128,84 @@ def main():
   args = command_line_arguments()
 
   # open connection to the MNIST database
-  db = xbob.db.mnist.Database()
+  db = xbob.db.mnist.Database("Database")
 
   # perform training, if desired
+  if args.force and os.path.exists(args.classifier_file):
+    os.remove(args.classifier_file)
   if args.classifier_file is None or not os.path.exists(args.classifier_file):
-    # get the training data
-    training_features, training_labels = db_object.data('train', labels = args.digits)
+    # get the (aligned) training data
+    logger.info("Reading training data")
+    training_data = read_data(db, "train", args.digits, args.number_of_elements, args.multi_variate)
 
-    print training_labels
+    # get weak trainer according to command line options
+    if args.trainer_type == 'stump':
+      weak_trainer = xbob.boosting.trainer.StumpTrainer()
+    elif args.trainer_type == 'lut':
+      weak_trainer = xbob.boosting.trainer.LUTTrainer(
+            256,
+            training_data.values()[0][0].shape[1],
+            training_data.values()[0][1].shape[1] if args.multi_variate else 1,
+            args.feature_selection_style
+      )
+    # get the loss function
+    loss_function = LOSS[args.loss_type]()
 
+    # create strong trainer
+    trainer = xbob.boosting.trainer.Boosting(weak_trainer, loss_function, args.number_of_boosting_rounds)
 
+    strong_classifiers = {}
+    for key in sorted(training_data.keys()):
+      training_input, training_target = training_data[key]
 
+      if args.multi_variate:
+        logger.info("Starting training with %d training samples and %d outputs" % (training_target.shape[0], training_target.shape[1]))
+      else:
+        logger.info("Starting training with %d training samples for %s" % (training_target.shape[0], key))
 
-  fea_test, label_test = db_object.data('test', labels = args.digits)
+      # and train the strong classifier
+      strong_classifier = trainer.train(training_input, training_target)
 
+      # write strong classifier to file
+      if args.classifier_file is not None:
+        hdf5 = bob.io.HDF5File(args.classifier_file, 'a')
+        hdf5.create_group(key)
+        hdf5.cd(key)
+        strong_classifier.save(hdf5)
+        del hdf5
 
-  # Format the label data into int and change the class labels to -1 and +1
-  label_train = label_train.astype(int)
-  label_test = label_test.astype(int)
+      strong_classifiers[key] = strong_classifier
 
-  label_train[label_train == digit1] =  1
-  label_test[label_test == digit1] =  1
-  label_train[label_train == digit2] = -1
-  label_test[label_test == digit2] = -1
+      # compute training performance
+      logger.info("Evaluating training data")
+      scores = numpy.zeros(training_target.shape)
+      labels = numpy.zeros(training_target.shape)
+      strong_classifier(training_input, scores, labels)
+      performance(training_target, labels, key, args.multi_variate)
 
-  print label_train.shape
-  print label_test.shape
+  else:
+    # read strong classifier from file
+    strong_classifiers = {}
+    hdf5 = bob.io.HDF5File(args.classifier_file, 'r')
+    for key in hdf5.sub_groups(relative=True, recursive=False):
+      hdf5.cd(key)
+      strong_classifiers[key] = xbob.boosting.BoostedMachine(hdf5)
+      hdf5.cd("..")
 
+  logger.info("Reading test data")
+  test_data = read_data(db, "test", args.digits, args.number_of_elements, args.multi_variate)
 
-  # Initialize the trainer with 'LutTrainer' or 'StumpTrainer'
-  boost_trainer = boosting.Boost(args.trainer_type)
+  for key in sorted(test_data.keys()):
+    test_input, test_target = test_data[key]
 
-  # Set the parameters for the boosting
-  boost_trainer.num_rnds = args.num_rnds
-  boost_trainer.loss_type = args.loss_type
-  boost_trainer.selection_type = args.selection_type
-  boost_trainer.num_entries = args.num_entries
+    logger.info("Classifying %d test samples for %s" % (test_target.shape[0], key))
 
+    # classify test samples
+    scores = numpy.zeros(test_target.shape)
+    labels = numpy.zeros(test_target.shape)
+    strong_classifiers[key](test_input, scores, labels)
 
-  # Perform boosting of the feature set samp
-  machine = boost_trainer.train(fea_train, label_train)
-
-  # Classify the test samples (testsamp) using the boosited classifier generated above
-  pred_scores, prediction_labels = machine.classify(fea_test)
-
-  # calculate the accuracy in percentage for the curent classificaiton test
-  #label_test = label_test[:,numpy.newaxis]
-  accuracy = 100*float(sum(prediction_labels == label_test))/(len(label_test))
-  print "The accuracy of binary classification test with digits %d and %d is %f " % (digit1, digit2, accuracy)
-
+    performance(test_target, labels, key, args.multi_variate)
 
 
 
