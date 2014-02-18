@@ -50,7 +50,7 @@ void BoostedMachine::forward2(const blitz::Array<uint16_t,1>& features, blitz::A
   for (int i = m_weak_machines.size(); i--;){
     // predict locally
     m_weak_machines[i]->forward2(features, _predictions1);
-    predictions += m_weights(i) * _predictions1;
+    predictions(blitz::Range::all()) += m_weights(i, blitz::Range::all()) * _predictions1(blitz::Range::all());
   }
 }
 
@@ -62,7 +62,7 @@ void BoostedMachine::forward3(const blitz::Array<uint16_t,2>& features, blitz::A
   for (int i = m_weak_machines.size(); i--;){
     // predict locally
     m_weak_machines[i]->forward3(features, _predictions1);
-    predictions += _weights(i) * _predictions1;
+    predictions(blitz::Range::all()) += _weights(i) * _predictions1(blitz::Range::all());
   }
 }
 
@@ -73,7 +73,8 @@ void BoostedMachine::forward4(const blitz::Array<uint16_t,2>& features, blitz::A
   for (int i = m_weak_machines.size(); i--;){
     // predict locally
     m_weak_machines[i]->forward4(features, _predictions2);
-    predictions += m_weights(i) * _predictions2;
+    for (int j = predictions.extent(0); j--;)
+      predictions(j, blitz::Range::all()) += m_weights(i, blitz::Range::all()) * _predictions2(j, blitz::Range::all());
   }
 }
 
@@ -82,7 +83,7 @@ void BoostedMachine::forward5(const blitz::Array<uint16_t,2>& features, blitz::A
   forward3(features, predictions);
   // get the labels
   for (int i = predictions.extent(0); i--;)
-    labels(i) = (predictions(i) > 0) * 2 - 1;
+    labels(i) = (predictions(i) > 0) * 2. - 1;
 }
 
 void BoostedMachine::forward6(const blitz::Array<uint16_t,2>& features, blitz::Array<double,2> predictions, blitz::Array<double,2> labels) const{
