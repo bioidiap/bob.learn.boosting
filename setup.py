@@ -33,10 +33,10 @@ setup(
     version='1.0.1a0',
     description='Boosting framework for Bob',
 
-    url='https://gitlab.idiap.ch/manuel.guenther/xbob-boosting',
+    url='https://gitlab.idiap.ch/biometric/xbob-boosting',
     license='GPLv3',
-    author='Rakesh Mehta',
-    author_email='rakesh.mehta@idiap.ch',
+    author='Manuel Guenther (with help of Rakesh Mehta)',
+    author_email='manuel.guenther@idiap.ch',
 
     # If you have a better, long description of your package, place it on the
     # 'doc' directory and then hook it here
@@ -60,6 +60,7 @@ setup(
       'bob', # base signal proc./machine learning library
     ],
 
+    # Set up the C++ compiler to compile the C++ source code of this package
     cmdclass={
       'build_ext': build_ext,
     },
@@ -76,55 +77,20 @@ setup(
         pkgconfig = [
           'bob-io',
         ],
-# STUFF for DEBUGGING goes here (requires DEBUG bob version...):
-#        extra_compile_args = [
-#          '-ggdb',
-#        ],
-#        define_macros = [
-#          ('BZ_DEBUG', 1)
-#        ],
-#        undef_macros=[
-#          'NDEBUG'
-#        ]
       )
     ],
 
-    # Your project should be called something like 'xbob.<foo>' or
-    # 'xbob.<foo>.<bar>'. To implement this correctly and still get all your
-    # packages to be imported w/o problems, you need to implement namespaces
-    # on the various levels of the package and declare them here. See more
-    # about this here:
-    # http://peak.telecommunity.com/DevCenter/setuptools#namespace-packages
-    #
-    # Our database packages are good examples of namespace implementations
-    # using several layers. You can check them out here:
-    # https://github.com/idiap/bob/wiki/Satellite-Packages
+    # Declare that the package is in the namespace xbob
     namespace_packages = [
       'xbob',
     ],
 
-    # This entry defines which scripts you will have inside the 'bin' directory
-    # once you install the package (or run 'bin/buildout'). The order of each
-    # entry under 'console_scripts' is like this:
-    #   script-name-at-bin-directory = module.at.your.library:function
-    #
-    # The module.at.your.library is the python file within your library, using
-    # the python syntax for directories (i.e., a '.' instead of '/' or '\').
-    # This syntax also omits the '.py' extension of the filename. So, a file
-    # installed under 'example/foo.py' that contains a function which
-    # implements the 'main()' function of particular script you want to have
-    # should be referred as 'example.foo:main'.
-    #
-    # In this simple example we will create a single program that will print
-    # the version of bob.
+    # Define the entry points for this package
     entry_points={
 
-      # scripts should be declared using this entry:
+      # Console scripts, which will appear in ./bin/ after buildout
       'console_scripts': [
           'boosting_example.py = xbob.boosting.examples.mnist:main',
-#          'mnist_binary_all.py = xbob.boosting.scripts.mnist_binary_all:main',
-#          'mnist_binary_one.py = xbob.boosting.scripts.mnist_binary_one:main',
-#          'mnist_multi.py = xbob.boosting.scripts.mnist_multi:main',
       ],
 
       # tests that are _exported_ (that can be executed by other packages) can

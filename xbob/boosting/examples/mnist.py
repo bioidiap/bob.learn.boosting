@@ -34,13 +34,13 @@ LOSS = {
 
 def command_line_arguments():
   """Defines the command line options."""
-  parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+  parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument('-t', '--trainer-type', default = 'stump', choices = TRAINER.keys(), help = "The type of weak trainer used for boosting." )
   parser.add_argument('-l', '--loss-type', choices = LOSS.keys(), help = "The type of loss function used in boosting to compute the weights for the weak classifiers.")
   parser.add_argument('-r', '--number-of-boosting-rounds', type = int, default = 100, help = "The number of boosting rounds, i.e., the number of weak classifiers.")
 
   parser.add_argument('-m', '--multi-variate', action = 'store_true', help = "Perform multi-variate training?")
-  parser.add_argument('-s', '--feature-selection-style', default = 'independent', choices = {'indepenent', 'shared'}, help = "The feature selection style (only for multivariate classification with the LUT trainer).")
+  parser.add_argument('-s', '--feature-selection-style', default = 'independent', choices = {'independent', 'shared'}, help = "The feature selection style (only for multivariate classification with the LUT trainer).")
 
   parser.add_argument('-d', '--digits', type = int, nargs="+", choices=range(10), default=[5,6], help = "Select the digits you want to compare.")
   parser.add_argument('-a', '--all-digits', action='store_true', help = "Use all digits")
