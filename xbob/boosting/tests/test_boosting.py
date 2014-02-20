@@ -11,8 +11,7 @@ class TestBoosting(unittest.TestCase):
   @classmethod
   def setUpClass(self):
     # create a single copy of the MNIST database to avoid downloading the packages several times
-    self.database = xbob.db.mnist.Database("Database")
-    #self.database = xbob.db.mnist.Database()
+    self.database = xbob.db.mnist.Database()
 
   @classmethod
   def tearDownClass(self):

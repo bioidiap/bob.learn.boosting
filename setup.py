@@ -58,6 +58,7 @@ setup(
     install_requires=[
       'setuptools',
       'bob', # base signal proc./machine learning library
+      'xbob.db.mnist' # for testing and the example
     ],
 
     # Set up the C++ compiler to compile the C++ source code of this package
