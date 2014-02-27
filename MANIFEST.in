@@ -1,2 +1,4 @@
 include README.rst bootstrap.py buildout.cfg
 recursive-include docs *.py *.rst
+recursive-include xbob/boosting/cpp *.h *.cpp
+recursive-include xbob/boosting/tests *.hdf5
