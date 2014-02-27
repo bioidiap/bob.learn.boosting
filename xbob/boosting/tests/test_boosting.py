@@ -54,7 +54,7 @@ class TestBoosting(unittest.TestCase):
     # check the result
     weight = 1.83178082
     self.assertEqual(machine.weights.shape, (1,1))
-    self.assertAlmostEqual(machine.weights, -weight)
+    self.assertTrue(numpy.allclose(machine.weights, -weight))
     self.assertEqual(len(machine.weak_machines), 1)
     self.assertEqual(machine.indices, [483])
     weak = machine.weak_machines[0]
@@ -89,7 +89,7 @@ class TestBoosting(unittest.TestCase):
     weight = 15.46452387
     machine = booster.train(inputs.astype(numpy.uint16), aligned)
     self.assertEqual(machine.weights.shape, (1,1))
-    self.assertAlmostEqual(machine.weights, -weight)
+    self.assertTrue(numpy.allclose(machine.weights, -weight))
     self.assertEqual(len(machine.weak_machines), 1)
     self.assertEqual(machine.indices, [379])
     weak = machine.weak_machines[0]
@@ -162,7 +162,6 @@ class TestBoosting(unittest.TestCase):
     self.assertEqual(machine.weights.shape, (1,len(digits)))
     self.assertTrue(numpy.allclose(machine.weights, -weights))
     self.assertEqual(len(machine.weak_machines), 1)
-    print machine.indices
     self.assertTrue(all(machine.indices == [215, 236, 264, 349]))
     weak = machine.weak_machines[0]
     self.assertTrue(isinstance(weak, xbob.boosting.LUTMachine))
