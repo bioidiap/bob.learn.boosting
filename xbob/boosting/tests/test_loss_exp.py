@@ -102,7 +102,7 @@ class TestExponentialLoss(unittest.TestCase):
     score = numpy.array([[0.5, 0.5], [0.5, 0.5], [0.5, 0.5]], 'float64')
     alpha = 0.5
     weak_scores = numpy.array([[0.2, 0.4], [0.5, 0.6], [0.5, 0.5]], 'float64')
-    prev_scores = numpy.array([[0.1, 0.2],[0.3, 0.4], [0.5, 0.5]], 'float64')
+    prev_scores = numpy.array([[0.1, 0.2], [0.3, 0.4], [0.5, 0.5]], 'float64')
 
     # check the loss dimensions
     loss_value = loss_function.loss(targets, score)

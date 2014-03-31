@@ -57,7 +57,7 @@ class LossFunction:
 
     Returns
 
-      (float <#samples>) The sum of the loss values for the current value of the alpha
+      (float <#outputs>) The sum of the loss values for the current value of the alpha
     """
 
     # compute the scores and loss for the current alpha
@@ -85,7 +85,7 @@ class LossFunction:
       current_scores (float <#samples, #outputs>): The prediction scores of the samples for the current round of the boosting.
 
     Returns
-      (float <#samples>) The sum of the loss gradient for the current value of the alpha.
+      (float <#outputs>) The sum of the loss gradient for the current value of the alpha.
     """
 
     # compute the loss gradient for the updated score

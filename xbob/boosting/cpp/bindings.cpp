@@ -10,6 +10,10 @@
 #include "StumpMachine.h"
 #include "LUTMachine.h"
 #include "BoostedMachine.h"
+
+#include "JesorskyLoss.h"
+
+#include "LUTTrainer.h"
 #include "Functions.h"
 
 using namespace boost::python;
@@ -58,6 +62,7 @@ static blitz::Array<int32_t, 1> get_indices(const BoostedMachine& self){
   return self.getIndices();
 }
 
+#if 0
 // Wrapper functions for the weighted histogram
 static void weighted_histogram1(bob::python::const_ndarray features, bob::python::const_ndarray weights, blitz::Array<double,1> histogram){
   weighted_histogram(features.bz<uint16_t,1>(), weights.bz<double,1>(), histogram);
@@ -65,6 +70,33 @@ static void weighted_histogram1(bob::python::const_ndarray features, bob::python
 static blitz::Array<double, 1> weighted_histogram2(bob::python::const_ndarray features, bob::python::const_ndarray weights, const uint16_t bin_count){
   blitz::Array<double,1> retval(bin_count);
   weighted_histogram(features.bz<uint16_t,1>(), weights.bz<double,1>(), retval);
+  return retval;
+}
+#endif
+
+// Wrapper functions for Jesorsky loss
+static blitz::Array<double,1> jesorsky_loss_sum(const JesorskyLoss& loss, const blitz::Array<double,1>& alpha, const blitz::Array<double,2>& targets, const blitz::Array<double,2>& previous_scores, const blitz::Array<double,2>& current_scores){
+  blitz::Array<double, 1> retval(1);
+  loss.lossSum(alpha, targets, previous_scores, current_scores, retval);
+  return retval;
+}
+
+static blitz::Array<double,1> jesorsky_gradient_sum(const JesorskyLoss& loss, const blitz::Array<double,1>& alpha, const blitz::Array<double,2>& targets, const blitz::Array<double,2>& previous_scores, const blitz::Array<double,2>& current_scores){
+  blitz::Array<double, 1> retval(targets.extent(1));
+  loss.gradientSum(alpha, targets, previous_scores, current_scores, retval);
+  return retval;
+}
+
+
+static blitz::Array<double,2> jesorsky_loss(const JesorskyLoss& loss, const blitz::Array<double,2>& targets, const blitz::Array<double, 2>& scores){
+  blitz::Array<double,2> retval(targets.extent(0), 1);
+  loss.loss(targets, scores, retval);
+  return retval;
+}
+
+static blitz::Array<double,2> jesorsky_loss_gradient(const JesorskyLoss& loss, const blitz::Array<double,2>& targets, const blitz::Array<double, 2>& scores){
+  blitz::Array<double,2> retval(targets.extent(0), targets.extent(1));
+  loss.lossGradient(targets, scores, retval);
   return retval;
 }
 
@@ -139,7 +171,27 @@ BOOST_PYTHON_MODULE(_boosting) {
     .add_property("weak_machines", &get_weak_machines, "The weak machines.")
   ;
 
+  enum_<LUTTrainer::SelectionStyle>("SelectionStyle")
+    .value("independent", LUTTrainer::independent)
+    .value("shared", LUTTrainer::shared)
+    .export_values();
+
+  class_<LUTTrainer,  boost::shared_ptr<LUTTrainer> >("LUTTrainer",  "A trainer to train a LUTMachine", init<uint16_t, optional<int,LUTTrainer::SelectionStyle> >())
+    .def("train", &LUTTrainer::train, (arg("self"), arg("training_features"), arg("loss_gradient")), "Trains and returns a LUTMachine.")
+    .add_property("number_of_labels", &LUTTrainer::maximumFeatureValue, "The highest feature value + 1.")
+    .add_property("number_of_outputs", &LUTTrainer::numberOfOutputs, "The dimensionality of the output vector (1 for the uni-variate case)")
+    .add_property("selection_type", &LUTTrainer::selectionType, "The style for selecting features (valid for multi-variate case only)")
+  ;
+
+  // bind jesorsky loss function
+  class_<JesorskyLoss>("JesorskyLoss", "The loss function to compute the Jesorsky loss", init<>())
+    .def("loss", &jesorsky_loss, (arg("self"), arg("targets"), arg("scores")), "Computes the loss between the given targets and scores")
+    .def("loss_gradient", &jesorsky_loss_gradient, (arg("self"), arg("targets"), arg("scores")), "Computes the loss gradient for the given targets and scores.")
+    .def("loss_sum", &jesorsky_loss_sum, (arg("self"), arg("alpha"), arg("targets"), arg("previous_scores"), arg("current_scores")), "Computes the sum of the loss for the given targets and scores")
+    .def("loss_gradient_sum", &jesorsky_gradient_sum, (arg("self"), arg("alpha"), arg("targets"), arg("previous_scores"), arg("current_scores")), "Computes the sum of the gradients for the given targets and scores")
+  ;
+
   // bind auxiliary functions
-  def("weighted_histogram", &weighted_histogram1, (arg("features"), arg("weights"), arg("histogram")), "Computes the histogram of features, using the given weight for each feature.");
-  def("weighted_histogram", &weighted_histogram2, (arg("features"), arg("weights"), arg("bin_count")), "Computes and returns the histogram of features, using the given weight for each feature.");
+//  def("weighted_histogram", &weighted_histogram1, (arg("features"), arg("weights"), arg("histogram")), "Computes the histogram of features, using the given weight for each feature.");
+//  def("weighted_histogram", &weighted_histogram2, (arg("features"), arg("weights"), arg("bin_count")), "Computes and returns the histogram of features, using the given weight for each feature.");
 }

@@ -73,6 +73,9 @@ setup(
           "xbob/boosting/cpp/StumpMachine.cpp",
           "xbob/boosting/cpp/LUTMachine.cpp",
           "xbob/boosting/cpp/BoostedMachine.cpp",
+          "xbob/boosting/cpp/LUTTrainer.cpp",
+          "xbob/boosting/cpp/LossFunction.cpp",
+          "xbob/boosting/cpp/JesorskyLoss.cpp",
           "xbob/boosting/cpp/bindings.cpp",
         ],
         pkgconfig = [

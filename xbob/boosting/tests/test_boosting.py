@@ -82,7 +82,7 @@ class TestBoosting(unittest.TestCase):
 
     # for stump trainers, the logit loss function is preferred
     loss_function = xbob.boosting.loss.LogitLoss()
-    weak_trainer = xbob.boosting.trainer.LUTTrainer(256,inputs.shape[1])
+    weak_trainer = xbob.boosting.trainer.LUTTrainer(256)
     booster = xbob.boosting.trainer.Boosting(weak_trainer, loss_function, number_of_rounds=1)
 
     # perform boosting
@@ -117,7 +117,7 @@ class TestBoosting(unittest.TestCase):
 
     # for stump trainers, the logit loss function is preferred
     loss_function = xbob.boosting.loss.LogitLoss()
-    weak_trainer = xbob.boosting.trainer.LUTTrainer(256, inputs.shape[1], len(digits), 'shared')
+    weak_trainer = xbob.boosting.trainer.LUTTrainer(256, len(digits), xbob.boosting.trainer.SelectionStyle.shared)
     booster = xbob.boosting.trainer.Boosting(weak_trainer, loss_function, number_of_rounds=1)
 
     # perform boosting
@@ -153,7 +153,7 @@ class TestBoosting(unittest.TestCase):
 
     # for stump trainers, the logit loss function is preferred
     loss_function = xbob.boosting.loss.LogitLoss()
-    weak_trainer = xbob.boosting.trainer.LUTTrainer(256, inputs.shape[1], len(digits), 'independent')
+    weak_trainer = xbob.boosting.trainer.LUTTrainer(256, len(digits), xbob.boosting.trainer.SelectionStyle.independent)
     booster = xbob.boosting.trainer.Boosting(weak_trainer, loss_function, number_of_rounds=1)
 
     # perform boosting

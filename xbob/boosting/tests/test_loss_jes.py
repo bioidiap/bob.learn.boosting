@@ -15,9 +15,9 @@ class TestJesorskyLoss(unittest.TestCase):
     loss_function = xbob.boosting.loss.JesorskyLoss()
     num_samples = 2
     num_outputs = 4
-    targets = numpy.array([[10, 10, 10, 30], [12, 11, 13, 29]])
+    targets = numpy.array([[10, 10, 10, 30], [12, 11, 13, 29]], 'float64')
     score = numpy.array([[8, 9, 7, 34], [11, 6, 16, 26]], 'float64')
-    alpha = 0.5
+    alpha = numpy.array([0.5, 0.5, 0.5, 0.5])
     weak_scores = numpy.array([[0.2, 0.4, 0.5, 0.6], [0.5, 0.5, 0.5, 0.5]], 'float64')
     prev_scores = numpy.array([[0.1, 0.2, 0.3, 0.4], [0.5, 0.5, 0.5, 0.5]], 'float64')
 
