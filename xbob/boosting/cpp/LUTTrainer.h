@@ -21,7 +21,7 @@ class LUTTrainer{
     // Create an LUT machine using the given LUT and the given index
     LUTTrainer(uint16_t maximumFeatureValue, int numberOfOutputs = 1, SelectionStyle selectionType = independent);
 
-    LUTMachine train(const blitz::Array<uint16_t, 2>& training_features, const blitz::Array<double,2>& loss_gradient) const;
+    boost::shared_ptr<LUTMachine> train(const blitz::Array<uint16_t, 2>& training_features, const blitz::Array<double,2>& loss_gradient) const;
 
     uint16_t maximumFeatureValue() const {return m_maximumFeatureValue;}
     int numberOfOutputs() const {return m_numberOfOutputs;}

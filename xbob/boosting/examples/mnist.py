@@ -8,7 +8,7 @@ Thus it conducts only one binary classifcation test.
 
 
 """
-
+from __future__ import print_function
 
 import numpy
 import argparse
@@ -32,7 +32,7 @@ LOSS = {
   'tan'   : xbob.boosting.loss.TangentialLoss,
 }
 
-def command_line_arguments():
+def command_line_arguments(command_line_options):
   """Defines the command line options."""
   parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument('-t', '--trainer-type', default = 'stump', choices = TRAINER.keys(), help = "The type of weak trainer used for boosting." )
@@ -42,6 +42,7 @@ def command_line_arguments():
   parser.add_argument('-m', '--multi-variate', action = 'store_true', help = "Perform multi-variate training?")
   parser.add_argument('-s', '--feature-selection-style', default = 'independent', choices = {'independent', 'shared'}, help = "The feature selection style (only for multivariate classification with the LUT trainer).")
 
+  parser.add_argument('-D', '--database-directory', default = 'Database', help = "The directory where to download the database to (or read it from if it already exists)")
   parser.add_argument('-d', '--digits', type = int, nargs="+", choices=range(10), default=[5,6], help = "Select the digits you want to compare.")
   parser.add_argument('-a', '--all-digits', action='store_true', help = "Use all digits")
   parser.add_argument('-n', '--number-of-elements', type = int, help = "For testing purposes: limit the number of training and test examples for each class.")
@@ -50,7 +51,7 @@ def command_line_arguments():
 
   parser.add_argument('-v', '--verbose', action = 'count', default = 0, help = "Increase the verbosity level (up too three times)")
 
-  args = parser.parse_args()
+  args = parser.parse_args(command_line_options)
 
   if args.trainer_type == 'stump' and args.multi_variate:
     raise ValueError("The stump trainer cannot handle multi-variate training.")
@@ -114,21 +115,23 @@ def performance(targets, labels, key, multi_variate):
 
     if multi_variate:
       sum = numpy.sum(difference, 1)
-      print "Classified", numpy.sum(sum == difference.shape[1]), "of", difference.shape[0], "elements correctly"
+      print ("Classified", numpy.sum(sum == difference.shape[1]), "of", difference.shape[0], "elements correctly")
       accuracy = float(numpy.sum(sum == difference.shape[1])) / difference.shape[0]
     else:
-      print "Classified", numpy.sum(difference), "of", difference.shape[0], "elements correctly"
+      print ("Classified", numpy.sum(difference), "of", difference.shape[0], "elements correctly")
       accuracy = float(numpy.sum(difference)) / difference.shape[0]
 
-    print "The classification accuracy for", key, "is", accuracy * 100, "%"
+    print ("The classification accuracy for", key, "is", accuracy * 100, "%")
 
 
-def main():
+def main(command_line_options = None):
 
-  args = command_line_arguments()
+  args = command_line_arguments(command_line_options)
 
   # open connection to the MNIST database
-  db = xbob.db.mnist.Database("Database")
+  if not os.path.isdir(args.database_directory):
+    os.makedirs(args.database_directory)
+  db = xbob.db.mnist.Database(args.database_directory)
 
   # perform training, if desired
   if args.force and os.path.exists(args.classifier_file):
@@ -144,15 +147,14 @@ def main():
     elif args.trainer_type == 'lut':
       weak_trainer = xbob.boosting.trainer.LUTTrainer(
             256,
-            training_data.values()[0][0].shape[1],
-            training_data.values()[0][1].shape[1] if args.multi_variate else 1,
+            list(training_data.values())[0][1].shape[1] if args.multi_variate else 1,
             args.feature_selection_style
       )
     # get the loss function
     loss_function = LOSS[args.loss_type]()
 
     # create strong trainer
-    trainer = xbob.boosting.trainer.Boosting(weak_trainer, loss_function, args.number_of_boosting_rounds)
+    trainer = xbob.boosting.trainer.Boosting(weak_trainer, loss_function)
 
     strong_classifiers = {}
     for key in sorted(training_data.keys()):
@@ -164,7 +166,7 @@ def main():
         logger.info("Starting training with %d training samples for %s" % (training_target.shape[0], key))
 
       # and train the strong classifier
-      strong_classifier = trainer.train(training_input, training_target)
+      strong_classifier = trainer.train(training_input, training_target, args.number_of_boosting_rounds)
 
       # write strong classifier to file
       if args.classifier_file is not None:

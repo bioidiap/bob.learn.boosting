@@ -19,13 +19,13 @@ class LUTMachine : public WeakMachine{
     LUTMachine(bob::io::HDF5File& file);
 
     // uni-variate single-feature classification of the input feature vector
-    virtual double forward1(const blitz::Array<uint16_t, 1>& features) const;
+    virtual double forward(const blitz::Array<uint16_t, 1>& features) const;
     // multi-variate single-feature classification of the input feature vector
-    virtual void forward2(const blitz::Array<uint16_t, 1>& features, blitz::Array<double,1> predictions) const;
+    virtual void forward(const blitz::Array<uint16_t, 1>& features, blitz::Array<double,1> predictions) const;
     // uni-variate classification of several input feature vector
-    virtual void forward3(const blitz::Array<uint16_t, 2>& features, blitz::Array<double,1> predictions) const;
+    virtual void forward(const blitz::Array<uint16_t, 2>& features, blitz::Array<double,1> predictions) const;
     // multi-variate classification of several input feature vector
-    virtual void forward4(const blitz::Array<uint16_t, 2>& features, blitz::Array<double,2> predictions) const;
+    virtual void forward(const blitz::Array<uint16_t, 2>& features, blitz::Array<double,2> predictions) const;
 
     // The indices into the feature vector used by this machine
     virtual blitz::Array<int32_t,1> getIndices() const;

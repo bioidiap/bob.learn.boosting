@@ -72,7 +72,7 @@ To control the experimentation, you can choose:
 For information and debugging purposes, it might be interesting to use:
 
 * ``--verbose`` (can be used several times): Increases the verbosity level from 0 (error) over 1 (warning) and 2 (info) to 3 (debug). Verbosity level 2 (``-vv``) is recommended.
-* ``number-of-elements``: Reduce the number of elements per class (digit) to the given value.
+* ``--number-of-elements``: Reduce the number of elements per class (digit) to the given value.
 
 Four different kinds of experiments can be performed:
 

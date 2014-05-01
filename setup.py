@@ -20,8 +20,15 @@
 # administrative interventions.
 
 from setuptools import setup, find_packages, dist
-dist.Distribution(dict(setup_requires='xbob.extension'))
-from xbob.extension import Extension, build_ext
+dist.Distribution(dict(setup_requires=['xbob.blitz', 'xbob.io', 'xbob.extension']))
+from xbob.blitz.extension import Extension
+import xbob.io
+
+import os
+include_dirs = [
+    xbob.blitz.get_include(),
+    xbob.io.get_include(),
+]
 
 # The only thing we do in this file is to call the setup() function with all
 # parameters that define our package.
@@ -30,7 +37,7 @@ setup(
     # This is the basic information about your project. Modify all this
     # information before releasing code publicly.
     name='xbob.boosting',
-    version='1.0.1a0',
+    version='1.1.0a0',
     description='Boosting framework for Bob',
 
     url='https://gitlab.idiap.ch/biometric/xbob-boosting',
@@ -46,10 +53,6 @@ setup(
     packages=find_packages(),
     include_package_data=True,
 
-    setup_requires=[
-      'xbob.extension',
-    ],
-
     # This line defines which packages should be installed when you "install"
     # this package. All packages that are mentioned here, but are not installed
     # on the current system will be installed locally and only visible to the
@@ -57,31 +60,31 @@ setup(
     # privileges when using buildout.
     install_requires=[
       'setuptools',
-      'bob', # base signal proc./machine learning library
+      'xbob.extension',
+      'xbob.blitz',
+      'xbob.io',
       'xbob.db.mnist' # for testing and the example
     ],
 
-    # Set up the C++ compiler to compile the C++ source code of this package
-    cmdclass={
-      'build_ext': build_ext,
-    },
-
     ext_modules = [
       Extension(
-        'xbob.boosting._boosting',
+        'xbob.boosting._library',
         [
+          "xbob/boosting/cpp/LossFunction.cpp",
+          "xbob/boosting/cpp/JesorskyLoss.cpp",
+
+          "xbob/boosting/cpp/WeakMachine.cpp",
           "xbob/boosting/cpp/StumpMachine.cpp",
           "xbob/boosting/cpp/LUTMachine.cpp",
           "xbob/boosting/cpp/BoostedMachine.cpp",
+
           "xbob/boosting/cpp/LUTTrainer.cpp",
-          "xbob/boosting/cpp/LossFunction.cpp",
-          "xbob/boosting/cpp/JesorskyLoss.cpp",
-          "xbob/boosting/cpp/bindings.cpp",
+
+          "xbob/boosting/cpp/Bindings.cpp",
         ],
-        pkgconfig = [
-          'bob-io',
-        ],
-      )
+        include_dirs = include_dirs,
+        packages = ['bob-io'],
+      ),
     ],
 
     # Declare that the package is in the namespace xbob

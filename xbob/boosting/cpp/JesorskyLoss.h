@@ -14,6 +14,7 @@ class JesorskyLoss : public LossFunction{
   public:
     // Create an LUT machine using the given LUT and the given index
     JesorskyLoss(){}
+    virtual ~JesorskyLoss(){}
 
     void loss(const blitz::Array<double, 2>& targets, const blitz::Array<double, 2>& scores, blitz::Array<double, 2>& errors) const;
 

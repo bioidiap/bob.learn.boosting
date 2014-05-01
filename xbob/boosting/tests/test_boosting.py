@@ -47,10 +47,10 @@ class TestBoosting(unittest.TestCase):
     # for stump trainers, the exponential loss function is preferred
     loss_function = xbob.boosting.loss.ExponentialLoss()
     weak_trainer = xbob.boosting.trainer.StumpTrainer()
-    booster = xbob.boosting.trainer.Boosting(weak_trainer, loss_function, number_of_rounds=1)
+    booster = xbob.boosting.trainer.Boosting(weak_trainer, loss_function)
 
     # perform boosting
-    machine = booster.train(inputs.astype(numpy.float64), aligned)
+    machine = booster.train(inputs.astype(numpy.float64), aligned, number_of_rounds=1)
     # check the result
     weight = 1.83178082
     self.assertEqual(machine.weights.shape, (1,1))
@@ -58,7 +58,7 @@ class TestBoosting(unittest.TestCase):
     self.assertEqual(len(machine.weak_machines), 1)
     self.assertEqual(machine.indices, [483])
     weak = machine.weak_machines[0]
-    self.assertTrue(isinstance(weak, xbob.boosting.StumpMachine))
+    self.assertTrue(isinstance(weak, xbob.boosting.machine.StumpMachine))
     self.assertEqual(weak.threshold, 15.5)
     self.assertEqual(weak.polarity, 1.)
 
@@ -83,17 +83,17 @@ class TestBoosting(unittest.TestCase):
     # for stump trainers, the logit loss function is preferred
     loss_function = xbob.boosting.loss.LogitLoss()
     weak_trainer = xbob.boosting.trainer.LUTTrainer(256)
-    booster = xbob.boosting.trainer.Boosting(weak_trainer, loss_function, number_of_rounds=1)
+    booster = xbob.boosting.trainer.Boosting(weak_trainer, loss_function)
 
     # perform boosting
     weight = 15.46452387
-    machine = booster.train(inputs.astype(numpy.uint16), aligned)
+    machine = booster.train(inputs.astype(numpy.uint16), aligned, number_of_rounds=1)
     self.assertEqual(machine.weights.shape, (1,1))
     self.assertTrue(numpy.allclose(machine.weights, -weight))
     self.assertEqual(len(machine.weak_machines), 1)
     self.assertEqual(machine.indices, [379])
     weak = machine.weak_machines[0]
-    self.assertTrue(isinstance(weak, xbob.boosting.LUTMachine))
+    self.assertTrue(isinstance(weak, xbob.boosting.machine.LUTMachine))
     self.assertEqual(weak.lut.shape, (256,1))
 
     # check first training image
@@ -117,18 +117,18 @@ class TestBoosting(unittest.TestCase):
 
     # for stump trainers, the logit loss function is preferred
     loss_function = xbob.boosting.loss.LogitLoss()
-    weak_trainer = xbob.boosting.trainer.LUTTrainer(256, len(digits), xbob.boosting.trainer.SelectionStyle.shared)
-    booster = xbob.boosting.trainer.Boosting(weak_trainer, loss_function, number_of_rounds=1)
+    weak_trainer = xbob.boosting.trainer.LUTTrainer(256, len(digits), "shared")
+    booster = xbob.boosting.trainer.Boosting(weak_trainer, loss_function)
 
     # perform boosting
     weights = numpy.array([2.5123104, 2.19725677, 2.34455412, 1.94584326])
-    machine = booster.train(inputs.astype(numpy.uint16), aligned)
+    machine = booster.train(inputs.astype(numpy.uint16), aligned, number_of_rounds=1)
     self.assertEqual(machine.weights.shape, (1,len(digits)))
     self.assertTrue(numpy.allclose(machine.weights, -weights))
     self.assertEqual(len(machine.weak_machines), 1)
     self.assertEqual(machine.indices, [437])
     weak = machine.weak_machines[0]
-    self.assertTrue(isinstance(weak, xbob.boosting.LUTMachine))
+    self.assertTrue(isinstance(weak, xbob.boosting.machine.LUTMachine))
     self.assertEqual(weak.lut.shape, (256,4))
 
     # check first training image
@@ -153,18 +153,18 @@ class TestBoosting(unittest.TestCase):
 
     # for stump trainers, the logit loss function is preferred
     loss_function = xbob.boosting.loss.LogitLoss()
-    weak_trainer = xbob.boosting.trainer.LUTTrainer(256, len(digits), xbob.boosting.trainer.SelectionStyle.independent)
-    booster = xbob.boosting.trainer.Boosting(weak_trainer, loss_function, number_of_rounds=1)
+    weak_trainer = xbob.boosting.trainer.LUTTrainer(256, len(digits), "independent")
+    booster = xbob.boosting.trainer.Boosting(weak_trainer, loss_function)
 
     # perform boosting
     weights = numpy.array([2.94443872, 2.70805517, 2.34454354, 2.94443872])
-    machine = booster.train(inputs.astype(numpy.uint16), aligned)
+    machine = booster.train(inputs.astype(numpy.uint16), aligned, number_of_rounds=1)
     self.assertEqual(machine.weights.shape, (1,len(digits)))
     self.assertTrue(numpy.allclose(machine.weights, -weights))
     self.assertEqual(len(machine.weak_machines), 1)
     self.assertTrue(all(machine.indices == [215, 236, 264, 349]))
     weak = machine.weak_machines[0]
-    self.assertTrue(isinstance(weak, xbob.boosting.LUTMachine))
+    self.assertTrue(isinstance(weak, xbob.boosting.machine.LUTMachine))
     self.assertEqual(weak.lut.shape, (256,4))
 
     # check first training image

@@ -17,7 +17,7 @@ class ExponentialLoss (LossFunction):
       scores (float <#samples, #outputs>): The scores provided by the classifier.
 
     Returns
-      (float <#samples, #outputs>): The loss values for the samples
+      (float <#samples, #outputs>): The loss values for the samples, always >= 0
     """
     return numpy.exp(-(targets * scores))
 

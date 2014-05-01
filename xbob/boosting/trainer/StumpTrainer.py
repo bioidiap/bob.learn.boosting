@@ -1,4 +1,4 @@
-from .._boosting import StumpMachine
+from ..machine import StumpMachine
 
 import numpy
 
@@ -19,7 +19,7 @@ class StumpTrainer():
       loss_gradient (float<#samples>): The loss gradient values for the training samples
 
     Returns
-      A (weak) StumpMachine
+      A (weak) :py:class:`xbob.boosting.machine.StumpMachine`
     """
 
     # Initialization

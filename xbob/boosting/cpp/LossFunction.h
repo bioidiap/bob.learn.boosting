@@ -12,7 +12,7 @@ class LossFunction{
     virtual void lossGradient(const blitz::Array<double, 2>& targets, const blitz::Array<double, 2>& scores, blitz::Array<double, 2>& gradient) const = 0;
 
   protected:
-    // This class is not instantiatable
+    // This class is not instanceable
     LossFunction(){}
 
   private:

@@ -15,7 +15,7 @@ class TangentialLoss (LossFunction):
       scores (float <#samples, #outputs>): The scores provided by the classifier.
 
     Returns
-      (float <#samples, #outputs>): The loss values for the samples
+      (float <#samples, #outputs>): The loss values for the samples, always >= 0
     """
     return (2. * numpy.arctan(targets * scores) - 1.)**2
 

@@ -4,20 +4,21 @@
 # Mon 13 Aug 2012 12:38:15 CEST
 #
 # Copyright (C) 2011-2012 Idiap Research Institute, Martigny, Switzerland
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, version 3 of the License.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys, os
+import pkg_resources
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -56,7 +57,7 @@ dvipng_osx = '/opt/local/libexec/texlive/binaries/dvipng'
 if os.path.exists(dvipng_osx): pngmath_dvipng = dvipng_osx
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+#templates_path = ['_templates']
 
 # The suffix of source filenames.
 source_suffix = '.rst'
@@ -68,9 +69,11 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Bob Project Example'
+project = u'Boosting extension for Bob'
 import time
 copyright = u'%s, Idiap Research Institute' % time.strftime('%Y')
+
+distribution = pkg_resources.require('xbob.boosting')[0]
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -150,7 +153,7 @@ html_favicon = ''
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+#html_static_path = ['_static']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
@@ -247,7 +250,7 @@ man_pages = [
 ]
 
 
-# We want to remove all private (i.e. _. or __.__) members 
+# We want to remove all private (i.e. _. or __.__) members
 # that are not in the list of accepted functions
 accepted_private_functions = ['__call__']
 
@@ -262,10 +265,10 @@ def member_function_test(app, what, name, obj, skip, options):
       # test if the method is documented
       if not hasattr(obj, '__doc__') or not obj.__doc__:
         return True
-  
+
   # Skips selected members in auto-generated documentation. Unfortunately, old
   # versions of Boost.Python will not generate a __self__ member for static
-  # methods and that screws-up Sphinx processing. 
+  # methods and that screws-up Sphinx processing.
   if sphinx.__version__ < "1.0":
     # We have to remove objects that do not have a __self__ attribute set
     import types
@@ -275,11 +278,11 @@ def member_function_test(app, what, name, obj, skip, options):
         return True
 
     return False
-  
+
 # Default processing flags for sphinx
 autoclass_content = 'both'
 autodoc_member_order = 'bysource'
-autodoc_default_flags = ['members', 'undoc-members', 'special-members', 'inherited-members', 'show-inheritance']
+autodoc_default_flags = ['members', 'undoc-members', 'private-members', 'special-members', 'inherited-members', 'show-inheritance']
 
 def setup(app):
   app.connect('autodoc-skip-member', member_function_test)

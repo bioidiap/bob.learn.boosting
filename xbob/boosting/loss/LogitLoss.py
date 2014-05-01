@@ -15,7 +15,7 @@ class LogitLoss(LossFunction):
       scores (float <#samples, #outputs>): The scores provided by the classifier.
 
     Returns
-      (float <#samples, #outputs>): The loss values for the samples
+      (float <#samples, #outputs>): The loss values for the samples, which is always >= 0
     """
     e = numpy.exp(-(targets * scores))
     return numpy.log(1. + e)
