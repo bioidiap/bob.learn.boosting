@@ -3,7 +3,7 @@ from .LossFunction import LossFunction
 import numpy
 
 class TangentialLoss (LossFunction):
-  """Tangent loss function."""
+  """Tangent loss function, as described in http://www.svcl.ucsd.edu/projects/LossDesign/TangentBoost.html."""
 
   def loss(self, targets, scores):
     """The function computes the logit loss values using prediction scores and targets.
