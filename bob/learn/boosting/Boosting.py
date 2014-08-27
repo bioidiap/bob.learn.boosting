@@ -1,4 +1,4 @@
-
+from ._library import BoostedMachine
 import numpy
 import scipy.optimize
 import logging

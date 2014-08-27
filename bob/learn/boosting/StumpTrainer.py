@@ -1,3 +1,4 @@
+from ._library import StumpMachine
 import numpy
 
 class StumpTrainer():

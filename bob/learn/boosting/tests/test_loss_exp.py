@@ -1,6 +1,6 @@
 import unittest
 import random
-import xbob.boosting
+import bob.learn.boosting
 import numpy
 
 class TestExponentialLoss(unittest.TestCase):
@@ -9,7 +9,7 @@ class TestExponentialLoss(unittest.TestCase):
   def test01_positive_target(self):
     # Loss values computation test for postitive targets.
 
-    loss_function = xbob.boosting.loss.ExponentialLoss()
+    loss_function = bob.learn.boosting.ExponentialLoss()
     target = 1
     score = 0.34
     alpha = 0.5
@@ -51,7 +51,7 @@ class TestExponentialLoss(unittest.TestCase):
   def test02_negative_target(self):
     # Exponential Loss values computation test for negative targets.
 
-    loss_function = xbob.boosting.loss.ExponentialLoss()
+    loss_function = bob.learn.boosting.ExponentialLoss()
     target = -1
     score = 0.34
     alpha = 0.5
@@ -95,7 +95,7 @@ class TestExponentialLoss(unittest.TestCase):
 
     # Check the loss function values for multivariate targets
 
-    loss_function = xbob.boosting.loss.ExponentialLoss()
+    loss_function = bob.learn.boosting.ExponentialLoss()
     num_samples = 3
     num_outputs = 2
     targets = numpy.array([[1, -1], [-1, 1], [0, 0]])
@@ -127,7 +127,7 @@ class TestExponentialLoss(unittest.TestCase):
 
   def test04_multivariate_negative_target(self):
 
-    loss_function = xbob.boosting.loss.ExponentialLoss()
+    loss_function = bob.learn.boosting.ExponentialLoss()
     num_samples = 2
     num_dimension = 2
     targets = numpy.array([[1, -1], [-1, 1]])

@@ -14,22 +14,22 @@ import numpy
 import argparse
 import os
 
-import bob
-import xbob.db.mnist
-import xbob.boosting
+import bob.io.base
+import bob.learn.boosting
+import bob.learn.boosting.utils
 
 import logging
 logger = logging.getLogger('bob')
 
 TRAINER = {
-  'stump' : xbob.boosting.trainer.StumpTrainer,
-  'lut'   : xbob.boosting.trainer.LUTTrainer,
+  'stump' : bob.learn.boosting.StumpTrainer,
+  'lut'   : bob.learn.boosting.LUTTrainer,
 }
 
 LOSS = {
-  'exp'   : xbob.boosting.loss.ExponentialLoss,
-  'log'   : xbob.boosting.loss.LogitLoss,
-  'tan'   : xbob.boosting.loss.TangentialLoss,
+  'exp'   : bob.learn.boosting.ExponentialLoss,
+  'log'   : bob.learn.boosting.LogitLoss,
+  'tan'   : bob.learn.boosting.TangentialLoss,
 }
 
 def command_line_arguments(command_line_options):
@@ -131,7 +131,7 @@ def main(command_line_options = None):
   # open connection to the MNIST database
   if not os.path.isdir(args.database_directory):
     os.makedirs(args.database_directory)
-  db = xbob.db.mnist.Database(args.database_directory)
+  db = bob.learn.boosting.utils.MNIST()
 
   # perform training, if desired
   if args.force and os.path.exists(args.classifier_file):
@@ -143,9 +143,9 @@ def main(command_line_options = None):
 
     # get weak trainer according to command line options
     if args.trainer_type == 'stump':
-      weak_trainer = xbob.boosting.trainer.StumpTrainer()
+      weak_trainer = bob.learn.boosting.StumpTrainer()
     elif args.trainer_type == 'lut':
-      weak_trainer = xbob.boosting.trainer.LUTTrainer(
+      weak_trainer = bob.learn.boosting.LUTTrainer(
             256,
             list(training_data.values())[0][1].shape[1] if args.multi_variate else 1,
             args.feature_selection_style
@@ -154,7 +154,7 @@ def main(command_line_options = None):
     loss_function = LOSS[args.loss_type]()
 
     # create strong trainer
-    trainer = xbob.boosting.trainer.Boosting(weak_trainer, loss_function)
+    trainer = bob.learn.boosting.Boosting(weak_trainer, loss_function)
 
     strong_classifiers = {}
     for key in sorted(training_data.keys()):
@@ -170,7 +170,7 @@ def main(command_line_options = None):
 
       # write strong classifier to file
       if args.classifier_file is not None:
-        hdf5 = bob.io.HDF5File(args.classifier_file, 'a')
+        hdf5 = bob.io.base.HDF5File(args.classifier_file, 'a')
         hdf5.create_group(key)
         hdf5.cd(key)
         strong_classifier.save(hdf5)
@@ -188,10 +188,10 @@ def main(command_line_options = None):
   else:
     # read strong classifier from file
     strong_classifiers = {}
-    hdf5 = bob.io.HDF5File(args.classifier_file, 'r')
+    hdf5 = bob.io.base.HDF5File(args.classifier_file, 'r')
     for key in hdf5.sub_groups(relative=True, recursive=False):
       hdf5.cd(key)
-      strong_classifiers[key] = xbob.boosting.BoostedMachine(hdf5)
+      strong_classifiers[key] = bob.learn.boosting.BoostedMachine(hdf5)
       hdf5.cd("..")
 
   logger.info("Reading test data")

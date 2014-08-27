@@ -1,6 +1,6 @@
 import unittest
 import random
-import xbob.boosting
+import bob.learn.boosting
 import numpy
 
 class TestStumpTrainer(unittest.TestCase):
@@ -8,7 +8,7 @@ class TestStumpTrainer(unittest.TestCase):
 
   def test01_stump_limits(self):
     # test the stump trainer and check the basic limits on stump parameters
-    trainer = xbob.boosting.trainer.StumpTrainer()
+    trainer = bob.learn.boosting.StumpTrainer()
     rand_matrix = numpy.array([[-1.57248569,  0.92857928,  0.97908357, -0.0758847 , -0.34067902],
                    [ 0.88562798,  1.82759883, -0.55953264,  0.82822718,  2.29955421],
                    [ 1.03220648,  0.20467357,  0.67769647,  0.57652722,  0.45538562],
@@ -35,8 +35,7 @@ class TestStumpTrainer(unittest.TestCase):
 
   def test02_stump_index(self):
     # test the stump trainer if the correct feature indices are selected
-#    trainer = xbob.boosting.core.trainers.StumpTrainer()
-    trainer = xbob.boosting.trainer.StumpTrainer()
+    trainer = bob.learn.boosting.StumpTrainer()
     rand_matrix = numpy.array([[-1.57248569,  0.92857928,  0.97908357, -0.0758847 , -0.34067902],
                    [ 0.88562798,  1.82759883, -0.55953264,  0.82822718,  2.29955421],
                    [ 1.03220648,  0.20467357,  0.67769647,  0.57652722,  0.45538562],
@@ -64,7 +63,7 @@ class TestStumpTrainer(unittest.TestCase):
 
   def test03_stump_polarity(self):
     # test the stump trainer if the polarity is reversed with change in targets sign
-    trainer = xbob.boosting.trainer.StumpTrainer()
+    trainer = bob.learn.boosting.StumpTrainer()
     rand_matrix = numpy.array([[-1.57248569,  0.92857928,  0.97908357, -0.0758847 , -0.34067902],
                    [ 0.88562798,  1.82759883, -0.55953264,  0.82822718,  2.29955421],
                    [ 1.03220648,  0.20467357,  0.67769647,  0.57652722,  0.45538562],
@@ -102,7 +101,7 @@ class TestStumpTrainer(unittest.TestCase):
 
   def test04_threshold(self):
     # test to check the threshold value of the weak trainer
-    trainer = xbob.boosting.trainer.StumpTrainer()
+    trainer = bob.learn.boosting.StumpTrainer()
 
     rand_matrix = numpy.array([[-1.57248569,  0.92857928,  0.97908357, -0.0758847 , -0.34067902],
                    [ 0.88562798,  1.82759883, -0.55953264,  0.82822718,  2.29955421],
@@ -131,7 +130,7 @@ class TestStumpTrainer(unittest.TestCase):
 
   def test05_compute_thresh(self):
     # Test the threshold for a single feature
-    trainer = xbob.boosting.trainer.StumpTrainer()
+    trainer = bob.learn.boosting.StumpTrainer()
 
     num_samples = 10
     # The value of feature for class 1
@@ -161,7 +160,7 @@ class TestStumpTrainer(unittest.TestCase):
 
   def test06_compute_thresh_rearrange(self):
     # test the threshold for single feature using a different permutation
-    trainer = xbob.boosting.trainer.StumpTrainer()
+    trainer = bob.learn.boosting.StumpTrainer()
 
     num_samples = 10
     # The value of feature for class 1
@@ -191,7 +190,7 @@ class TestStumpTrainer(unittest.TestCase):
 
   def test07_compute_polarity(self):
     # test the polarity of the classifier
-    trainer = xbob.boosting.trainer.StumpTrainer()
+    trainer = bob.learn.boosting.StumpTrainer()
 
     num_samples = 10
     # The value of feature for class 1

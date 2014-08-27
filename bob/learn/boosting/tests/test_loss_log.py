@@ -1,6 +1,6 @@
 import unittest
 import random
-import xbob.boosting
+import bob.learn.boosting
 import numpy
 
 class TestLogitLoss (unittest.TestCase):
@@ -9,7 +9,7 @@ class TestLogitLoss (unittest.TestCase):
   def test01_positive_target(self):
     # Check the loss function value for positive targets
 
-    loss_function = xbob.boosting.loss.LogitLoss()
+    loss_function = bob.learn.boosting.LogitLoss()
     target = 1
     score = 0.34
     alpha = 0.5
@@ -47,7 +47,7 @@ class TestLogitLoss (unittest.TestCase):
   def test02_negative_target(self):
     # Check the loss function value for negative targets
 
-    loss_function = xbob.boosting.loss.LogitLoss()
+    loss_function = bob.learn.boosting.LogitLoss()
     target = -1
     score = 0.34
     alpha = 0.5
@@ -85,7 +85,7 @@ class TestLogitLoss (unittest.TestCase):
   def test03_multivariate_dimensions(self):
     # Check the loss function values for multivariate targets
 
-    loss_function = xbob.boosting.loss.LogitLoss()
+    loss_function = bob.learn.boosting.LogitLoss()
     num_samples = 2
     num_dimension = 2
     targets = numpy.array([[1, -1], [-1, 1]])
@@ -117,7 +117,7 @@ class TestLogitLoss (unittest.TestCase):
   def test04_multivariate(self):
     # Check the loss function values for multivariate targets
 
-    loss_function = xbob.boosting.loss.LogitLoss()
+    loss_function = bob.learn.boosting.LogitLoss()
     targets = numpy.array([[1, -1], [-1, 1]])
     score = numpy.array([[0.5, 0.5], [0.5, 0.5]], 'float64')
     alpha = 0.5

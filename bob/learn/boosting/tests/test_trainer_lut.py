@@ -1,8 +1,9 @@
 import unittest
 import random
-import xbob.boosting
+import bob.learn.boosting
 import numpy
-import bob
+import bob.io.base
+import bob.io.base.test_utils
 
 
 class TestLutTrainer(unittest.TestCase):
@@ -12,7 +13,7 @@ class TestLutTrainer(unittest.TestCase):
 
         num_feature = 100
         range_feature = 10
-        trainer = xbob.boosting.trainer.LUTTrainer(range_feature, num_feature)
+        trainer = bob.learn.boosting.LUTTrainer(range_feature, num_feature)
 
         features = numpy.array([2, 8, 4, 7, 1, 0, 6, 3, 6, 1, 7, 0, 6, 8, 3, 6, 8, 2, 6, 9, 4, 6,
                                 2, 0, 4, 9, 7, 4, 1, 3, 9, 9, 3, 3, 5, 2, 4, 0, 1, 3, 8, 8, 6, 7,
@@ -23,7 +24,7 @@ class TestLutTrainer(unittest.TestCase):
         loss_grad = numpy.ones(100)
 
         hist_value, bins = numpy.histogram(features,range(range_feature +1))
-        sum_grad = xbob.boosting.weighted_histogram(features,loss_grad,10)
+        sum_grad = bob.learn.boosting.weighted_histogram(features,loss_grad,10)
         self.assertEqual(sum_grad.shape[0],range_feature)
         self.assertTrue((sum_grad == hist_value).all())
 
@@ -36,9 +37,9 @@ class TestLutTrainer(unittest.TestCase):
 
         selected_index = 5
         range_feature = max_feature
-        trainer = xbob.boosting.trainer.LUTTrainer(range_feature)
+        trainer = bob.learn.boosting.LUTTrainer(range_feature)
 
-        features = bob.io.load(bob.test.utils.datafile('datafile.hdf5', 'xbob.boosting', 'tests'))
+        features = bob.io.base.load(bob.io.base.test_utils.datafile('datafile.hdf5', 'bob.learn.boosting', 'tests'))
 
         x_train1 = numpy.copy(features)
         x_train1[x_train1[:,selected_index] >=10, selected_index] = 9
@@ -65,8 +66,8 @@ class TestLutTrainer(unittest.TestCase):
         delta = 5
         selected_index = 5
         range_feature = max_feature + delta
-        trainer = xbob.boosting.trainer.LUTTrainer(range_feature)
-        features = bob.io.load(bob.test.utils.datafile('datafile.hdf5', 'xbob.boosting', 'tests')).astype(numpy.uint16)
+        trainer = bob.learn.boosting.LUTTrainer(range_feature)
+        features = bob.io.base.load(bob.io.base.test_utils.datafile('datafile.hdf5', 'bob.learn.boosting', 'tests')).astype(numpy.uint16)
 
         x_train = numpy.vstack((features, features))
         x_train[0:num_samples,selected_index] = x_train[0:num_samples,selected_index] + delta
@@ -87,9 +88,9 @@ class TestLutTrainer(unittest.TestCase):
         delta = 5
         selected_index = 5
         range_feature = max_feature + delta
-        trainer = xbob.boosting.trainer.LUTTrainer(range_feature)
+        trainer = bob.learn.boosting.LUTTrainer(range_feature)
 
-        features = bob.io.load(bob.test.utils.datafile('datafile.hdf5', 'xbob.boosting', 'tests')).astype(numpy.uint16)
+        features = bob.io.base.load(bob.io.base.test_utils.datafile('datafile.hdf5', 'bob.learn.boosting', 'tests')).astype(numpy.uint16)
 
         x_train = numpy.vstack((features, features))
         x_train[0:num_samples,selected_index] = x_train[0:num_samples,selected_index] + delta
@@ -112,7 +113,7 @@ class TestLutTrainer(unittest.TestCase):
       weights = numpy.random.random(size)
 
       np = numpy.histogram(test_data, bins = max, range = (0,max-1), weights = weights)[0]
-      cpp = xbob.boosting.weighted_histogram(test_data, weights, max)
+      cpp = bob.learn.boosting.weighted_histogram(test_data, weights, max)
 
       self.assertEqual(np.shape, cpp.shape)
       for i in range(cpp.shape[0]):

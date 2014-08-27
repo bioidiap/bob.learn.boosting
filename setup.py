@@ -58,9 +58,8 @@ setup(
     install_requires=[
       'setuptools',
       'bob.extension',
-      'bob.blitz',
+      'bob.core',
       'bob.io.base',
-#      'xbob.db.mnist' # for testing and the example
     ],
 
     # Declare that the package is in the namespace bob.learn
@@ -70,6 +69,14 @@ setup(
     ],
 
     ext_modules = [
+      Extension("bob.learn.boosting.version",
+        [
+          "bob/learn/boosting/version.cpp",
+        ],
+        bob_packages = bob_packages,
+        version = version,
+      ),
+
       Library(
         'bob.learn.boosting.bob_learn_boosting',
         [

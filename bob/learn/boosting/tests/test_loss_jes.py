@@ -1,7 +1,7 @@
 import unittest
 from unittest import SkipTest
 import random
-import xbob.boosting
+import bob.learn.boosting
 import numpy
 
 class TestJesorskyLoss(unittest.TestCase):
@@ -12,7 +12,7 @@ class TestJesorskyLoss(unittest.TestCase):
 
     # Check the loss function values for multivariate targets
 
-    loss_function = xbob.boosting.loss.JesorskyLoss()
+    loss_function = bob.learn.boosting.JesorskyLoss()
     num_samples = 2
     num_outputs = 4
     targets = numpy.array([[10, 10, 10, 30], [12, 11, 13, 29]], 'float64')
@@ -43,7 +43,7 @@ class TestJesorskyLoss(unittest.TestCase):
 
   def test02_negative_target(self):
 
-    loss_function = xbob.boosting.loss.JesorskyLoss()
+    loss_function = bob.learn.boosting.JesorskyLoss()
     num_samples = 2
     num_outputs = 4
     targets = numpy.array([[10, 10, 10, 30], [12, 11, 13, 29]])

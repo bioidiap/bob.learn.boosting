@@ -1,10 +1,9 @@
-import xbob.boosting
+import bob.learn.boosting
 import numpy
 import bob
 import nose
 import os
 import tempfile
-import xbob.io
 
 
 def test_example_mnist():
