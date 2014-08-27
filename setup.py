@@ -19,16 +19,13 @@
 # allows you to test your package with new python dependencies w/o requiring
 # administrative interventions.
 
-from setuptools import setup, find_packages, dist
-dist.Distribution(dict(setup_requires=['xbob.blitz', 'xbob.io', 'xbob.extension']))
-from xbob.blitz.extension import Extension
-import xbob.io
+bob_packages = ['bob.core', 'bob.io.base']
 
-import os
-include_dirs = [
-    xbob.blitz.get_include(),
-    xbob.io.get_include(),
-]
+from setuptools import setup, find_packages, dist
+dist.Distribution(dict(setup_requires=['bob.blitz'] + bob_packages))
+from bob.blitz.extension import Extension, Library, build_ext
+
+version = "2.0.0a0"
 
 # The only thing we do in this file is to call the setup() function with all
 # parameters that define our package.
@@ -36,11 +33,11 @@ setup(
 
     # This is the basic information about your project. Modify all this
     # information before releasing code publicly.
-    name='xbob.boosting',
-    version='1.1.0a0',
+    name='bob.learn.boosting',
+    version=version,
     description='Boosting framework for Bob',
 
-    url='https://gitlab.idiap.ch/biometric/xbob-boosting',
+    url='https://github.com/bioidiap/bob.learn.boosting',
     license='GPLv3',
     author='Manuel Guenther (with help of Rakesh Mehta)',
     author_email='manuel.guenther@idiap.ch',
@@ -60,30 +57,43 @@ setup(
     # privileges when using buildout.
     install_requires=[
       'setuptools',
-      'xbob.extension',
-      'xbob.blitz',
-      'xbob.io',
-      'xbob.db.mnist' # for testing and the example
+      'bob.extension',
+      'bob.blitz',
+      'bob.io.base',
+#      'xbob.db.mnist' # for testing and the example
+    ],
+
+    # Declare that the package is in the namespace bob.learn
+    namespace_packages = [
+      'bob',
+      'bob.learn'
     ],
 
     ext_modules = [
-      Extension(
-        'xbob.boosting._library',
+      Library(
+        'bob.learn.boosting.bob_learn_boosting',
         [
-          "xbob/boosting/cpp/LossFunction.cpp",
-          "xbob/boosting/cpp/JesorskyLoss.cpp",
+          "bob/learn/boosting/cpp/LossFunction.cpp",
+          "bob/learn/boosting/cpp/JesorskyLoss.cpp",
 
-          "xbob/boosting/cpp/WeakMachine.cpp",
-          "xbob/boosting/cpp/StumpMachine.cpp",
-          "xbob/boosting/cpp/LUTMachine.cpp",
-          "xbob/boosting/cpp/BoostedMachine.cpp",
+          "bob/learn/boosting/cpp/WeakMachine.cpp",
+          "bob/learn/boosting/cpp/StumpMachine.cpp",
+          "bob/learn/boosting/cpp/LUTMachine.cpp",
+          "bob/learn/boosting/cpp/BoostedMachine.cpp",
 
-          "xbob/boosting/cpp/LUTTrainer.cpp",
-
-          "xbob/boosting/cpp/Bindings.cpp",
+          "bob/learn/boosting/cpp/LUTTrainer.cpp",
         ],
-        include_dirs = include_dirs,
-        packages = ['bob-io'],
+        bob_packages = bob_packages,
+        version = version,
+      ),
+
+      Extension(
+        'bob.learn.boosting._library',
+        [
+          "bob/learn/boosting/cpp/Bindings.cpp",
+        ],
+        bob_packages = bob_packages,
+        version = version,
       ),
     ],
 
@@ -97,13 +107,13 @@ setup(
 
       # Console scripts, which will appear in ./bin/ after buildout
       'console_scripts': [
-          'boosting_example.py = xbob.boosting.examples.mnist:main',
+        'boosting_example.py = xbob.boosting.examples.mnist:main',
       ],
 
       # tests that are _exported_ (that can be executed by other packages) can
       # be signalized like this:
       'bob.test': [
-         'boosting = xbob.boosting.tests.test_boosting:TestBoosting',
+        'boosting = xbob.boosting.tests.test_boosting:TestBoosting',
       ],
 
     },
@@ -112,7 +122,7 @@ setup(
     # PyPI. You can find the complete list of classifiers that are valid and
     # useful here (http://pypi.python.org/pypi?%3Aaction=list_classifiers).
     classifiers = [
-      'Development Status :: 4 - Beta',
+      'Development Status :: 3 - Alpha',
       'Intended Audience :: Developers',
       'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
       'Natural Language :: English',
