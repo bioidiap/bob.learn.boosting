@@ -1,5 +1,4 @@
-#from .LUTTrainer import LUTTrainer
-from .._library import LUTTrainer
+from ._library import LUTTrainer
 from .StumpTrainer import StumpTrainer
 from .Boosting import Boosting
 

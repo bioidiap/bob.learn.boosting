@@ -1,5 +1,5 @@
-#include "Bindings.h"
 
+#include "main.h"
 
 static std::map<size_t,CreateFunction> machineFactory;
 
@@ -12,7 +12,7 @@ bool registerMachineType(size_t type_hash, CreateFunction creator_function){
   return true;
 }
 
-PyObject* createMachine(boost::shared_ptr<WeakMachine> machine){
+PyObject* createMachine(boost::shared_ptr<bob::learn::boosting::WeakMachine> machine){
   size_t type_hash = typeid(*machine).hash_code();
   if (machineFactory.find(type_hash) == machineFactory.end()){
     PyErr_Format(PyExc_TypeError, "The given machine hash %zu has not been registered.", type_hash);
@@ -21,7 +21,7 @@ PyObject* createMachine(boost::shared_ptr<WeakMachine> machine){
   return machineFactory[type_hash](machine);
 }
 
-static PyObject* weakMachineCreate(boost::shared_ptr<WeakMachine> machine){
+static PyObject* weakMachineCreate(boost::shared_ptr<bob::learn::boosting::WeakMachine> machine){
   PyObject* o = WeakMachineType.tp_alloc(&WeakMachineType,0);
   reinterpret_cast<WeakMachineObject*>(o)->base = machine;
   return o;
@@ -40,7 +40,7 @@ int weakMachineConverter(PyObject* o, WeakMachineObject** a) {
 }
 
 
-static auto weakMachine_doc = xbob::extension::ClassDoc(
+static auto weakMachine_doc = bob::extension::ClassDoc(
   "WeakMachine",
   "Pure virtual base class for weak machines"
 );
@@ -60,7 +60,7 @@ bool init_WeakMachine(PyObject* module){
 
   // register creator function
   // register machine
-  if (!registerMachineType(typeid(WeakMachine).hash_code(), &weakMachineCreate))
+  if (!registerMachineType(typeid(bob::learn::boosting::WeakMachine).hash_code(), &weakMachineCreate))
     return false;
 
   // check that everyting is fine

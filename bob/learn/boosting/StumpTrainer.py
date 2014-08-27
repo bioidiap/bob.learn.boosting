@@ -1,5 +1,3 @@
-from ..machine import StumpMachine
-
 import numpy
 
 class StumpTrainer():

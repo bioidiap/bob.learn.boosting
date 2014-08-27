@@ -1,4 +1,4 @@
-from .._boosting import LUTMachine, weighted_histogram
+from ._library import LUTMachine, weighted_histogram
 
 import numpy
 

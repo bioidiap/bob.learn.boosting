@@ -1,4 +1,3 @@
-from ..machine import BoostedMachine
 
 import numpy
 import scipy.optimize

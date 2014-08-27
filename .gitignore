@@ -15,3 +15,5 @@ src
 develop-eggs
 sphinx
 dist
+*.so
+CMakeLists.txt

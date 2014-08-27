@@ -76,7 +76,6 @@ setup(
           "bob/learn/boosting/cpp/LossFunction.cpp",
           "bob/learn/boosting/cpp/JesorskyLoss.cpp",
 
-          "bob/learn/boosting/cpp/WeakMachine.cpp",
           "bob/learn/boosting/cpp/StumpMachine.cpp",
           "bob/learn/boosting/cpp/LUTMachine.cpp",
           "bob/learn/boosting/cpp/BoostedMachine.cpp",
@@ -90,17 +89,25 @@ setup(
       Extension(
         'bob.learn.boosting._library',
         [
-          "bob/learn/boosting/cpp/Bindings.cpp",
+          "bob/learn/boosting/main.cpp",
+          "bob/learn/boosting/loss_function.cpp",
+          "bob/learn/boosting/jesorsky_loss.cpp",
+
+          "bob/learn/boosting/weak_machine.cpp",
+          "bob/learn/boosting/stump_machine.cpp",
+          "bob/learn/boosting/lut_machine.cpp",
+          "bob/learn/boosting/boosted_machine.cpp",
+
+          "bob/learn/boosting/lut_trainer.cpp",
         ],
         bob_packages = bob_packages,
         version = version,
       ),
     ],
 
-    # Declare that the package is in the namespace xbob
-    namespace_packages = [
-      'xbob',
-    ],
+    cmdclass = {
+      'build_ext': build_ext
+    },
 
     # Define the entry points for this package
     entry_points={
