@@ -57,6 +57,7 @@ setup(
     # privileges when using buildout.
     install_requires=[
       'setuptools',
+      'scipy',
       'bob.extension',
       'bob.core',
       'bob.io.base',
