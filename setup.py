@@ -122,13 +122,13 @@ setup(
 
       # Console scripts, which will appear in ./bin/ after buildout
       'console_scripts': [
-        'boosting_example.py = xbob.boosting.examples.mnist:main',
+        'boosting_example.py = bob.learn.boosting.examples.mnist:main',
       ],
 
       # tests that are _exported_ (that can be executed by other packages) can
       # be signalized like this:
       'bob.test': [
-        'boosting = xbob.boosting.tests.test_boosting:TestBoosting',
+        'boosting = bob.learn.boosting.tests.test_boosting:TestBoosting',
       ],
 
     },

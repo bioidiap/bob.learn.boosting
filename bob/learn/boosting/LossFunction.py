@@ -2,7 +2,7 @@ import numpy
 
 class LossFunction:
   """This is a base class for all loss functions implemented in pure python.
-  It is simply a python re-implementation of the :py:class:`xbob.boosting.loss.LossFunction` class.
+  It is simply a python re-implementation of the :py:class:`bob.learn.boosting.LossFunction` class.
 
   This class provides the interface for the L-BFGS optimizer.
   Please overwrite the loss() and loss_gradient() function (see below) in derived loss classes.

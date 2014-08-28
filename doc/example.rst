@@ -8,8 +8,8 @@
 
    import os
    import numpy
-   import xbob.boosting
-   import xbob.db.mnist
+   import bob.learn.boosting
+   import bob.learn.boosting.utils
 
    numpy.set_printoptions(precision=3, suppress=True)
 
@@ -20,6 +20,9 @@
 
 As an example for the classification task, we perform a classification of hand-written digits using the `MNIST <http://yann.lecun.com/exdb/mnist>`_ database.
 There, images of single hand-written digits are stored, and a training and test set is provided, which we can access with our `xbob.db.mnist <http://pypi.python.org/pypi/xbob.db.mnist>`_ database interface.
+
+.. note::
+  In fact, to minimize the dependencies to other packages, the ``xbob.db.mnist`` database interface is replaced by a local interface.
 
 In our experiments, we simply use the pixel gray values as features.
 Since the gray values are discrete in range :math:`[0, 255]`, we can employ both the stump decision classifiers and the look-up-table's.
@@ -103,14 +106,13 @@ One exemplary test case in details
 ----------------------------------
 
 Having a closer look into the example script, there are several steps that are performed.
-The first step is generating the training examples from the ``xbob.db.mnist`` database interface.
+The first step is generating the training examples from the MNIST database interface.
 Here, we describe the more complex way, i.e., the multi-variate case.
 
 .. doctest::
 
    >>> # open the database interface (will download the digits from the webpage)
-   >>> db = xbob.db.mnist.Database()
-   Downloading the mnist database from http://yann.lecun.com/exdb/mnist/ ...
+   >>> db = bob.learn.boosting.utils.MNIST()
    >>> # get the training data for digits 0, 1
    >>> training_samples, training_labels = db.data("train", labels = [0, 1])
    >>> # limit the training samples (for test purposes only)
@@ -140,13 +142,13 @@ Now, we can train the classifier. Here, we use the multi-variate LUT trainer wit
 
 .. doctest::
 
-  >>> weak_trainer = xbob.boosting.trainer.LUTTrainer(
+  >>> weak_trainer = bob.learn.boosting.LUTTrainer(
   ...       maximum_feature_value = 256,
   ...       number_of_outputs = 2,
   ...       selection_style = 'independent'
   ... )
-  >>> loss_function = xbob.boosting.loss.LogitLoss()
-  >>> strong_trainer = xbob.boosting.trainer.Boosting(weak_trainer, loss_function)
+  >>> loss_function = bob.learn.boosting.LogitLoss()
+  >>> strong_trainer = bob.learn.boosting.Boosting(weak_trainer, loss_function)
 
   >>> # perform training for 100 rounds (i.e., select 100 weak machines)
   >>> strong_classifier = strong_trainer.train(training_samples.astype(numpy.uint16), training_targets, 10)

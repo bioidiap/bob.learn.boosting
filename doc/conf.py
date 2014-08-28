@@ -73,7 +73,7 @@ project = u'Boosting extension for Bob'
 import time
 copyright = u'%s, Idiap Research Institute' % time.strftime('%Y')
 
-distribution = pkg_resources.require('xbob.boosting')[0]
+distribution = pkg_resources.require('bob.learn.boosting')[0]
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

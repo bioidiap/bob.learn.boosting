@@ -29,7 +29,7 @@ This package
 The most simple way to download the latest stable version of the package is to use the Download button above and extract the archive into a directory of your choice.
 If y want, you can also check out the latest development branch of this package using::
 
-  $ git clone https://gitlab.idiap.ch/biometric/xbob-boosting.git
+  $ git clone https://github.com/bioidiap/bob.learn.boosting.git
 
 Afterwards, please open a terminal in this directory and call::
 
@@ -122,6 +122,6 @@ Of course, you can try out different combinations of digits for experiments 1 an
 Getting Help
 ------------
 
-In case you experience problems with the code, or with downloading the required databases and/or software, please contact manuel.guenther@idiap.ch or file a bug report under https://gitlab.idiap.ch/biometric/xbob-boosting.
+In case you experience problems with the code, or with downloading the required databases and/or software, please contact manuel.guenther@idiap.ch or file a bug report under https://github.com/bioidiap/bob.learn.boosting.
 
 .. _bob: http://www.idiap.ch/software/bob

@@ -70,7 +70,7 @@ static PyModuleDef module_definition = {
   BOB_EXT_MODULE_NAME,
   module_docstr,
   -1,
-//  BoostingMethods,
+  BoostingMethods,
   0,
 };
 #endif

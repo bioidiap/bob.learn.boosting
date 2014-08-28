@@ -1,5 +1,5 @@
 import unittest
-from unittest import SkipTest
+#from unittest import SkipTest
 import random
 import bob.learn.boosting
 import numpy
@@ -40,7 +40,7 @@ class TestJesorskyLoss(unittest.TestCase):
     self.assertTrue(grad_sum.shape[0] == num_outputs)
 
 
-
+  @unittest.skip("Implement me!")
   def test02_negative_target(self):
 
     loss_function = bob.learn.boosting.JesorskyLoss()
@@ -52,7 +52,6 @@ class TestJesorskyLoss(unittest.TestCase):
     weak_scores = numpy.array([[0.2, 0.4, 0.5, 0.6], [0.5, 0.5, 0.5, 0.5]], 'float64')
     prev_scores = numpy.array([[0.1, 0.2, 0.3, 0.4], [0.5, 0.5, 0.5, 0.5]], 'float64')
 
-    raise SkipTest ("Implement me!")
     # TODO: implement this test properly
     # check the loss values
     loss_value = loss_function.loss(targets, score)

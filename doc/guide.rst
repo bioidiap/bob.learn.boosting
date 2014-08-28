@@ -37,24 +37,24 @@ Currently, two types of weak classifiers are implemented in this boosting framew
 Stump classifier
 ................
 
-The first classifier, which can only handle univariate classification tasks, is the :py:class:`xbob.boosting.machine.StumpMachine`.
+The first classifier, which can only handle univariate classification tasks, is the :py:class:`bob.learn.boosting.StumpMachine`.
 For a given input vector :math:`\vec x`, the classifier bases its decision on **a single element** :math:`x_m` of the input vector:
 
 .. math::
    W(\vec x) = \left\{ \begin{array}{r@{\text{ if }}l} +1 & (x_m - \theta) * \phi >= 0 \\ -1 & (x_m - \theta) * \phi < 0 \end{array}\right.
 
-Threshold :math:`\theta`, polarity :math:`phi` and index :math:`m` are parameters of the classifier, which are trained using the :py:class:`xbob.boosting.trainer.StumpTrainer`.
+Threshold :math:`\theta`, polarity :math:`phi` and index :math:`m` are parameters of the classifier, which are trained using the :py:class:`bob.learn.boosting.StumpTrainer`.
 For a given training set :math:`\{\vec x_p \mid p=1,\dots,P\}` and according target values :math:`\{t_p \mid p=1,\dots,P\}`, the threshold :math:`\theta_m` is computed for each input index :math:`m`, such that the lowest classification error is obtained, and the :math:`m` with the lowest training classification error is taken.
 The polarity :math:`\phi` is set to :math:`-1`, if values lower than the threshold should be considered as positive examples, or to :math:`+1` otherwise.
 
 To compute the classification error for a given :math:`\theta_m`, the gradient of a loss function is taken into consideration.
-For the stump trainer, usually the :py:class:`xbob.boosting.loss.ExponentialLoss` is considered as the loss function.
+For the stump trainer, usually the :py:class:`bob.learn.boosting.ExponentialLoss` is considered as the loss function.
 
 
 Look-Up-Table classifier
 ........................
 
-The second classifier, which can handle univariate and multivariate classification and regression tasks, is the :py:class:`xbob.boosting.machine.LUTMachine`.
+The second classifier, which can handle univariate and multivariate classification and regression tasks, is the :py:class:`bob.learn.boosting.LUTMachine`.
 This classifier is designed to handle input vectors with **discrete** values only.
 Again, the decision of the weak classifier is based on a single element of the input vector :math:`\vec x`.
 
@@ -63,7 +63,7 @@ In the univariate case, for each of the possible discrete values of :math:`x_m`,
 .. math::
    W(\vec x) = LUT[x_m]
 
-This look-up-table LUT and the feature index :math:`m` is trained by the :py:class:`xbob.boosting.trainer.LUTTrainer`.
+This look-up-table LUT and the feature index :math:`m` is trained by the :py:class:`bob.learn.boosting.LUTTrainer`.
 
 In the multivariate case, each output :math:`W^o` is handled independently, i.e., a separate look-up-table :math:`LUT^o` and a separate feature index :math:`m^o` is assigned for each output dimension :math:`o`:
 
@@ -71,16 +71,16 @@ In the multivariate case, each output :math:`W^o` is handled independently, i.e.
    W^o(\vec x) = LUT^o[x_{m^o}]
 
 .. note::
-   As a variant, the feature index :math:`m^o` can be selected to be ``shared`` for all outputs, see :py:class:`xbob.boosting.trainer.LUTTrainer` for details.
+   As a variant, the feature index :math:`m^o` can be selected to be ``shared`` for all outputs, see :py:class:`bob.learn.boosting.LUTTrainer` for details.
 
-A weak look-up-table classifier is learned using the :py:class:`xbob.boosting.trainer.LUTTrainer`.
+A weak look-up-table classifier is learned using the :py:class:`bob.learn.boosting.LUTTrainer`.
 
 
 Strong classifier
 -----------------
 
-The strong classifier, which is of type :py:class:`xbob.boosting.machine.BoostedMachine`, is a weighted combination of weak classifiers, which are usually of the same type.
-It can be trained with the :py:class:`xbob.boosting.trainer.Boosting` trainer, which takes a list of training samples, and a list of univariate or multivariate target vectors.
+The strong classifier, which is of type :py:class:`bob.learn.boosting.BoostedMachine`, is a weighted combination of weak classifiers, which are usually of the same type.
+It can be trained with the :py:class:`bob.learn.boosting.Boosting` trainer, which takes a list of training samples, and a list of univariate or multivariate target vectors.
 In several rounds, the trainer computes (here, only the univariate case is considered, but the multivariate case is similar -- simply replace scores by score vectors.):
 
 1. The classification results (the so-called *scores*) for the current strong classifier:
@@ -120,11 +120,11 @@ Loss functions
 As shown above, the loss functions define, how well the currently predicted scores :math:`s_p` fit to the target values :math:`t_p`.
 Depending on the desired task, and on the type of classifier, different loss functions might be used:
 
-1. The :py:class:`xbob.boosting.loss.ExponentialLoss` can be used for the binary classification task, i.e., when target values are in :math:`{+1, -1}`
+1. The :py:class:`bob.learn.boosting.ExponentialLoss` can be used for the binary classification task, i.e., when target values are in :math:`{+1, -1}`
 
-2. The :py:class:`xbob.boosting.loss.LogitLoss` can be used for the multi-variate classification task, i.e., when target vectors have entries from :math:`{+1, 0}`
+2. The :py:class:`bob.learn.boosting.LogitLoss` can be used for the multi-variate classification task, i.e., when target vectors have entries from :math:`{+1, 0}`
 
-3. The :py:class:`xbob.boosting.loss.JesorskyLoss` can be used for the particular multi-variate regression task of learning the locations of facial features.
+3. The :py:class:`bob.learn.boosting.JesorskyLoss` can be used for the particular multi-variate regression task of learning the locations of facial features.
 
 Other loss functions, e.g., using the Euclidean distance for regression, should be easily implementable.
 

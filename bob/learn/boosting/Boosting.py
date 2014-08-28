@@ -13,10 +13,13 @@ class Boosting:
 
   **Constructor Documentation**
 
-    Keyword parameters:
-      weak_trainer (a :py:class:`xbob.boosting.trainer.LUTTrainer` or :py:class:`xbob.boosting.trainer.StumpTrainer`): The class to train weak machines.
+  Keyword parameters
 
-      loss_function (a class derived from :py:class:`xbob.boosting.loss.LossFunction`): The function to define the weights for the weak machines.
+    weak_trainer : :py:class:`bob.learn.boosting.LUTTrainer` or :py:class:`bob.learn.boosting.StumpTrainer`
+      The class to train weak machines.
+
+    loss_function : a class derived from :py:class:`bob.learn.boosting.LossFunction`
+      The function to define the weights for the weak machines.
 
   """
 
@@ -38,17 +41,20 @@ class Boosting:
 
     Keyword parameters:
 
-      training_features (uint16 <#samples, #features> or float <#samples, #features>): Features extracted from the training samples.
+    training_features : uint16 <#samples, #features> or float <#samples, #features>)
+      Features extracted from the training samples.
 
-      training_targets (float <#samples, #outputs>): The values that the boosted classifier should reach for the given samples.
+    training_targets : float <#samples, #outputs>
+      The values that the boosted classifier should reach for the given samples.
 
-      number_of_rounds (int): The number of rounds of boosting, i.e., the number of weak classifiers to select.
+    number_of_rounds : int
+      The number of rounds of boosting, i.e., the number of weak classifiers to select.
 
-      boosted_machine (:py:class:`xbob.boosting.machine.BoostedMachine` or None): the machine to add the weak machines to. If not given, a new machine is created.
+    boosted_machine :py:class:`bob.learn.boosting.BoostedMachine` or None
+      The machine to add the weak machines to. If not given, a new machine is created.
 
-    Returns
-
-      :py:class:`xbob.boosting.machine.BoostedMachine` The boosted machine that is combination of the weak classifiers.
+    Returns : :py:class:`bob.learn.boosting.BoostedMachine`
+      The boosted machine that is combination of the weak classifiers.
     """
 
     # Initializations

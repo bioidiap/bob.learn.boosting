@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
 """The test script to perform the binary classification on the digits from the MNIST dataset.
-The MNIST data is exported using the xbob.db.mnist module which provide the train and test
-partitions for the digits. Pixel values of grey scale images are used as features and the
-available algorithms for classification are Lut based Boosting and Stump based Boosting.
+The MNIST data is exported using a module similar to the xbob.db.mnist module which provide the train and test partitions for the digits.
+Pixel values of grey scale images are used as features and the available algorithms for classification are Lut based Boosting and Stump based Boosting.
 Thus it conducts only one binary classifcation test.
 
 
@@ -40,7 +39,7 @@ def command_line_arguments(command_line_options):
   parser.add_argument('-r', '--number-of-boosting-rounds', type = int, default = 100, help = "The number of boosting rounds, i.e., the number of weak classifiers.")
 
   parser.add_argument('-m', '--multi-variate', action = 'store_true', help = "Perform multi-variate training?")
-  parser.add_argument('-s', '--feature-selection-style', default = 'independent', choices = {'independent', 'shared'}, help = "The feature selection style (only for multivariate classification with the LUT trainer).")
+  parser.add_argument('-s', '--feature-selection-style', default = 'independent', choices = ('independent', 'shared'), help = "The feature selection style (only for multivariate classification with the LUT trainer).")
 
   parser.add_argument('-d', '--digits', type = int, nargs="+", choices=range(10), default=[5,6], help = "Select the digits you want to compare.")
   parser.add_argument('-a', '--all-digits', action='store_true', help = "Use all digits")

@@ -39,7 +39,7 @@ class TestLutTrainer(unittest.TestCase):
         range_feature = max_feature
         trainer = bob.learn.boosting.LUTTrainer(range_feature)
 
-        features = bob.io.base.load(bob.io.base.test_utils.datafile('datafile.hdf5', 'bob.learn.boosting', 'tests'))
+        features = bob.io.base.load(bob.io.base.test_utils.datafile('testdata.hdf5', 'bob.learn.boosting'))
 
         x_train1 = numpy.copy(features)
         x_train1[x_train1[:,selected_index] >=10, selected_index] = 9
@@ -67,7 +67,7 @@ class TestLutTrainer(unittest.TestCase):
         selected_index = 5
         range_feature = max_feature + delta
         trainer = bob.learn.boosting.LUTTrainer(range_feature)
-        features = bob.io.base.load(bob.io.base.test_utils.datafile('datafile.hdf5', 'bob.learn.boosting', 'tests')).astype(numpy.uint16)
+        features = bob.io.base.load(bob.io.base.test_utils.datafile('testdata.hdf5', 'bob.learn.boosting')).astype(numpy.uint16)
 
         x_train = numpy.vstack((features, features))
         x_train[0:num_samples,selected_index] = x_train[0:num_samples,selected_index] + delta
@@ -90,7 +90,7 @@ class TestLutTrainer(unittest.TestCase):
         range_feature = max_feature + delta
         trainer = bob.learn.boosting.LUTTrainer(range_feature)
 
-        features = bob.io.base.load(bob.io.base.test_utils.datafile('datafile.hdf5', 'bob.learn.boosting', 'tests')).astype(numpy.uint16)
+        features = bob.io.base.load(bob.io.base.test_utils.datafile('testdata.hdf5', 'bob.learn.boosting')).astype(numpy.uint16)
 
         x_train = numpy.vstack((features, features))
         x_train[0:num_samples,selected_index] = x_train[0:num_samples,selected_index] + delta

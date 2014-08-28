@@ -22,13 +22,14 @@ class MNIST:
 
     hdf5 = bob.io.base.HDF5File(datafile)
     self._data = {}
+    self._labels = {}
     for group in ('train', 'test'):
-      self._data[group] = []
       hdf5.cd(group)
-      for i in range(10):
-        self._data[group].append(hdf5.read(str(i)))
+      data = hdf5.read('data')
+      labels = hdf5.read('labels')
+      self._data[group] = data
+      self._labels[group] = labels
       hdf5.cd('..')
-
     shutil.rmtree(temp_dir)
 
   def data(self, groups = ('train', 'test'), labels=range(10)):
@@ -39,12 +40,14 @@ class MNIST:
     if isinstance(labels, int):
       labels = (labels,)
 
-    _data = numpy.ndarray((0,784), dtype = numpy.uint8)
-    _labels = numpy.ndarray((0), dtype = numpy.uint8)
+    _data = []
+    _labels = []
     for group in groups:
-      for label in labels:
-        _data = numpy.vstack((_data, self._data[group][int(label)]))
-        _labels = numpy.hstack((_labels, numpy.ones(self._data[group][int(label)].shape[:1], numpy.uint8) * int(label)))
-    return _data, _labels
+      for i in range(self._labels[group].shape[0]):
+        # check if the label is the desired one
+        if self._labels[group][i] in labels:
+          _data.append(self._data[group][i])
+          _labels.append(self._labels[group][i])
+    return numpy.array(_data, numpy.uint8), numpy.array(_labels, numpy.uint8)
 
 
