@@ -42,7 +42,6 @@ def command_line_arguments(command_line_options):
   parser.add_argument('-m', '--multi-variate', action = 'store_true', help = "Perform multi-variate training?")
   parser.add_argument('-s', '--feature-selection-style', default = 'independent', choices = {'independent', 'shared'}, help = "The feature selection style (only for multivariate classification with the LUT trainer).")
 
-  parser.add_argument('-D', '--database-directory', default = 'Database', help = "The directory where to download the database to (or read it from if it already exists)")
   parser.add_argument('-d', '--digits', type = int, nargs="+", choices=range(10), default=[5,6], help = "Select the digits you want to compare.")
   parser.add_argument('-a', '--all-digits', action='store_true', help = "Use all digits")
   parser.add_argument('-n', '--number-of-elements', type = int, help = "For testing purposes: limit the number of training and test examples for each class.")
@@ -128,9 +127,7 @@ def main(command_line_options = None):
 
   args = command_line_arguments(command_line_options)
 
-  # open connection to the MNIST database
-  if not os.path.isdir(args.database_directory):
-    os.makedirs(args.database_directory)
+  # open (fake) connection to the MNIST database
   db = bob.learn.boosting.utils.MNIST()
 
   # perform training, if desired

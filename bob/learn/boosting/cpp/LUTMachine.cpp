@@ -43,8 +43,8 @@ bob::learn::boosting::LUTMachine::LUTMachine(bob::io::base::HDF5File& file):
 
 double bob::learn::boosting::LUTMachine::forward(const blitz::Array<uint16_t,1>& features) const{
   // univariate, single feature
-  assert ( features.extent(0) > m_index );
-  assert ( features((int)m_index) < _look_up_table.extent(0) );
+  assert ( features.extent(0) > _index );
+  assert ( features((int)_index) < _look_up_table.extent(0) );
   return _look_up_table((int)features(_index));
 }
 
