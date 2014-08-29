@@ -1,14 +1,8 @@
 import bob.learn.boosting
-import numpy
-import bob
-import nose
-import os
-import tempfile
-
 
 def test_example_mnist():
   # test that the MNIST examples work
-  from ..examples import mnist
+  from bob.learn.boosting.examples import mnist
 
   # test 1: stump trainer
   options = ['-t', 'stump', '-r', '5', '-n', '100']
