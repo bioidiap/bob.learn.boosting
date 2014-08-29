@@ -11,7 +11,7 @@ class MNIST:
   def __init__(self):
     # loads the MNIST data from the packed data file
     tar = bob.io.base.test_utils.datafile("mnist.tar.bz2", __name__)
-    temp_dir = tempfile.mkdtemp(prefix="bob_boosting_", suffix = "hdf5")[1]
+    temp_dir = tempfile.mkdtemp(prefix="bob_boosting_", suffix = "hdf5")
 
     f = tarfile.open(tar, 'r')
     f.extractall(temp_dir)
@@ -30,6 +30,8 @@ class MNIST:
       self._data[group] = data
       self._labels[group] = labels
       hdf5.cd('..')
+
+    del hdf5
     shutil.rmtree(temp_dir)
 
   def data(self, groups = ('train', 'test'), labels=range(10)):

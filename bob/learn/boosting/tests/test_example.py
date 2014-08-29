@@ -30,6 +30,3 @@ def test_example_mnist():
 
   mnist.main(options)
 
-
-if __name__ == '__main__':
-  test_machine()

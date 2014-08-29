@@ -25,6 +25,9 @@ from setuptools import setup, find_packages, dist
 dist.Distribution(dict(setup_requires=['bob.blitz'] + bob_packages))
 from bob.blitz.extension import Extension, Library, build_ext
 
+packages = ['boost']
+boost_modules = ['system']
+
 version = "2.0.0a0"
 
 # The only thing we do in this file is to call the setup() function with all
@@ -76,6 +79,8 @@ setup(
         ],
         bob_packages = bob_packages,
         version = version,
+        packages = packages,
+        boost_modules = boost_modules,
       ),
 
       Library(
@@ -92,6 +97,8 @@ setup(
         ],
         bob_packages = bob_packages,
         version = version,
+        packages = packages,
+        boost_modules = boost_modules,
       ),
 
       Extension(
@@ -110,6 +117,8 @@ setup(
         ],
         bob_packages = bob_packages,
         version = version,
+        packages = packages,
+        boost_modules = boost_modules,
       ),
     ],
 
