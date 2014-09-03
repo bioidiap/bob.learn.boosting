@@ -1,10 +1,6 @@
 #include <bob.learn.boosting/LossFunction.h>
 #include <math.h>
 
-static inline double sqr(const double x){
-  return x*x;
-}
-
 void bob::learn::boosting::LossFunction::lossSum(const blitz::Array<double,1>& alpha, const blitz::Array<double,2>& targets, const blitz::Array<double,2>& previous_scores, const blitz::Array<double,2>& current_scores, blitz::Array<double,1>& loss_sum) const{
   // compute the scores and loss for the current alpha
   scores.resize(targets.shape());
