@@ -134,19 +134,13 @@ setup(
         'boosting_example.py = bob.learn.boosting.examples.mnist:main',
       ],
 
-      # tests that are _exported_ (that can be executed by other packages) can
-      # be signalized like this:
-      'bob.test': [
-        'boosting = bob.learn.boosting.tests.test_boosting:TestBoosting',
-      ],
-
     },
 
     # Classifiers are important if you plan to distribute this package through
     # PyPI. You can find the complete list of classifiers that are valid and
     # useful here (http://pypi.python.org/pypi?%3Aaction=list_classifiers).
     classifiers = [
-      'Development Status :: 3 - Alpha',
+      'Development Status :: 4 - Beta',
       'Intended Audience :: Developers',
       'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
       'Natural Language :: English',

@@ -7,8 +7,8 @@ matrix:
   - python: 2.7
     env:
     - SCIPYSPEC===0.12.0
-    - secure: OptTI9z5ggs6ozrWFUq/l1G3mSMTdlJz11Qeudy+yAEa0iFFob2q60qRl7MvvrZsW0mguqlMA/hcV3Gvt1CEjJySoMZbD1z5vHJbPt5yVQuohkkrJn1UnIytMP+mUSIDGc5GXVC5urIIQYjY46FqFZ8wDMmUb2QJIr/u8qBrgBA=
-    - secure: PIhIeT13JWNYkWGwxHnk9EROPTJkZuDBbyTsT+wobn4hJjjpGTqcZnZwCEPIwHF2qtEKkUADI5cG5yo15kSU0eJfjoI6JlJTSBTp/LfMqlvb2LlfV9LkwZAAsiNaJvKeitrTLcrsFO0lLQX90+Dt6s155okUu4au3DMSWE1sBbs=
+    - secure: IrUGhi6wLNjZTcVmyvlUW4S8gvbsjd1KGTONBBFJLe2SsczfuTIp0UrwPYAu3O2mEh04ivdgpjy/sKKH+atd+mx1WGYpyc7telS+6pzzGhW+utLnknETJYN0diK1Th62GFDhbwtvjoLcn2VMT22Agh94Ob4JvD0tzlDcZpEOOEs=
+    - secure: YV9GTtTddGgvvaW/o0esSY5ov8qIZJI77+mapAR138JrUi4opSXPzVk9XzHXCRR6K1IPBJ/PZfF+optX6SGWiD634A8T1vvrt8X/RrvV0Lbu3V33Qxi7UQgVRTGbR61RlzSEe1WjVXUKdZGMz+O07hwzS/MVkY88K48h/3Gtej8=
   - python: 3.2
     env:
     - NUMPYSPEC===1.8.0
@@ -35,5 +35,5 @@ script:
 - ./bin/sphinx-build -b doctest doc sphinx
 - ./bin/sphinx-build -b html doc sphinx
 after_success:
-- coveralls --build-root=`pwd` --exclude=src
+- coveralls --build-root=`pwd` --exclude=src --exclude=build
 - ./src/bob.extension/scripts/upload-sphinx.sh
