@@ -1,6 +1,23 @@
-========================================================================================
-Generalized Boosting Framework using Stump and Look Up Table (LUT) based Weak Classifier
-========================================================================================
+.. vim: set fileencoding=utf-8 :
+.. Manuel Guenther <manuel.guenther@idiap.ch>
+.. Thu Sep  4 10:53:22 CEST 2014
+
+.. image:: https://travis-ci.org/bioidiap/bob.learn.boosting.svg?branch=master
+   :target: https://travis-ci.org/bioidiap/bob.learn.boosting
+.. image:: http://img.shields.io/badge/docs-latest-orange.png
+   :target: https://www.idiap.ch/software/bob/docs/latest/bioidiap/bob.learn.boosting/master/index.html
+.. image:: https://coveralls.io/repos/bioidiap/bob.learn.boosting/badge.png
+   :target: https://coveralls.io/r/bioidiap/bob.learn.boosting
+.. image:: http://img.shields.io/github/tag/bioidiap/bob.learn.boosting.png
+   :target: https://github.com/bioidiap/bob.learn.boosting
+.. image:: http://img.shields.io/pypi/v/bob.learn.boosting.png
+   :target: https://pypi.python.org/pypi/bob.learn.boosting
+.. image:: http://img.shields.io/pypi/dm/bob.learn.boosting.png
+   :target: https://pypi.python.org/pypi/bob.learn.boosting
+
+==========================================================================================
+ Generalized Boosting Framework using Stump and Look Up Table (LUT) based Weak Classifier
+==========================================================================================
 
 The package implements a generalized boosting framework, which incorporates different boosting approaches.
 The Boosting algorithms implemented in this package are:

@@ -223,7 +223,7 @@ static PyObject* lutMachine_forward(
       _forward<2,2>(self, p_features, p_predictions);
     else{
       lutMachine_forward_doc.print_usage();
-      PyErr_Format(PyExc_TypeError, "The number of dimensions of %s (%ld) and %s (%ld) are not supported", kwlist[0], p_features->ndim, kwlist[1], p_predictions->ndim);
+      PyErr_Format(PyExc_TypeError, "The number of dimensions of %s (%d) and %s (%d) are not supported", kwlist[0], (int)p_features->ndim, kwlist[1], (int)p_predictions->ndim);
       return NULL;
     }
     Py_RETURN_NONE;

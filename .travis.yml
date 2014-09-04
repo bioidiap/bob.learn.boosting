@@ -4,7 +4,6 @@ matrix:
   - python: 2.6
     env:
     - SCIPYSPEC===0.12.0
-    - COVERALL=-coverage
   - python: 2.7
     env:
     - SCIPYSPEC===0.12.0
@@ -26,16 +25,15 @@ before_install:
 - if [ -n "${NUMPYSPEC}" ]; then pip install --upgrade pip setuptools; fi
 - if [ -n "${NUMPYSPEC}" ]; then pip install --find-links http://wheels.astropy.org/ --find-links http://wheels2.astropy.org/ --use-wheel numpy$NUMPYSPEC; fi
 - pip install --find-links http://wheels.astropy.org/ --find-links http://wheels2.astropy.org/ --use-wheel scipy$SCIPYSPEC matplotlib==1.3.0 sphinx nose==1.3.0 jinja2==2.6
-- if [ -n "${COVERALL}" ]; then pip install cpp-coveralls; fi
+- pip install cpp-coveralls
 install:
 - python bootstrap.py
-- CFLAGS=${COVERALL} ./bin/buildout
+- CFLAGS=-coverage ./bin/buildout
 script:
 - ./bin/python -c 'from bob.learn.boosting import get_config; print(get_config())'
-- if [ -n "${COVERALL}" ]; then ./bin/coverage run --source=bob.learn.boosting ./bin/nosetests -sv;
-  else ./bin/nosetests -sv; fi
+- ./bin/coverage run --source=bob.learn.boosting ./bin/nosetests -sv
 - ./bin/sphinx-build -b doctest doc sphinx
 - ./bin/sphinx-build -b html doc sphinx
 after_success:
-- if [ -n "${COVERALL}" ]; then coveralls --build-root=`pwd` --exclude=src --exclude=/usr --exclude-pattern="Compiler*"; fi
+- coveralls --build-root=`pwd` --exclude=src --exclude=/usr --exclude-pattern=".*Compiler.*"
 - ./src/bob.extension/scripts/upload-sphinx.sh
