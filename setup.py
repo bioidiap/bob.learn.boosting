@@ -22,8 +22,11 @@
 bob_packages = ['bob.core', 'bob.io.base']
 
 from setuptools import setup, find_packages, dist
-dist.Distribution(dict(setup_requires=['bob.blitz'] + bob_packages))
+dist.Distribution(dict(setup_requires=['bob.extension', 'bob.blitz'] + bob_packages))
 from bob.blitz.extension import Extension, Library, build_ext
+
+from bob.extension.utils import load_requirements
+build_requires = load_requirements()
 
 packages = ['boost']
 boost_modules = ['system']
@@ -58,13 +61,8 @@ setup(
     # on the current system will be installed locally and only visible to the
     # scripts of this package. Don't worry - You won't need adminstrative
     # privileges when using buildout.
-    install_requires=[
-      'setuptools',
-      'scipy',
-      'bob.extension',
-      'bob.core',
-      'bob.io.base',
-    ],
+    setup_requires = build_requires,
+    install_requires = build_requires,
 
     # Declare that the package is in the namespace bob.learn
     namespace_packages = [

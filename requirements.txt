@@ -1,0 +1,6 @@
+setuptools
+scipy
+bob.extension
+bob.blitz
+bob.core
+bob.io.base
