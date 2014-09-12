@@ -75,6 +75,7 @@ static void boostedMachine_exit(
   BoostedMachineObject* self
 )
 {
+  self->base.reset();
   Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 

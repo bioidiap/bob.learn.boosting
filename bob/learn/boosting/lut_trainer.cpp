@@ -65,6 +65,7 @@ static void lutTrainer_exit(
   LUTTrainerObject* self
 )
 {
+  self->base.reset();
   Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 

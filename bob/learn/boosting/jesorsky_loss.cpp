@@ -49,6 +49,8 @@ static void jesorskyLoss_exit(
   JesorskyLossObject* self
 )
 {
+  self->base.reset();
+  self->parent.base.reset();
   Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 

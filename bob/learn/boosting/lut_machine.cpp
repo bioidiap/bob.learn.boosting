@@ -131,7 +131,8 @@ static void lutMachine_exit(
   LUTMachineObject* self
 )
 {
-  // get list of arguments
+  self->base.reset();
+  self->parent.base.reset();
   Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
