@@ -20,20 +20,20 @@ class TestLogitLoss (unittest.TestCase):
     # check the loss values
     loss_value = loss_function.loss(target, score)
     val1 = numpy.log(1 + numpy.exp(- target * score))
-    self.assertEqual(loss_value,val1)
+    self.assertAlmostEqual(loss_value,val1)
 
     # Check loss gradient
     grad_value = loss_function.loss_gradient( target, score)
     temp = numpy.exp(-target * score)
     val2 = -(target * temp* (1/(1 + temp)) )
-    self.assertEqual(grad_value,val2)
+    self.assertAlmostEqual(grad_value,val2)
 
     # Check loss sum
     loss_sum = loss_function.loss_sum(alpha, targets, prev_scores, weak_scores)
     curr_scores = prev_scores + alpha*weak_scores
 
     val3 = sum(numpy.log(1 + numpy.exp(-targets * curr_scores)))
-    self.assertEqual(val3, loss_sum)
+    self.assertAlmostEqual(val3, loss_sum)
 
     # Check the gradient sum
     grad_sum = loss_function.loss_gradient_sum(alpha, targets, prev_scores, weak_scores)
@@ -41,7 +41,7 @@ class TestLogitLoss (unittest.TestCase):
     temp = numpy.exp(-target * curr_scores)
     grad = -targets * temp *(1/ (1 + temp))
     val4 = numpy.sum(grad * weak_scores)
-    self.assertEqual(val4, grad_sum)
+    self.assertAlmostEqual(val4, grad_sum)
 
 
   def test02_negative_target(self):
@@ -58,20 +58,20 @@ class TestLogitLoss (unittest.TestCase):
     # check the loss values
     loss_value = loss_function.loss(target, score)
     val1 = numpy.log(1 + numpy.exp(- target * score))
-    self.assertEqual(loss_value,val1)
+    self.assertAlmostEqual(loss_value,val1)
 
     # Check loss gradient
     grad_value = loss_function.loss_gradient( target, score)
     temp = numpy.exp(-target * score)
     val2 = -(target * temp* (1/(1 + temp)) )
-    self.assertEqual(grad_value,val2)
+    self.assertAlmostEqual(grad_value,val2)
 
     # Check loss sum
     loss_sum = loss_function.loss_sum(alpha, targets, prev_scores, weak_scores)
     curr_scores = prev_scores + alpha*weak_scores
 
     val3 = sum(numpy.log(1 + numpy.exp(-targets * curr_scores)))
-    self.assertEqual(val3, loss_sum)
+    self.assertAlmostEqual(val3, loss_sum)
 
     # Check the gradient sum
     grad_sum = loss_function.loss_gradient_sum(alpha, targets, prev_scores, weak_scores)
@@ -79,7 +79,7 @@ class TestLogitLoss (unittest.TestCase):
     temp = numpy.exp(-target * curr_scores)
     grad = -targets * temp *(1/ (1 + temp))
     val4 = numpy.sum(grad * weak_scores)
-    self.assertEqual(val4, grad_sum)
+    self.assertAlmostEqual(val4, grad_sum)
 
 
   def test03_multivariate_dimensions(self):

@@ -20,7 +20,7 @@ class TestExponentialLoss(unittest.TestCase):
     # check the loss values
     loss_value = loss_function.loss(target, score)
     val = numpy.exp(- target * score)
-    self.assertEqual(loss_value,val)
+    self.assertAlmostEqual(loss_value,val)
     self.assertTrue(loss_value >= 0)
 
     # Check loss gradient
@@ -28,14 +28,14 @@ class TestExponentialLoss(unittest.TestCase):
 
     temp = numpy.exp(-target * score)
     val2 = -target * temp
-    self.assertEqual(loss_grad,val2)
+    self.assertAlmostEqual(loss_grad,val2)
 
     # Check loss sum
     loss_sum_val = loss_function.loss_sum(alpha, targets, prev_scores, weak_scores)
 
     curr_scores = prev_scores + alpha*weak_scores
     val3 = sum(numpy.exp(-targets * curr_scores))
-    self.assertEqual(val3, loss_sum_val)
+    self.assertAlmostEqual(val3, loss_sum_val)
 
     # Check the gradient sum
     grad_sum_val = loss_function.loss_gradient_sum(alpha, targets, prev_scores, weak_scores)
@@ -45,7 +45,7 @@ class TestExponentialLoss(unittest.TestCase):
     grad = -target * temp
     val4 = numpy.sum(grad * weak_scores,0)
 
-    self.assertEqual(val4, grad_sum_val)
+    self.assertAlmostEqual(val4, grad_sum_val)
 
 
   def test02_negative_target(self):
@@ -62,7 +62,7 @@ class TestExponentialLoss(unittest.TestCase):
     # check the loss values
     loss_value = loss_function.loss(target, score)
     val = numpy.exp(- target * score)
-    self.assertEqual(loss_value,val)
+    self.assertAlmostEqual(loss_value,val)
     self.assertTrue(loss_value >= 0)
 
     # Check loss gradient
@@ -70,14 +70,14 @@ class TestExponentialLoss(unittest.TestCase):
 
     temp = numpy.exp(-target * score)
     val2 = -target * temp
-    self.assertEqual(loss_grad,val2)
+    self.assertAlmostEqual(loss_grad,val2)
 
     # Check loss sum
     loss_sum_val = loss_function.loss_sum(alpha, targets, prev_scores, weak_scores)
 
     curr_scores = prev_scores + alpha*weak_scores
     val3 = sum(numpy.exp(-targets * curr_scores))
-    self.assertEqual(val3, loss_sum_val)
+    self.assertAlmostEqual(val3, loss_sum_val)
 
     # Check the gradient sum
     grad_sum_val = loss_function.loss_gradient_sum(alpha, targets, prev_scores, weak_scores)
@@ -87,7 +87,7 @@ class TestExponentialLoss(unittest.TestCase):
     grad = -target * temp
     val4 = numpy.sum(grad * weak_scores,0)
 
-    self.assertEqual(val4, grad_sum_val)
+    self.assertAlmostEqual(val4, grad_sum_val)
 
 
 
