@@ -18,7 +18,7 @@ static auto stumpMachine_doc = bob::extension::ClassDoc(
   .add_parameter("threshold", "float", "The decision threshold")
   .add_parameter("polarity", "float", "-1 if positive values are below threshold, +1 if positive values are above threshold")
   .add_parameter("index", "int", "The index into the feature vector that is thresholded")
-  .add_parameter("hdf5", "bob.io.HDF5File", "The HDF5 file object to read the weak classifier from")
+  .add_parameter("hdf5", ":py:class:`bob.io.base.HDF5File`", "The HDF5 file object to read the weak classifier from")
 );
 
 
@@ -269,7 +269,7 @@ static auto stumpMachine_load_doc = bob::extension::FunctionDoc(
   true
 )
 .add_prototype("hdf5")
-.add_parameter("hdf5", "bob.io.HDF5File", "The HDF5 file to load this weak machine from.")
+.add_parameter("hdf5", ":py:class:`bob.io.base.HDF5File`", "The HDF5 file to load this weak machine from.")
 ;
 
 static PyObject* stumpMachine_load(
@@ -303,7 +303,7 @@ static auto stumpMachine_save_doc = bob::extension::FunctionDoc(
   true
 )
 .add_prototype("hdf5")
-.add_parameter("hdf5", "bob.io.HDF5File", "The HDF5 file to save this weak machine to.")
+.add_parameter("hdf5", ":py:class:`bob.io.base.HDF5File`", "The HDF5 file to save this weak machine to.")
 ;
 
 static PyObject* stumpMachine_save(

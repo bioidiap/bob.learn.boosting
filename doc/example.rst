@@ -19,10 +19,10 @@
 ===========================================
 
 As an example for the classification task, we perform a classification of hand-written digits using the `MNIST <http://yann.lecun.com/exdb/mnist>`_ database.
-There, images of single hand-written digits are stored, and a training and test set is provided, which we can access with our `xbob.db.mnist <http://pypi.python.org/pypi/xbob.db.mnist>`_ database interface.
+There, images of single hand-written digits are stored, and a training and test set is provided, which we can access with our `bob.db.mnist <http://pypi.python.org/pypi/bob.db.mnist>`_ database interface.
 
 .. note::
-  In fact, to minimize the dependencies to other packages, the ``xbob.db.mnist`` database interface is replaced by a local interface.
+  In fact, to minimize the dependencies to other packages, the ``bob.db.mnist`` database interface is replaced by a local interface.
 
 In our experiments, we simply use the pixel gray values as features.
 Since the gray values are discrete in range :math:`[0, 255]`, we can employ both the stump decision classifiers and the look-up-table's.
@@ -43,7 +43,7 @@ To control the type of training, you can select:
 * ``--loss-type``: Select the loss function. Possible values are ``tan``, ``log`` and ``exp``. By default, a loss function suitable to the trainer type is selected.
 * ``--number-of-boosting-rounds``: The number of weak classifiers to select.
 * ``--multi-variate`` (only valid for LUT trainer): Perform multi-variate classification, or binary (one-to-one) classification.
-* ``--feature-selection-style`` (only valid for multi-variate training): Select the feature for each output ``independent``ly or ``shared``?
+* ``--feature-selection-style`` (only valid for multi-variate training): Select the feature for each output ``independent`` or ``shared``?
 
 To control the experimentation, you can choose:
 
@@ -59,19 +59,19 @@ For information and debugging purposes, it might be interesting to use:
 
 Four different kinds of experiments can be performed:
 
-1. Uni-variate classification using the stump classifier, classifying digits 5 and 6::
+1. Uni-variate classification using the stump classifier :py:class:`bob.learn.boosting.StumpMachine`, classifying digits 5 and 6::
 
     $ ./bin/boosting_example.py -vv --trainer-type stump --digits 5 6
 
-2. Uni-variate classification using the LUT classifier, classifying digits 5 and 6::
+2. Uni-variate classification using the LUT classifier :py:class:`bob.learn.boosting.LUTMachine`, classifying digits 5 and 6::
 
     $ ./bin/boosting_example.py -vv --trainer-type lut --digits 5 6
 
-3. Multi-variate classification using LUT classifier and shared features, classifying all 10 digits::
+3. Multi-variate classification using LUT classifier :py:class:`bob.learn.boosting.LUTMachine` and shared features, classifying all 10 digits::
 
     $ ./bin/boosting_example.py -vv --trainer-type lut --all-digits --multi-variate --feature-selection-style shared
 
-4. Multi-variate classification using LUT classifier and independent features, classifying all 10 digits::
+4. Multi-variate classification using LUT classifier :py:class:`bob.learn.boosting.LUTMachine` and independent features, classifying all 10 digits::
 
     $ ./bin/boosting_example.py -vv --trainer-type lut --all-digits --multi-variate --feature-selection-style independent
 
@@ -138,7 +138,8 @@ Here, we describe the more complex way, i.e., the multi-variate case.
           [ 1., -1.],
           [ 1., -1.]])
 
-Now, we can train the classifier. Here, we use the multi-variate LUT trainer with logit loss:
+Now, we can train the classifier using the :py:class:`bob.learn.boosting.Boosting` boosting trainer.
+Here, we use the multi-variate LUT trainer :py:class:`bob.learn.boosting.LUTTrainer` with logit loss :py:class:`bob.learn.boosting.LogitLoss`:
 
 .. doctest::
 
@@ -153,7 +154,7 @@ Now, we can train the classifier. Here, we use the multi-variate LUT trainer wit
   >>> # perform training for 100 rounds (i.e., select 100 weak machines)
   >>> strong_classifier = strong_trainer.train(training_samples.astype(numpy.uint16), training_targets, 10)
 
-Having the strong classifier, we can classify the test samples:
+Having the strong classifier (which is of type :py:class:`bob.learn.boosting.BoostedMachine`), we can classify the test samples:
 
 .. doctest::
 
@@ -179,3 +180,4 @@ Having the strong classifier, we can classify the test samples:
   2004
   >>> classification.shape[0]
   2115
+

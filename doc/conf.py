@@ -41,7 +41,6 @@ extensions = [
   'sphinx.ext.autosummary',
   'sphinx.ext.doctest',
   'sphinx.ext.intersphinx',
-  #'bob.sphinxext.plot', # ours add source copying to install directory
   ]
 
 # The viewcode extension appeared only on Sphinx >= 1.0.0
@@ -249,40 +248,15 @@ man_pages = [
     ('index', 'bob.project.example', u'Bob Project Example Documentation', [u'Idiap Research Institute'], 1)
 ]
 
-
-# We want to remove all private (i.e. _. or __.__) members
-# that are not in the list of accepted functions
-accepted_private_functions = ['__call__']
-
-def member_function_test(app, what, name, obj, skip, options):
-  # test if we have a private function
-  if len(name) > 1 and name[0] == '_':
-    # test if this private function should be allowed
-    if name not in accepted_private_functions:
-      # omit privat functions that are not in the list of accepted private functions
-      return True
-    else:
-      # test if the method is documented
-      if not hasattr(obj, '__doc__') or not obj.__doc__:
-        return True
-
-  # Skips selected members in auto-generated documentation. Unfortunately, old
-  # versions of Boost.Python will not generate a __self__ member for static
-  # methods and that screws-up Sphinx processing.
-  if sphinx.__version__ < "1.0":
-    # We have to remove objects that do not have a __self__ attribute set
-    import types
-    if isinstance(obj, types.BuiltinFunctionType) and \
-      not hasattr(obj, '__self__') and what == 'class':
-        app.warn("Skipping %s %s (no __self__)" % (what, name))
-        return True
-
-    return False
-
 # Default processing flags for sphinx
 autoclass_content = 'both'
 autodoc_member_order = 'bysource'
-autodoc_default_flags = ['members', 'undoc-members', 'private-members', 'special-members', 'inherited-members', 'show-inheritance']
+autodoc_default_flags = ['members', 'undoc-members', 'inherited-members', 'show-inheritance']
+
+# For inter-documentation mapping:
+from bob.extension.utils import link_documentation
+intersphinx_mapping = link_documentation(['python', 'numpy', 'scipy'])
+
 
 def setup(app):
-  app.connect('autodoc-skip-member', member_function_test)
+  pass

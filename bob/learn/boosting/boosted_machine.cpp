@@ -17,7 +17,7 @@ static auto boostedMachine_doc = bob::extension::ClassDoc(
   .add_prototype("hdf5", "")
 //  .add_parameter("weak_classifiers", "[bob.boosting.machine.WeakMachine]", "A list of weak machines that should be used in this strong machine")
 //  .add_parameter("weights", "float <#machines,#outputs>", "The list of weights for the machines.")
-  .add_parameter("hdf5", ":py:class:`bob.io.HDF5File`", "The HDF5 file object to read the weak classifier from")
+  .add_parameter("hdf5", ":py:class:`bob.io.base.HDF5File`", "The HDF5 file object to read the weak classifier from")
 );
 
 
@@ -392,7 +392,7 @@ static auto boostedMachine_load_doc = bob::extension::FunctionDoc(
   true
 )
 .add_prototype("hdf5")
-.add_parameter("hdf5", ":py:class:`bob.io.HDF5File`", "The HDF5 file to load this machine from.")
+.add_parameter("hdf5", ":py:class:`bob.io.base.HDF5File`", "The HDF5 file to load this machine from.")
 ;
 
 static PyObject* boostedMachine_load(
@@ -426,7 +426,7 @@ static auto boostedMachine_save_doc = bob::extension::FunctionDoc(
   true
 )
 .add_prototype("hdf5")
-.add_parameter("hdf5", ":py:class:`bob.io.HDF5File`", "The HDF5 file to save this weak machine to.")
+.add_parameter("hdf5", ":py:class:`bob.io.base.HDF5File`", "The HDF5 file to save this weak machine to.")
 ;
 
 static PyObject* boostedMachine_save(

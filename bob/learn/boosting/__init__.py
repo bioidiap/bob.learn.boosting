@@ -5,10 +5,22 @@ import bob.io.base
 import bob.extension
 bob.extension.load_bob_library('bob.learn.boosting', __file__)
 
-from .loss import *
-from .trainer import *
-from .machine import *
+# include loss functions
+from . import LossFunction # Just to get the documentation for it
+from .ExponentialLoss import ExponentialLoss
+from .LogitLoss import LogitLoss
+from .TangentialLoss import TangentialLoss
+from ._library import JesorskyLoss
 
+# include trainers
+from .StumpTrainer import StumpTrainer
+from .Boosting import Boosting
+from ._library import LUTTrainer
+
+# include machines
+from ._library import WeakMachine, StumpMachine, LUTMachine, BoostedMachine
+
+# include auxiliary functions
 from ._library import weighted_histogram
 
 def get_config():

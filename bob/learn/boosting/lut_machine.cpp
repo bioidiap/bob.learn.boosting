@@ -20,7 +20,7 @@ static auto lutMachine_doc = bob::extension::ClassDoc(
   .add_parameter("index", "int", "The index into the feature vector (for the univariate case)")
   .add_parameter("look_up_tables", "float <#entries,#outputs>", "The look up tables, one for each output dimension (for the multi-variate case)")
   .add_parameter("indices", "int <#outputs>", "The indices into the feature vector, one for each output dimension (for the multi-variate case)")
-  .add_parameter("hdf5", "bob.io.HDF5File", "The HDF5 file object to read the weak classifier from")
+  .add_parameter("hdf5", ":py:class:`bob.io.base.HDF5File`", "The HDF5 file object to read the weak classifier from")
 );
 
 
@@ -275,7 +275,7 @@ static auto lutMachine_load_doc = bob::extension::FunctionDoc(
   true
 )
 .add_prototype("hdf5")
-.add_parameter("hdf5", "bob.io.HDF5File", "The HDF5 file to load this weak machine from.")
+.add_parameter("hdf5", ":py:class:`bob.io.base.HDF5File`", "The HDF5 file to load this weak machine from.")
 ;
 
 static PyObject* lutMachine_load(
@@ -307,7 +307,7 @@ static auto lutMachine_save_doc = bob::extension::FunctionDoc(
   true
 )
 .add_prototype("hdf5")
-.add_parameter("hdf5", "bob.io.HDF5File", "The HDF5 file to save this weak machine to.")
+.add_parameter("hdf5", ":py:class:`bob.io.base.HDF5File`", "The HDF5 file to save this weak machine to.")
 ;
 
 static PyObject* lutMachine_save(
