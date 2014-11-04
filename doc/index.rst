@@ -4,6 +4,8 @@
 ..
 .. Copyright (C) 2011-2013 Idiap Research Institute, Martigny, Switzerland
 
+.. _bob.learn.boosting:
+
 ===========================================================================================
  Generalized Boosting Framework using Stump and Look Up Table (LUT) based Weak Classifiers
 ===========================================================================================
