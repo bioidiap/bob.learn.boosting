@@ -28,10 +28,11 @@ from bob.blitz.extension import Extension, Library, build_ext
 from bob.extension.utils import load_requirements
 build_requires = load_requirements()
 
+# Define package version
+version = open("version.txt").read().rstrip()
+
 packages = ['boost']
 boost_modules = ['system']
-
-version = "2.0.0a0"
 
 # The only thing we do in this file is to call the setup() function with all
 # parameters that define our package.
