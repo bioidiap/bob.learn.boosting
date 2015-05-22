@@ -87,6 +87,7 @@ create_module(void)
 # endif
 
   if (!module) return NULL;
+  auto m_ = make_safe(module);
 
   if (!init_LossFunction(module)) return NULL;
   if (!init_JesorskyLoss(module)) return NULL;
@@ -102,10 +103,11 @@ create_module(void)
 
   /* imports C-API dependencies */
   if (import_bob_blitz() < 0) return NULL;
+  if (import_bob_core_logging() < 0) return NULL;
   if (import_bob_io_base() < 0) return NULL;
 
   // module was initialized successfully
-  return module;
+  return Py_BuildValue("O", module);
 }
 
 PyMODINIT_FUNC BOB_EXT_ENTRY_NAME (void) {
@@ -114,4 +116,3 @@ PyMODINIT_FUNC BOB_EXT_ENTRY_NAME (void) {
 # endif
     create_module();
 }
-

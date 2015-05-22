@@ -3,6 +3,7 @@
 
 #include <bob.blitz/cppapi.h>
 #include <bob.blitz/cleanup.h>
+#include <bob.core/api.h>
 #include <bob.io.base/api.h>
 #include <bob.extension/documentation.h>
 
