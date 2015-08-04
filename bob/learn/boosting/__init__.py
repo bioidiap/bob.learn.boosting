@@ -6,27 +6,27 @@ import bob.extension
 bob.extension.load_bob_library('bob.learn.boosting', __file__)
 
 # versioning
-from . import version
-from .version import module as __version__
-from .version import api as __api_version__
+from bob.learn.boosting import version
+from bob.learn.boosting.version import module as __version__
+from bob.learn.boosting.version import api as __api_version__
 
 # include loss functions
-from . import LossFunction # Just to get the documentation for it
-from .ExponentialLoss import ExponentialLoss
-from .LogitLoss import LogitLoss
-from .TangentialLoss import TangentialLoss
-from ._library import JesorskyLoss
+from bob.learn.boosting import LossFunction # Just to get the documentation for it
+from bob.learn.boosting.ExponentialLoss import ExponentialLoss
+from bob.learn.boosting.LogitLoss import LogitLoss
+from bob.learn.boosting.TangentialLoss import TangentialLoss
+from bob.learn.boosting._library import JesorskyLoss
 
 # include trainers
-from .StumpTrainer import StumpTrainer
-from .Boosting import Boosting
-from ._library import LUTTrainer
+from bob.learn.boosting.StumpTrainer import StumpTrainer
+from bob.learn.boosting.Boosting import Boosting
+from bob.learn.boosting._library import LUTTrainer
 
 # include machines
-from ._library import WeakMachine, StumpMachine, LUTMachine, BoostedMachine
+from bob.learn.boosting._library import WeakMachine, StumpMachine, LUTMachine, BoostedMachine
 
 # include auxiliary functions
-from ._library import weighted_histogram
+from bob.learn.boosting._library import weighted_histogram
 
 def get_config():
   """Returns a string containing the configuration information.
