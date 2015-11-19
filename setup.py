@@ -66,10 +66,7 @@ setup(
     install_requires = build_requires,
 
     # Declare that the package is in the namespace bob.learn
-    namespace_packages = [
-      'bob',
-      'bob.learn'
-    ],
+
 
     ext_modules = [
       Extension("bob.learn.boosting.version",
