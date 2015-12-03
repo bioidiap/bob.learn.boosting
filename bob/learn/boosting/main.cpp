@@ -76,18 +76,18 @@ static PyModuleDef module_definition = {
 #endif
 
 
-PyObject*
-create_module(void)
+PyObject* create_module(void)
 {
 
 # if PY_VERSION_HEX >= 0x03000000
   PyObject* module = PyModule_Create(&module_definition);
+  auto module_ = make_xsafe(module);
+  const char* ret = "O";
 # else
-  PyObject* module = Py_InitModule3(BOB_EXT_MODULE_NAME, BoostingMethods, module_docstr);
+  PyObject* module = Py_InitModule3(BOB_EXT_MODULE_NAME, module_methods, module_docstr);
+  const char* ret = "N";
 # endif
-
-  if (!module) return NULL;
-  auto m_ = make_safe(module);
+  if (!module) return 0;
 
   if (!init_LossFunction(module)) return NULL;
   if (!init_JesorskyLoss(module)) return NULL;
@@ -107,7 +107,7 @@ create_module(void)
   if (import_bob_io_base() < 0) return NULL;
 
   // module was initialized successfully
-  return Py_BuildValue("O", module);
+  return Py_BuildValue(ret, module);
 }
 
 PyMODINIT_FUNC BOB_EXT_ENTRY_NAME (void) {
