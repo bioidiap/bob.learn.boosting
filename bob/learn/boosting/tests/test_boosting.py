@@ -9,14 +9,14 @@ class TestBoosting(unittest.TestCase):
   """Class to test the LUT trainer """
 
   @classmethod
-  def setUpClass(self):
+  def setUpClass(cls):
     # create a single copy of the MNIST database to avoid downloading the packages several times
-    self.database = bob.learn.boosting.utils.MNIST()
+    cls.database = bob.learn.boosting.utils.MNIST()
 
   @classmethod
-  def tearDownClass(self):
+  def tearDownClass(cls):
     # Clean up the mess that we created
-    del self.database
+    del cls.database
 
   def _data(self, digits = [3, 0], count = 20):
     # get the data
