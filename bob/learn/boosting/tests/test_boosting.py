@@ -22,7 +22,7 @@ class TestBoosting(unittest.TestCase):
     # get the data
     inputs, targets = [], []
     for digit in digits:
-      input, target = self.database.data(labels = digit)
+      input, target = TestBoosting.database.data(labels = digit)
       inputs.append(input[:count])
       targets.append(target[:count])
     return numpy.vstack(inputs), numpy.hstack(targets)
