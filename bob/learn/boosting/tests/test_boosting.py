@@ -8,22 +8,10 @@ import bob.learn.boosting.utils
 class TestBoosting(unittest.TestCase):
   """Class to test the LUT trainer """
 
-  """
-  @classmethod
-  def setUpClass(cls):
-    # create a single copy of the MNIST database to avoid downloading the packages several times
-    cls.database = bob.learn.boosting.utils.MNIST()
-
-  @classmethod
-  def tearDownClass(cls):
-    # Clean up the mess that we created
-    del cls.database
-  """
-
   def _data(self, digits = [3, 0], count = 20):
-  
+
     self.database = bob.learn.boosting.utils.MNIST()
-  
+
     # get the data
     inputs, targets = [], []
     for digit in digits:
