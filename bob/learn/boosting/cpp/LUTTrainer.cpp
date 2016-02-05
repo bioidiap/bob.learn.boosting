@@ -25,7 +25,7 @@ int32_t bob::learn::boosting::LUTTrainer::bestIndex(const blitz::Array<double,1>
 }
 
 void bob::learn::boosting::LUTTrainer::weightedHistogram(const blitz::Array<uint16_t,1>& features, const blitz::Array<double,1>& weights) const{
-  assert(features.extent(0) == weights.extent(0));
+  bob::core::array::assertSameShape(features, weights);
   _gradientHistogram = 0.;
   for (int i = features.extent(0); i--;){
     _gradientHistogram((int)features(i)) += weights(i);
@@ -74,5 +74,3 @@ boost::shared_ptr<bob::learn::boosting::LUTMachine> bob::learn::boosting::LUTTra
   return boost::shared_ptr<LUTMachine>(new LUTMachine(_luts.copy(), _selectedIndices.copy()));
 
 }
-
-

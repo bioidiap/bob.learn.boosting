@@ -1,6 +1,5 @@
 #include <bob.learn.boosting/StumpMachine.h>
 #include <bob.core/cast.h>
-#include <assert.h>
 #include <set>
 
 bob::learn::boosting::StumpMachine::StumpMachine(double threshold, double polarity, int index):
@@ -74,5 +73,3 @@ void bob::learn::boosting::StumpMachine::save(bob::io::base::HDF5File& file) con
   file.set("Index", m_index);
   file.setAttribute(".", "MachineType", std::string("StumpMachine"));
 }
-
-

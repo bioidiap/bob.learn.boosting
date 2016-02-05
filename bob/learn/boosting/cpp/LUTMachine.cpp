@@ -1,7 +1,7 @@
 #include <bob.learn.boosting/LUTMachine.h>
 
 #include <bob.core/cast.h>
-#include <assert.h>
+#include <bob.core/assert.h>
 #include <set>
 
 bob::learn::boosting::LUTMachine::LUTMachine(const blitz::Array<double,1> look_up_table, const int index):
@@ -43,42 +43,54 @@ bob::learn::boosting::LUTMachine::LUTMachine(bob::io::base::HDF5File& file):
 
 double bob::learn::boosting::LUTMachine::forward(const blitz::Array<uint16_t,1>& features) const{
   // univariate, single feature
-  assert ( features.extent(0) > _index );
-  assert ( features((int)_index) < _look_up_table.extent(0) );
+#ifdef BOB_DEBUG
+  if ( features.extent(0) <= _index ) throw std::runtime_error((boost::format("The index %d of this machine is out of range %d")%_index%features.extent(0)).str());
+  if ( features((int)_index) >= _look_up_table.extent(0) ) throw std::runtime_error((boost::format("The feature %d at index %d is out of range %d")%features((int)_index)%_index%_look_up_table.extent(0)).str());
+#endif // BOB_DEBUG
   return _look_up_table((int)features(_index));
 }
 
 
 void bob::learn::boosting::LUTMachine::forward(const blitz::Array<uint16_t,1>& features, blitz::Array<double,1> predictions) const{
   // multi-variate, single feature
-  assert ( m_indices.extent(0) == predictions.extent(0) );
+#ifdef BOB_DEBUG
+  bob::core::array::assertSameShape(m_indices, predictions);
+#endif // BOB_DEBUG
+
   for (int j = 0; j < m_indices.extent(0); ++j){
-    assert ( features.extent(0) > m_indices(j) );
-  }
-  for (int j = 0; j < m_indices.extent(0); ++j){
+#ifdef BOB_DEBUG
+    if ( features.extent(0) <= m_indices(j) ) throw std::runtime_error((boost::format("One of the indices %d of this machine is out of range %d")%m_indices(j)%features.extent(0)).str());
+#endif // BOB_DEBUG
+
     predictions(j) = m_look_up_tables((int)features(m_indices(j)), j);
   }
 }
 
 void bob::learn::boosting::LUTMachine::forward(const blitz::Array<uint16_t,2>& features, blitz::Array<double,1> predictions) const{
   // univariate, several features
-  assert ( predictions.extent(0) == features.extent(0) );
-  assert ( features.extent(1) > _index );
-  for (int i = features.extent(0); i--;)
-    assert ( features(i, (int)_index) < _look_up_table.extent(0) );
-  for (int i = 0; i < features.extent(0); ++i){
+#ifdef BOB_DEBUG
+  if ( predictions.extent(0) != features.extent(0) ) throw std::runtime_error((boost::format("The number of predictions must match the number of features, but they don't: %d != %d")%predictions.extent(0)%features.extent(0)).str());
+  if ( features.extent(1) <= _index ) throw std::runtime_error((boost::format("The index %d of this machine is out of range %d")%_index%features.extent(1)).str());
+#endif // BOB_DEBUG
+
+  for (int i = features.extent(0); i--;){
+#ifdef BOB_DEBUG
+    if ( features(i, (int)_index) >= _look_up_table.extent(0) ) throw std::runtime_error((boost::format("The feature %d at index %d is out of range %d")%features(i, (int)_index)%_index%_look_up_table.extent(0)).str());
+#endif // BOB_DEBUG
+
     predictions(i) = _look_up_table((int)features(i, _index));
   }
 }
 
 void bob::learn::boosting::LUTMachine::forward(const blitz::Array<uint16_t,2>& features, blitz::Array<double,2> predictions) const{
   // multi-variate, several features
-  assert ( predictions.extent(0) == features.extent(0) );
-  assert ( predictions.extent(1) == m_indices.extent(0) );
-  assert ( m_look_up_tables.extent(1) == m_indices.extent(0) );
-  for (int j = m_indices.extent(0); j--;){
-    assert ( features.extent(1) > m_indices(j) );
-  }
+#ifdef BOB_DEBUG
+  if ( predictions.extent(0) != features.extent(0) ) throw std::runtime_error((boost::format("The number of predictions must match the number of features, but they don't: %d != %d")%predictions.extent(0)%features.extent(0)).str());
+  if ( predictions.extent(1) != m_indices.extent(0) ) throw std::runtime_error((boost::format("The size of predictions must match the number of indices, but they don't: %d != %d")%predictions.extent(1)%m_indices.extent(0)).str());
+
+  for (int j = m_indices.extent(0); j--;)
+    if ( features.extent(1) <= m_indices(j) ) throw std::runtime_error((boost::format("One of the indices %d of this machine is out of range %d")%m_indices(j)%features.extent(1)).str());
+#endif // BOB_DEBUG
 
   for (int i = 0; i < features.extent(0); ++i){
     for (int j = 0; j < m_indices.extent(0); ++j){
@@ -118,8 +130,3 @@ void bob::learn::boosting::LUTMachine::save(bob::io::base::HDF5File& file) const
   file.setArray("Indices", m_indices);
   file.setAttribute(".", "MachineType", std::string("LUTMachine"));
 }
-
-
-
-
-
