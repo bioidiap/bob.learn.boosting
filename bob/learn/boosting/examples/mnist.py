@@ -17,8 +17,8 @@ import bob.io.base
 import bob.learn.boosting
 import bob.learn.boosting.utils
 
-import logging
-logger = logging.getLogger('bob')
+import bob.core
+logger = bob.core.log.setup('bob.learn.boosting')
 
 TRAINER = {
   'stump' : bob.learn.boosting.StumpTrainer,
@@ -47,9 +47,9 @@ def command_line_arguments(command_line_options):
   parser.add_argument('-c', '--classifier-file', help = "If selected, the strong classifier will be stored in this file (or loaded from it if it already exists).")
   parser.add_argument('-F', '--force', action='store_true', help = "Re-train the strong classifier, even if the --classifier-file already exists.")
 
-  parser.add_argument('-v', '--verbose', action = 'count', default = 0, help = "Increase the verbosity level (up too three times)")
-
+  bob.core.log.add_command_line_option(parser)
   args = parser.parse_args(command_line_options)
+  bob.core.log.set_verbosity_level(logger, args.verbose)
 
   if args.trainer_type == 'stump' and args.multi_variate:
     raise ValueError("The stump trainer cannot handle multi-variate training.")
@@ -60,13 +60,6 @@ def command_line_arguments(command_line_options):
     raise ValueError("Please select at least two digits to classify, or --all to classify all digits")
   if args.loss_type is None:
     args.loss_type = 'exp' if args.trainer_type == 'stump' else 'log'
-
-  logger.setLevel({
-    0: logging.ERROR,
-    1: logging.WARNING,
-    2: logging.INFO,
-    3: logging.DEBUG
-  }[args.verbose])
 
   return args
 

@@ -2,7 +2,7 @@ from ._library import BoostedMachine
 import numpy
 import scipy.optimize
 import logging
-logger = logging.getLogger('bob')
+logger = logging.getLogger('bob.learn.boosting')
 
 
 class Boosting:
@@ -99,7 +99,7 @@ class Boosting:
       if flags['warnflag'] != 0:
         msg = "too many function evaluations or too many iterations" if flags['warnflag'] == 1 else flags['task']
         if (alpha == numpy.zeros(number_of_outputs)).all():
-          logger.error("L-BFGS returned zero weights with error '%d': %s" % (flags['warnflag'], msg))
+          logger.warn("L-BFGS returned zero weights with error '%d': %s" % (flags['warnflag'], msg))
           return boosted_machine
         else:
           logger.warn("L-BFGS returned warning '%d': %s" % (flags['warnflag'], msg))
@@ -114,4 +114,3 @@ class Boosting:
       logger.info("Finished round %d / %d" % (round+1, number_of_rounds))
 
     return boosted_machine
-
