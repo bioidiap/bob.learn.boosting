@@ -44,8 +44,8 @@ setup(
     version=version,
     description='Boosting framework for Bob',
 
-    url='https://github.com/bioidiap/bob.learn.boosting',
-    license='GPLv3',
+    url='https://gitlab.idiap.ch/bob/bob.learn.boosting',
+    license='BSD',
     author='Manuel Guenther (with help of Rakesh Mehta)',
     author_email='manuel.guenther@idiap.ch',
 
@@ -140,7 +140,7 @@ setup(
       'Framework :: Bob',
       'Development Status :: 4 - Beta',
       'Intended Audience :: Developers',
-      'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+      'License :: OSI Approved :: BSD License',
       'Natural Language :: English',
       'Programming Language :: Python',
       'Topic :: Scientific/Engineering :: Artificial Intelligence',
