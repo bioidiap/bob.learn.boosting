@@ -157,7 +157,7 @@ static PyObject* lutMachine_lut(
 static auto lutMachine_forward_doc = bob::extension::FunctionDoc(
   "forward",
   "Returns the prediction for the given feature vector(s)",
-  ".. note:: The :py:func:`__call__` function is an alias for this function.\n\n"
+  ".. note:: The ``__call__`` function is an alias for this function.\n\n"
   "This function can be called in four different ways:\n\n"
   "1. ``(uint16 <#inputs>)`` will compute and return the uni-variate prediction for a single feature vector.\n"
   "2. ``(uint16 <#samples,#inputs>, float <#samples>)`` will compute the uni-variate prediction for several feature vectors.\n"

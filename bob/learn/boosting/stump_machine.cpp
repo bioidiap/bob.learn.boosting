@@ -115,9 +115,8 @@ static PyObject* stumpMachine_threshold(
 static auto stumpMachine_polarity_doc = bob::extension::VariableDoc(
   "polarity",
   "float",
-  "The polarity of the comparison: -1 if the values lower than the threshold should be accepted, +1 otherwise"
+  "The polarity of the comparison -1 if the values lower than the threshold should be accepted, +1 otherwise."
 );
-
 static PyObject* stumpMachine_polarity(
   StumpMachineObject* self,
   void* )
@@ -130,7 +129,7 @@ static PyObject* stumpMachine_polarity(
 static auto stumpMachine_forward_doc = bob::extension::FunctionDoc(
   "forward",
   "Returns the prediction for the given feature vector(s)",
-  ".. note:: The :py:func:`__call__` function is an alias for this function.\n\n"
+  ".. note:: The ``__call__`` function is an alias for this function.\n\n"
   ".. todo:: write more detailed documentation",
   true
 )
