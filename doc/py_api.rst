@@ -26,7 +26,7 @@ Available trainers in :py:mod:`bob.learn.boosting` are:
 
 * :py:class:`bob.learn.boosting.Boosting` : Trains a strong machine of type :py:class:`bob.learn.boosting.BoostedMachine`.
 * :py:class:`bob.learn.boosting.LUTTrainer` : Trains a weak machine of type :py:class:`bob.learn.boosting.LUTMachine`.
-* :py:class:`bob.learn.boosting.StrumTrainer` : Trains a weak machine of type :py:class:`bob.learn.boosting.StumpMachine`.
+* :py:class:`bob.learn.boosting.StumpTrainer` : Trains a weak machine of type :py:class:`bob.learn.boosting.StumpMachine`.
 
 
 Loss functions
@@ -40,9 +40,9 @@ A base class loss function :py:class:`bob.learn.boosting.LossFunction` is called
   Not all combinations of loss functions and weak trainers make sense.
   Here is a list of useful combinations:
 
-  1. :py:class:`bob.learn.boosting.ExponentialLoss` with :py:class:`bob.learn.boosting.StrumTrainer` (uni-variate classification only).
-  2. :py:class:`bob.learn.boosting.LogitLoss` with :py:class:`bob.learn.boosting.StrumTrainer` or :py:class:`bob.learn.boosting.LUTTrainer` (uni-variate or multi-variate classification).
-  3. :py:class:`bob.learn.boosting.TangentialLoss` with :py:class:`bob.learn.boosting.StrumTrainer` or :py:class:`bob.learn.boosting.LUTTrainer` (uni-variate or multi-variate classification).
+  1. :py:class:`bob.learn.boosting.ExponentialLoss` with :py:class:`bob.learn.boosting.StumpTrainer` (uni-variate classification only).
+  2. :py:class:`bob.learn.boosting.LogitLoss` with :py:class:`bob.learn.boosting.StumpTrainer` or :py:class:`bob.learn.boosting.LUTTrainer` (uni-variate or multi-variate classification).
+  3. :py:class:`bob.learn.boosting.TangentialLoss` with :py:class:`bob.learn.boosting.StumpTrainer` or :py:class:`bob.learn.boosting.LUTTrainer` (uni-variate or multi-variate classification).
   4. :py:class:`bob.learn.boosting.JesorskyLoss` with :py:class:`bob.learn.boosting.LUTTrainer` (multi-variate regression only).
 
 Details

@@ -129,7 +129,7 @@ static PyObject* stumpMachine_polarity(
 static auto stumpMachine_forward_doc = bob::extension::FunctionDoc(
   "forward",
   "Returns the prediction for the given feature vector(s)",
-  ".. note:: The :py:func:`__call__` function is an alias for this function.\n\n"
+  ".. note:: The ``__call__`` function is an alias for this function.\n\n"
   ".. todo:: write more detailed documentation",
   true
 )
