@@ -115,9 +115,8 @@ static PyObject* stumpMachine_threshold(
 static auto stumpMachine_polarity_doc = bob::extension::VariableDoc(
   "polarity",
   "float",
-  "The polarity of the comparison: -1 if the values lower than the threshold should be accepted, +1 otherwise"
+  "The polarity of the comparison -1 if the values lower than the threshold should be accepted, +1 otherwise."
 );
-
 static PyObject* stumpMachine_polarity(
   StumpMachineObject* self,
   void* )
