@@ -1,5 +1,7 @@
 
 #include "main.h"
+#include <boost/type_index.hpp>
+#include <boost/functional/hash.hpp>
 
 static std::map<size_t,CreateFunction> machineFactory;
 
@@ -13,7 +15,7 @@ bool registerMachineType(size_t type_hash, CreateFunction creator_function){
 }
 
 PyObject* createMachine(boost::shared_ptr<bob::learn::boosting::WeakMachine> machine){
-  size_t type_hash = typeid(*machine).hash_code();
+  size_t type_hash = boost::typeindex::type_id_runtime(*machine).hash_code();
   if (machineFactory.find(type_hash) == machineFactory.end()){
     PyErr_Format(PyExc_TypeError, "The given machine hash %zu has not been registered.", type_hash);
     return NULL;
@@ -60,7 +62,7 @@ bool init_WeakMachine(PyObject* module){
 
   // register creator function
   // register machine
-  if (!registerMachineType(typeid(bob::learn::boosting::WeakMachine).hash_code(), &weakMachineCreate))
+  if (!registerMachineType(boost::typeindex::type_id<bob::learn::boosting::WeakMachine>().hash_code(), &weakMachineCreate))
     return false;
 
   // check that everyting is fine

@@ -1,5 +1,7 @@
 
 #include "main.h"
+#include <boost/type_index.hpp>
+#include <boost/functional/hash.hpp>
 
 static auto lutMachine_doc = bob::extension::ClassDoc(
   "LUTMachine",
@@ -408,7 +410,7 @@ bool init_LUTMachine(PyObject* module)
   LUTMachineType.tp_methods = lutMachine_Methods;
 
   // register machine
-  if (!registerMachineType(typeid(bob::learn::boosting::LUTMachine).hash_code(), &lutMachineCreate))
+  if (!registerMachineType(boost::typeindex::type_id<bob::learn::boosting::LUTMachine>().hash_code(), &lutMachineCreate))
     return false;
 
   // check that everyting is fine
