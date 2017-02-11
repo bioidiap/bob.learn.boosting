@@ -1,5 +1,7 @@
 
 #include "main.h"
+#include <boost/type_index.hpp>
+#include <boost/functional/hash.hpp>
 
 static auto stumpMachine_doc = bob::extension::ClassDoc(
   "StumpMachine",
@@ -410,7 +412,7 @@ bool init_StumpMachine(PyObject* module)
   StumpMachineType.tp_methods = stumpMachine_Methods;
 
   // register machine
-  if (!registerMachineType(typeid(bob::learn::boosting::StumpMachine).hash_code(), &stumpMachineCreate))
+  if (!registerMachineType(boost::typeindex::type_id<bob::learn::boosting::StumpMachine>().hash_code(), &stumpMachineCreate))
     return false;
 
   // check that everyting is fine
