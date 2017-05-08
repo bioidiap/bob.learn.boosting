@@ -126,7 +126,6 @@ setup(
     # Define the entry points for this package
     entry_points={
 
-      # Console scripts, which will appear in ./bin/ after buildout
       'console_scripts': [
         'boosting_example.py = bob.learn.boosting.examples.mnist:main',
       ],
