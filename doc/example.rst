@@ -32,10 +32,10 @@ Nevertheless, other discrete features, like Local Binary Patterns (LBP) could be
 Running the example script
 --------------------------
 
-The script ``./bin/boosting_example.py`` is provided to execute digit classification tasks.
+The script ``boosting_example.py`` is provided to execute digit classification tasks.
 This script has several command line parameters, which vary the behavior of the training and/or testing procedure.
 All parameters have a long value (starting with ``--``) and a shortcut (starting with a single ``-``).
-These parameters are (see also ``./bin/boosting_example.py --help``):
+These parameters are (see also ``boosting_example.py --help``):
 
 To control the type of training, you can select:
 
@@ -61,19 +61,19 @@ Four different kinds of experiments can be performed:
 
 1. Uni-variate classification using the stump classifier :py:class:`bob.learn.boosting.StumpMachine`, classifying digits 5 and 6::
 
-    $ ./bin/boosting_example.py -vv --trainer-type stump --digits 5 6
+    $ boosting_example.py -vv --trainer-type stump --digits 5 6
 
 2. Uni-variate classification using the LUT classifier :py:class:`bob.learn.boosting.LUTMachine`, classifying digits 5 and 6::
 
-    $ ./bin/boosting_example.py -vv --trainer-type lut --digits 5 6
+    $ boosting_example.py -vv --trainer-type lut --digits 5 6
 
 3. Multi-variate classification using LUT classifier :py:class:`bob.learn.boosting.LUTMachine` and shared features, classifying all 10 digits::
 
-    $ ./bin/boosting_example.py -vv --trainer-type lut --all-digits --multi-variate --feature-selection-style shared
+    $ boosting_example.py -vv --trainer-type lut --all-digits --multi-variate --feature-selection-style shared
 
 4. Multi-variate classification using LUT classifier :py:class:`bob.learn.boosting.LUTMachine` and independent features, classifying all 10 digits::
 
-    $ ./bin/boosting_example.py -vv --trainer-type lut --all-digits --multi-variate --feature-selection-style independent
+    $ boosting_example.py -vv --trainer-type lut --all-digits --multi-variate --feature-selection-style independent
 
 
 .. note:
