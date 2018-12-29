@@ -1,9 +1,6 @@
 # import Libraries of other lib packages
-import bob.io.base
-
-# import our own Library
 import bob.extension
-bob.extension.load_bob_library('bob.learn.boosting', __file__)
+import bob.io.base
 
 # versioning
 from bob.learn.boosting import version

@@ -23,13 +23,18 @@ bob_packages = ['bob.core', 'bob.io.base']
 
 from setuptools import setup, find_packages, dist
 dist.Distribution(dict(setup_requires=['bob.extension', 'bob.blitz'] + bob_packages))
-from bob.blitz.extension import Extension, Library, build_ext
+from bob.blitz.extension import Extension, build_ext
 
 from bob.extension.utils import load_requirements
 build_requires = load_requirements()
 
 # Define package version
 version = open("version.txt").read().rstrip()
+
+# Local include directory
+import os
+package_dir = os.path.dirname(os.path.realpath(__file__))
+include_dir = os.path.join(package_dir, 'bob', 'learn', 'boosting', 'include')
 
 packages = ['boost']
 boost_modules = ['system']
@@ -78,24 +83,7 @@ setup(
         version = version,
         packages = packages,
         boost_modules = boost_modules,
-      ),
-
-      Library(
-        'bob.learn.boosting.bob_learn_boosting',
-        [
-          "bob/learn/boosting/cpp/LossFunction.cpp",
-          "bob/learn/boosting/cpp/JesorskyLoss.cpp",
-
-          "bob/learn/boosting/cpp/StumpMachine.cpp",
-          "bob/learn/boosting/cpp/LUTMachine.cpp",
-          "bob/learn/boosting/cpp/BoostedMachine.cpp",
-
-          "bob/learn/boosting/cpp/LUTTrainer.cpp",
-        ],
-        bob_packages = bob_packages,
-        version = version,
-        packages = packages,
-        boost_modules = boost_modules,
+        include_dirs=[include_dir],
       ),
 
       Extension(
@@ -111,11 +99,20 @@ setup(
           "bob/learn/boosting/boosted_machine.cpp",
 
           "bob/learn/boosting/lut_trainer.cpp",
+          "bob/learn/boosting/cpp/LossFunction.cpp",
+          "bob/learn/boosting/cpp/JesorskyLoss.cpp",
+
+          "bob/learn/boosting/cpp/StumpMachine.cpp",
+          "bob/learn/boosting/cpp/LUTMachine.cpp",
+          "bob/learn/boosting/cpp/BoostedMachine.cpp",
+
+          "bob/learn/boosting/cpp/LUTTrainer.cpp",
         ],
         bob_packages = bob_packages,
         version = version,
         packages = packages,
         boost_modules = boost_modules,
+        include_dirs=[include_dir],
       ),
     ],
 
